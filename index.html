@@ -1,12 +1,157 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CricBay Browser API Test</title>
-<style>body{font:15px system-ui,sans-serif;background:#101827;color:#e9eef8;max-width:850px;margin:36px auto;padding:0 16px}input,button{font:inherit;padding:10px;border-radius:6px}input{width:140px}#apiKey{width:min(95%,390px)}button{cursor:pointer}pre{background:#1c293b;padding:16px;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}small{color:#bac8da}</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script></head>
-<body><h1>CricBay direct API test</h1><p>Host this file on GitHub Pages and open its HTTPS URL. Test whether browser CORS allows direct access to CricBay.</p>
-<label>Match ID <input id="match" value="31556" inputmode="numeric" pattern="[0-9]+"></label><p><label>API key <input id="apiKey" type="password" value="yzlwqXqk.jmGOICNCcLwQwrzzhgEHyyiHvG33KgTQ" placeholder="API key" autocomplete="off" spellcheck="false"></label></p><button id="run">Test API</button>
-<p id="status" role="status">Ready</p><small>The API key is embedded in this HTML for testing. Do not publish this file to a public GitHub repository; anyone who can view the page can extract the key. Only a brief decrypted JSON preview is shown. Check DevTools → Network for HTTP status and response headers; Console for CORS messages. Do not paste tokens or cookies.</small><pre id="output">Waiting for test.</pre>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CricBay Layout 2 Footer</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:transparent;color:white;font-family:Arial,Helvetica,sans-serif}body{min-height:100vh} .overlay{position:fixed;left:0;right:0;bottom:var(--offset,0px);width:100%;border:1px solid #ffffff30;border-radius:9px;overflow:hidden;--alpha:.7}.top{height:70px;display:grid;grid-template-columns:clamp(68px,9%,116px) minmax(0,1fr) clamp(112px,16%,220px) minmax(0,1fr) clamp(68px,9%,116px);align-items:stretch;background:rgba(35,40,47,var(--alpha))}.identity{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px 3px;min-width:0}.logo{height:33px;width:42px;object-fit:contain}.name{font-size:clamp(10px,1vw,14px);font-weight:800;text-align:center;line-height:1.12;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}.details{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:2px 7px;overflow:hidden}.player,.bowler-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px;font-size:clamp(10px,1vw,14px);padding:2px 0}.player:first-child,.bowler-row{border-bottom:1px solid #bedafa70}.person{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stats{font-weight:700;white-space:nowrap}.scorebox{align-self:center;justify-self:center;width:calc(100% - 12px);height:48px;border:1px solid #ffffff33;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2px 5px}.score{font-size:clamp(20px,2.3vw,30px);font-weight:800;line-height:1}.meta{font-size:clamp(9px,1vw,12px);color:#ffffffc7;margin-top:2px;white-space:nowrap}.pp-marker{display:none;align-self:flex-start;margin-top:2px;padding:2px 7px;border-radius:4px;background:#ffd25a;color:#152335;font-size:10px;font-weight:900;letter-spacing:.4px;white-space:nowrap}.pp-marker.active{display:inline-flex}.pp-marker.bowling{background:#80ddf6;color:#102431}.balls{display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;margin-top:2px}.ball-label{font-size:10px;font-weight:700;margin-right:2px;color:#c7d7e9}.ball{min-width:18px;height:18px;border:1px solid #bedafa99;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;padding:0 3px;font-size:11px}.ball.wicket{background:#d92f45;color:white}.ball.four{background:#e6bb5d;color:#17263a}.ball.six{background:#36a269;color:white}.bottom{height:25px;background:rgba(18,22,28,var(--alpha));border-top:1px solid #ffffff59;display:flex;align-items:center;justify-content:center;padding:2px 125px 2px 8px;position:relative;font-size:clamp(11px,1.25vw,16px);font-weight:800}.message{position:absolute;left:50%;transform:translateX(-50%);max-width:calc(100% - 255px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.credit{position:absolute;right:10px;font-size:10px;font-weight:600;color:#c9d8ec;white-space:nowrap}.theme-blue .top{background:rgba(20,57,105,var(--alpha))}.theme-blue .bottom{background:rgba(12,39,77,var(--alpha))}.theme-red .top{background:rgba(138,12,24,var(--alpha))}.theme-red .bottom{background:rgba(67,6,15,var(--alpha))}@media(max-width:650px){.top{height:64px}.bottom{height:23px;padding-right:90px}.message{max-width:calc(100% - 135px);font-size:10px}.credit{right:5px;font-size:8px}.details{padding:1px 3px}.person,.stats{font-size:10px}.name{font-size:9px}.scorebox{height:42px}.ball-label{font-size:8px}.ball{font-size:9px;min-width:16px}.logo{width:30px;height:26px}}
+.event-animation {position:fixed;left:50%;top:65%;transform:translate(-50%,-50%) scale(.7);z-index:1000;pointer-events:none;opacity:0;display:flex;flex-direction:column;align-items:center;gap:5px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.8));}
+.event-animation.active {animation:score-event 2.4s ease-in-out both;}
+.event-animation .event-emoji {font-size:clamp(45px,7vw,90px);}
+.event-animation .event-text {font-size:clamp(32px,6vw,78px);font-weight:900;letter-spacing:2px;text-shadow:0 3px 0 #142640,0 6px 18px #000;}
+.event-animation.wicket .event-text {color:#ff657b;}
+.event-animation.four .event-text {color:#ffd36a;}
+.event-animation.six .event-text {color:#71f6aa;}
+@keyframes score-event {0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}15%,72%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
+
+/* Celebrations: layered burst, confetti, motion and a distinctive theme for each event */
+.event-animation{top:58%;width:min(640px,92vw);height:260px;justify-content:center;isolation:isolate;}
+.event-animation .event-rays{position:absolute;width:210px;height:210px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.24) 0deg 8deg,transparent 8deg 24deg);opacity:0;z-index:-1;}
+.event-animation .event-particles{position:absolute;inset:0;z-index:-1;}
+.event-animation .particle{position:absolute;left:50%;top:48%;width:9px;height:15px;border-radius:2px;background:var(--particle,#ffd45b);opacity:0;}
+.event-animation.active .particle{animation:particle-burst 1.4s cubic-bezier(.1,.6,.2,1) forwards;animation-delay:var(--delay);}
+.event-animation.active .event-rays{animation:ray-burst 2s ease-out forwards;}
+.event-animation .event-emoji{font-size:clamp(48px,7vw,85px);line-height:1;transform-origin:center;}
+.event-animation .event-text{font-size:clamp(42px,7vw,88px);line-height:1;font-style:italic;letter-spacing:3px;-webkit-text-stroke:1px rgba(255,255,255,.45);}
+.event-animation .event-subtitle{font-size:clamp(12px,1.7vw,19px);font-weight:900;letter-spacing:4px;text-shadow:0 3px 12px #000;}
+.event-animation.wicket .event-text{color:#ff647e;text-shadow:0 0 22px #ff355b,0 4px 0 #74142d;}
+.event-animation.four .event-text{color:#ffd456;text-shadow:0 0 25px #fba923,0 4px 0 #8e520a;}
+.event-animation.six .event-text{color:#70f8c7;text-shadow:0 0 25px #00c9a5,0 4px 0 #09634e;}
+.event-animation.wicket .event-emoji{animation:wicket-shake .7s ease-in-out 2;}
+.event-animation.four .event-emoji{animation:four-slide 1.2s ease-out both;}
+.event-animation.six .event-emoji{animation:six-launch 1.6s ease-out both;}
+@keyframes particle-burst{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
+@keyframes ray-burst{0%{opacity:0;transform:scale(.2) rotate(0)}20%{opacity:1}100%{opacity:0;transform:scale(2) rotate(60deg)}}
+@keyframes wicket-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-18deg)}40%{transform:rotate(16deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(8deg)}}
+@keyframes four-slide{0%{transform:translateX(-180px) rotate(-30deg);opacity:0}60%{transform:translateX(20px) rotate(10deg);opacity:1}100%{transform:translateX(0) rotate(0)}}
+@keyframes six-launch{0%{transform:translateY(120px) scale(.4);opacity:0}55%{transform:translateY(-35px) scale(1.25);opacity:1}100%{transform:translateY(0) scale(1)}}
+
+/* Keep celebration anchored to the WebView viewport, not the clipped scoreboard.
+   The scoreboard itself retains its compact dimensions and bottom anchoring. */
+#scoreEvent.event-animation {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  z-index: 2147483000 !important;
+  pointer-events: none;
+}
+
+
+
+/* CricBay teams do not have logos: dedicate full identity panels to team names. */
+.top{grid-template-columns:minmax(115px,17%) minmax(0,1fr) clamp(122px,17%,225px) minmax(0,1fr) minmax(115px,17%)}
+.identity{padding:6px 10px;justify-content:center;min-width:0}
+.identity:first-child{border-right:1px solid #ffffff26}
+.identity:last-child{border-left:1px solid #ffffff26}
+.name{font-size:clamp(13px,1.45vw,21px);line-height:1.15;letter-spacing:.15px;-webkit-line-clamp:2;overflow-wrap:break-word;width:100%}
+@media(max-width:650px){.top{grid-template-columns:minmax(75px,18%) minmax(0,1fr) minmax(96px,18%) minmax(0,1fr) minmax(75px,18%)}.identity{padding:4px}.name{font-size:clamp(10px,2vw,13px)}}
+</style></head><body>
+<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">CricBay overlay</span></div></div>
+<div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <script>
-const statusEl=document.getElementById('status'),output=document.getElementById('output');
-function decrypt(data){if(!data?.resp_text)return data;if(!window.CryptoJS)throw new Error('CryptoJS failed to load');const C=CryptoJS;const key=C.enc.Utf8.parse('m4WECzfzB6zXNaIslLP3Zw==');const iv=C.enc.Utf8.parse('whsbdhgntkgngmhk');const bytes=C.AES.decrypt(data.resp_text,key,{iv,mode:C.mode.CBC,padding:C.pad.Pkcs7});const plain=bytes.toString(C.enc.Utf8);if(!plain)throw new Error('Decryption produced no UTF-8 text');return JSON.parse(plain)}
-document.getElementById('run').addEventListener('click',async()=>{const id=document.getElementById('match').value.trim();if(!/^\d+$/.test(id)){statusEl.textContent='Enter a numeric match ID';return}const apiKey=document.getElementById('apiKey').value.trim();if(!apiKey){statusEl.textContent='Enter the API key';return}statusEl.textContent='Fetching…';output.textContent='';try{const url=`https://www.cricbay.com/server/api/scorecard/${id}/`;const res=await fetch(url,{method:'GET',mode:'cors',credentials:'omit',headers:{Accept:'*/*','api-key':apiKey}});statusEl.textContent=`HTTP ${res.status} ${res.statusText}`;if(!res.ok){output.textContent=(await res.text()).slice(0,1200);return}const encrypted=await res.json();const data=decrypt(encrypted);statusEl.textContent='Success: request and JSON decryption worked';output.textContent=JSON.stringify(data,null,2).slice(0,6000)+'\n\n[Preview limited to 6000 characters]'}catch(err){statusEl.textContent='Request or decryption failed';output.textContent=String(err)+'\n\nIf this says Failed to fetch, inspect the Chrome DevTools Console and Network tab. It may be CORS, network access, or a challenge page.'}});
+(() => {
+'use strict';
+const q=new URLSearchParams(location.search);
+const $=id=>document.getElementById(id);
+const matchId=(q.get('matchId')||'31584').trim();
+const worker=(q.get('worker')||'https://cricbay-api.y-aditya369.workers.dev').replace(/\/$/,'');
+// refresh URL parameter is in seconds (default 5 seconds, range 1–60).
+const refreshSeconds=Number(q.get('refresh')??5);
+const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:5))*1000;
+const theme=['graphite','blue','red'].includes(q.get('theme'))?q.get('theme'):'graphite';
+const overlay=$('overlay');overlay.className='overlay theme-'+theme;
+const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
+overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
+document.documentElement.style.setProperty('--offset',Math.max(0,Number(q.get('bottomOffset')||0))+'px');
+const soundEnabled=q.get('sound')==='1';
+let lastVersion=null, seen=new Set(), initialized=false, previousInning=null, busy=false, eventTimer, audioContext=null;
+const number=(v,def=0)=>v==null||v===''?def:Number(v);
+const fullName=p=>p?[p.first_name,p.last_name].filter(Boolean).join(' ').trim()||p.player_name||p.batter_name||p.bowler_name||'—':'—';
+const scoreOver=v=>{if(v==null)return '0.0';const t=String(v);const m=t.match(/^(\d+)\.(\d+)$/);if(!m)return t;return Number(m[2])===6?String(Number(m[1])+1)+'.0':t};
+const set=(id,value)=>$(id).textContent=String(value??'—');
+function normalizeBall(b){
+ const n=number(b.runs),w=number(b.wides),nb=number(b.noballs),by=number(b.byes),lb=number(b.legbyes),pen=number(b.penalty_runs);
+ let label=String(n),kind='';
+ if(w)label='Wd'+(w>1?w:'');else if(nb)label='Nb'+(n+nb>1?n+nb:'');else if(by)label='B'+by;else if(lb)label='Lb'+lb;else if(pen)label='P'+pen;
+ if(b.wicket){label='W';kind='wicket';}
+ else if(!w&&!nb&&!by&&!lb&&n===4){kind='four';label='4';}
+ else if(!w&&!nb&&!by&&!lb&&n===6){kind='six';label='6';}
+ return {label,kind,id:String(b.live_score_id??[b.over_number,b.ball_number,b.ball_count,b.commentary_type,b.runs,b.wicket].join(':'))};
+}
+function allDeliveries(data){
+ const inning=data.match?.current_inning_id;
+ const overs=Array.isArray(data.recent_overs)?data.recent_overs:[];
+ return overs.flatMap(o=>(o.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(b=>({...normalizeBall(b),over:number(b.over_number),ball:number(b.ball_number),id:inning+':'+String(b.live_score_id??[b.over_number,b.ball_number,b.ball_count,b.runs,b.wicket].join(':'))}))).sort((a,b)=>a.over-b.over||a.ball-b.ball||Number(a.id.split(':').pop())-Number(b.id.split(':').pop()));
+}
+function showEvent(kind){
+ const vals={four:['🏏','FOUR!','BOUNDARY'],six:['🚀','SIX!','MAXIMUM'],wicket:['💥','WICKET!','']};if(!vals[kind])return;
+ const el=$('scoreEvent');clearTimeout(eventTimer);el.className='event-animation '+kind;
+ el.querySelector('.event-emoji').textContent=vals[kind][0];el.querySelector('.event-text').textContent=vals[kind][1];el.querySelector('.event-subtitle').textContent=vals[kind][2];
+ const particles=el.querySelector('.event-particles');particles.replaceChildren();
+ for(let i=0;i<26;i++){const x=document.createElement('span');x.className='particle';const angle=i/26*Math.PI*2,radius=95+(i%5)*23;x.style.setProperty('--dx',Math.cos(angle)*radius+'px');x.style.setProperty('--dy',Math.sin(angle)*radius+'px');x.style.setProperty('--rot',i*53+'deg');x.style.setProperty('--delay',i%5*.035+'s');x.style.setProperty('--particle',kind==='wicket'?'#ff647e':kind==='six'?'#6df6c2':'#ffd456');particles.append(x);}
+ void el.offsetWidth;el.classList.add('active');eventTimer=setTimeout(()=>el.classList.remove('active'),2500);
+ if(soundEnabled&&kind!=='wicket')playTone(kind);
+}
+function playTone(kind){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;audioContext??=new C();if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});const osc=audioContext.createOscillator(),gain=audioContext.createGain(),t=audioContext.currentTime;osc.type='triangle';osc.frequency.setValueAtTime(kind==='six'?480:390,t);osc.frequency.exponentialRampToValueAtTime(kind==='six'?760:560,t+.23);gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.12,t+.03);gain.gain.exponentialRampToValueAtTime(.0001,t+.45);osc.connect(gain).connect(audioContext.destination);osc.start(t);osc.stop(t+.47);}catch(e){console.warn('Audio unavailable:',e);}}
+function track(data){
+ const inning=String(data.match?.current_inning_id??'');const balls=allDeliveries(data);
+ if(!initialized||previousInning!==inning){seen=new Set(balls.map(b=>b.id));initialized=true;previousInning=inning;return balls;}
+ const newBalls=balls.filter(b=>!seen.has(b.id));for(const b of balls)seen.add(b.id);
+ // Keep only recent IDs, preventing unbounded growth in a long recording.
+ if(seen.size>250){seen=new Set([...seen].slice(-150));}
+ // Animate only the newest newly seen scoring event.
+ const event=newBalls.filter(b=>b.kind).at(-1);if(event)showEvent(event.kind);
+ return balls;
+}
+function render(data){
+ const m=data.match||{},c=data.current||{},ins=data.innings||{};
+ const i1=ins.inning1||{},i2=ins.inning2||{};
+ const batting=m.current_inning_id===i2.inning_id?i2:i1;
+ const bowling=batting===i1?i2:i1;
+ const battingTeam=batting.team||m.team1||{},bowlingTeam=bowling.team||m.team2||{};
+ set('batTeam',battingTeam.short_name||battingTeam.team_name||'BATTING');set('bowlTeam',bowlingTeam.short_name||bowlingTeam.team_name||'BOWLING');
+ set('score',`${c.score??batting.score??0}/${c.wickets??batting.wickets??0}`);
+ set('meta',`Overs ${scoreOver(c.over??batting.overs)} · RR ${c.current_rr??'—'}`);
+ const batters=[c.batter1,c.batter2].filter(Boolean);
+ $('batters').replaceChildren(...batters.map(b=>{const row=document.createElement('div');row.className='player';const name=document.createElement('span');name.className='person';name.textContent=(b.player_id===c.striker_id?'▸ ':'')+fullName(b);const stats=document.createElement('span');stats.className='stats';stats.textContent=`${b.runs??0} (${b.balls??0})`;row.append(name,stats);return row;}));
+ const bowler=c.current_bowler;set('bowler',bowler?fullName(bowler):'—');set('figures',bowler?`${bowler.wickets??0}/${bowler.runs??0} (${bowler.overs??'0.0'})`:'');
+ // Powerplay is identified by the over's explicit BAPP/BOPP flag.
+ // Remaining powerplay counters are NOT indicators that one is active.
+ const recent=Array.isArray(data.recent_overs)?data.recent_overs:[];
+ const currentOver=recent[0];
+ const rawPP=String(currentOver?.power_play_type||'').toUpperCase();
+ const activePP=!currentOver?.over_completed && (rawPP==='BAPP'||rawPP==='BOPP');
+ const pp=$('powerplay');
+ pp.className='pp-marker'+(activePP?' active'+(rawPP==='BOPP'?' bowling':''):'');
+ pp.textContent=activePP?(rawPP==='BAPP'?'BATTING POWERPLAY':'BOWLING POWERPLAY'):'';
+ const balls=track(data),latestOver=Array.isArray(data.recent_overs)?data.recent_overs[0]:null;
+ const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
+ const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='LAST OVER';holder.append(label);
+ for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
+ let footer='';const target=number(c.target_runs,NaN);
+ if(Number.isFinite(target)&&target>0){const needed=Math.max(0,target-number(c.score));const remaining=c.remaining_balls;footer=`Need ${needed} runs${remaining!=null?' · '+remaining+' balls left':''}${c.required_rr!=null?' · RRR '+c.required_rr:''}`;}
+ else if(i1.score!=null&&batting===i2)footer=`Target ${number(i1.score)+1}`;
+ else footer=[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
+ if(m.status&&m.status!=='LIVE')footer=`${m.status} · ${footer}`;
+ set('message',footer);
+}
+async function refresh(){if(busy)return;busy=true;try{
+ if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
+ const r=await fetch(`${worker}/live/snapshot/${matchId}`,{cache:'no-store'});if(!r.ok)throw Error(`Snapshot HTTP ${r.status}: ${(await r.text()).slice(0,150)}`);
+ const data=await r.json();if(!data||!data.match||!data.current)throw Error('Snapshot JSON missing match/current');
+ if(data.version!==lastVersion||!initialized){render(data);lastVersion=data.version;}
+ }catch(e){console.error('CricBay overlay:',e);if(!initialized)set('message','Waiting for CricBay live score…');}finally{busy=false;}}
+window.showCricBayEvent=showEvent;
+// Audio in Android WebView may require a user gesture and WebView media settings.
+if(soundEnabled)document.addEventListener('pointerdown',()=>{try{const C=window.AudioContext||window.webkitAudioContext;if(C){audioContext??=new C();audioContext.resume().catch(()=>{});}}catch(e){}},{once:true});
+const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
+refresh();setInterval(refresh,interval);
+})();
 </script></body></html>
