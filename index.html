@@ -223,7 +223,9 @@ function renderSuperOver(data,phase){
 }
 function firstInningsProjection(data){
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{},c=data.current||{};
+ if(String(i1.status||'').toLowerCase()==='completed')return '';
  if(i2.inning_id!=null&&String(m.current_inning_id)===String(i2.inning_id))return '';
+ if(Number(i2.overs||0)>0)return '';
  if(i1.inning_id!=null&&m.current_inning_id!=null&&String(m.current_inning_id)!==String(i1.inning_id))return '';
  const limit=Number(m.max_overs??m.maximum_overs);
  const parts=/^(\d+)(?:\.(\d+))?$/.exec(String(c.over??i1.overs??'0.0'));
@@ -233,7 +235,7 @@ function firstInningsProjection(data){
  const runs=Number(c.score??i1.scorecard?.total?.total_runs??i1.score);
  if(!Number.isFinite(runs))return '';
  const rr=runs*6/balls;
- return `Projected Score ${Math.round(rr*limit)} · At ${rr.toFixed(2)} RR`;
+ return `Projected Score ${Math.round(rr*limit)}`;
 }
 function render(data){
  const superPhase=superOverPhase(data);
