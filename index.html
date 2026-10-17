@@ -56,6 +56,17 @@
 /* Optional summary: hidden unless summary=1 or summaryPreview is provided. */
 .summary-panel{position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);width:min(950px,94vw);max-height:80vh;overflow:auto;z-index:1500;background:rgba(17,25,39,.96);border:1px solid #7ba7d1;border-radius:14px;padding:20px 24px;box-shadow:0 14px 60px #000b;display:none;color:white}
 .summary-panel.visible{display:block}.summary-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.summary-kicker{color:#93c5fd;font-size:12px;letter-spacing:1.5px;font-weight:800}.summary-title{font-size:26px;font-weight:900;margin:6px 0}.summary-result{color:#d8e9ff;font-size:15px;margin:5px 0 15px}.summary-scoreline{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 18px}.summary-scoreline span{background:#293b50;border-radius:7px;padding:9px 14px;font-weight:700}.summary-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}.summary-col h3{color:#93c5fd;font-size:14px;letter-spacing:.6px;margin:0 0 9px}.summary-player{background:#243247;border-radius:7px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0;font-size:14px}.summary-player span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.summary-player strong{white-space:nowrap}.summary-pom{margin-top:15px;font-weight:800;color:#ffe39b}.summary-credit{text-align:right;color:#aabed4;font-size:11px;margin-top:15px}@media(max-width:650px){.summary-panel{padding:12px;top:42%}.summary-title{font-size:20px}.summary-columns{gap:8px}.summary-player{padding:6px;font-size:11px}.summary-col h3{font-size:11px}}
+
+/* Compact innings-break card; full match summary is unchanged. */
+.summary-panel.innings-compact{width:min(510px,90vw);padding:13px 18px;top:43%;max-height:none}
+.summary-panel.innings-compact .summary-title{font-size:20px;margin:2px 0 8px}
+.summary-panel.innings-compact .summary-kicker,
+.summary-panel.innings-compact .summary-result,
+.summary-panel.innings-compact .summary-columns,
+.summary-panel.innings-compact .summary-pom,
+.summary-panel.innings-compact .summary-credit{display:none}
+.summary-panel.innings-compact .summary-scoreline{margin:0;gap:0}
+.summary-panel.innings-compact .summary-scoreline span{font-size:18px;padding:8px 12px;width:100%;text-align:center}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -142,19 +153,53 @@ function meaningfulResult(value){
 function superOverPhase(data){
  const rows=Array.isArray(data.super_overs)?data.super_overs:[];
  const current=data.current_super_over;
- const currentResult=meaningfulResult(current?.result||current?.result_text||current?.result_description);
- const matchResult=meaningfulResult(data.match?.result);
  if(!rows.length&&!current)return null;
  const ordered=rows.slice().sort((a,b)=>Number(a.super_over_number||0)-Number(b.super_over_number||0));
- // Result overrides any later scheduled Super Over row.
- if(currentResult||matchResult){
-   const activeNumber=Number(current?.super_over_number||current?.superover_number||0);
-   const row=ordered.find(x=>Number(x.super_over_number)===activeNumber)||ordered.filter(x=>/complete/i.test(String(x.inning2_status||''))).at(-1)||ordered.at(-1)||{};
-   return {row,current,result:currentResult||matchResult,number:Number(row.super_over_number||activeNumber||1),complete:true};
+ const num=r=>Number(r?.super_over_number??r?.superover_number??1);
+ const resultOf=r=>meaningfulResult(r?.result??r?.result_text??r?.result_description);
+ const score=r=>{
+   const a=r?.superover_inning1_score,b=r?.superover_inning2_score;
+   return a!=null&&b!=null&&String(a).trim()!==''&&String(b).trim()!==''? [Number(a),Number(b)]:null;
+ };
+ const completed=r=>/complete|completed|finished|ended/i.test(String(r?.inning2_status??r?.status??''));
+ const winnerFrom=r=>{
+   const s=score(r);if(!s||!s.every(Number.isFinite)||s[0]===s[1])return '';
+   const team=s[0]>s[1]?(r.superover_inning1_team_name||'First team'):(r.superover_inning2_team_name||'Second team');
+   return `${team} won in Super Over ${num(r)}`;
+ };
+ // Process chronological rounds. A decisive earlier Super Over must suppress
+ // any later placeholder/scheduled rows (including a pre-created Super Over 2).
+ for(const row of ordered){
+   const isCurrent=current&&num(current)===num(row);
+   const explicit=resultOf(row)||(isCurrent?resultOf(current):'');
+   if(explicit)return {row,current:isCurrent?current:null,result:explicit,number:num(row),complete:true};
+   if(completed(row)){
+     const s=score(row);
+     if(s&&s[0]!==s[1])return {row,current:isCurrent?current:null,result:winnerFrom(row),number:num(row),complete:true};
+   }
  }
- const activeNumber=Number(current?.super_over_number||current?.superover_number||0);
- const row=(activeNumber&&ordered.find(x=>Number(x.super_over_number)===activeNumber))||ordered.at(-1)||{};
- return {row,current,result:'',number:Number(row.super_over_number||activeNumber||1),complete:false};
+ // If the current Super Over has a result but is not mapped to a row,
+ // use its number, never the last scheduled placeholder.
+ const currentResult=resultOf(current);
+ if(currentResult){
+   const row=ordered.find(r=>num(r)===num(current))||current;
+   return {row,current,result:currentResult,number:num(row),complete:true};
+ }
+ const official=meaningfulResult(data.match?.result);
+ if(official){
+   const row=ordered.find(r=>completed(r)&&score(r)?.[0]!==score(r)?.[1])||ordered.find(r=>completed(r))||ordered[0]||current;
+   return {row,current:null,result:official,number:num(row),complete:true};
+ }
+ // A later round is only active when it actually begins; a TOSS/Scheduled
+ // placeholder is not proof that the previous round was tied.
+ const started=r=>{
+   const s=String(r?.status||'')+' '+String(r?.inning1_status||'')+' '+String(r?.inning2_status||'');
+   const o=String(r?.superover_inning1_over??'0.0');
+   return /in.progress|started|live|complete/i.test(s)||(!['0.0','0',''].includes(o));
+ };
+ const activeNumber=current?num(current):0;
+ const row=(activeNumber&&ordered.find(r=>num(r)===activeNumber))||ordered.filter(started).at(-1)||ordered[0]||current;
+ return {row,current:activeNumber===num(row)?current:null,result:'',number:num(row),complete:false};
 }
 function renderSuperOver(data,phase){
  const r=phase.row||{},c=phase.current||{};
@@ -174,7 +219,21 @@ function renderSuperOver(data,phase){
  const scores=`${first} ${firstScore} (${firstOvers} ov) · ${second} ${secondScore} (${secondOvers} ov)`;
  const status=String(r.status||'').toUpperCase();
  const pending=status==='TOSS'||(!secondHasStarted&&String(firstOvers)==='0.0');
- set('message',phase.result?`SUPER OVER ${phase.number} · ${phase.result}`:`SUPER OVER ${phase.number}${pending?' · Awaiting start':''} · ${scores}`);
+ set('message',phase.result?`MATCH COMPLETE · ${phase.result}`:`SUPER OVER ${phase.number}${pending?' · Awaiting start':''} · ${scores}`);
+}
+function firstInningsProjection(data){
+ const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{},c=data.current||{};
+ if(i2.inning_id!=null&&String(m.current_inning_id)===String(i2.inning_id))return '';
+ if(i1.inning_id!=null&&m.current_inning_id!=null&&String(m.current_inning_id)!==String(i1.inning_id))return '';
+ const limit=Number(m.max_overs??m.maximum_overs);
+ const parts=/^(\d+)(?:\.(\d+))?$/.exec(String(c.over??i1.overs??'0.0'));
+ if(!parts||!Number.isFinite(limit)||limit<=0)return '';
+ const balls=Number(parts[0].split('.')[0])*6+Number(parts[2]||0);
+ if(balls<=0||balls>limit*6||Number(parts[2]||0)>6)return '';
+ const runs=Number(c.score??i1.scorecard?.total?.total_runs??i1.score);
+ if(!Number.isFinite(runs))return '';
+ const rr=runs*6/balls;
+ return `Projected Score ${Math.round(rr*limit)} · At ${rr.toFixed(2)} RR`;
 }
 function render(data){
  const superPhase=superOverPhase(data);
@@ -211,7 +270,7 @@ function render(data){
    footer=`Need ${needed} run${needed===1?'':'s'}`;
    if(chase.ballsLeft!=null)footer+=` · ${chase.ballsLeft} balls left`;
    if(chase.ballsLeft>0)footer+=` · RRR ${(needed*6/chase.ballsLeft).toFixed(2)}`;
-  }else footer=[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
+  }else footer=firstInningsProjection(data)||[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
  }
  set('message',footer);
 }
@@ -306,8 +365,9 @@ function renderSummary(data,phase){
  if(!phase){panel.classList.remove('visible');return;}
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{};
  const isMatch=phase==='match';
+ panel.classList.toggle('innings-compact',!isMatch);
  set('summaryTitle',isMatch?'Match Complete':'Innings Break');
- const result=isMatch?(matchFooter(data)||'Awaiting official result'):'First innings complete';
+ const result=isMatch?(matchFooter(data)||'Awaiting official result'):'';
  set('summaryResult',result);
  const scores=$('summaryScores');scores.replaceChildren();
  for(const inn of (isMatch?[i1,i2]:[i1])){
