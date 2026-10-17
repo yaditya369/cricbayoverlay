@@ -53,7 +53,7 @@
 .name{font-size:clamp(13px,1.45vw,21px);line-height:1.15;letter-spacing:.15px;-webkit-line-clamp:2;overflow-wrap:break-word;width:100%}
 @media(max-width:650px){.top{grid-template-columns:minmax(75px,18%) minmax(0,1fr) minmax(96px,18%) minmax(0,1fr) minmax(75px,18%)}.identity{padding:4px}.name{font-size:clamp(10px,2vw,13px)}}
 </style></head><body>
-<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">CricBay overlay</span></div></div>
+<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <script>
 (() => {
@@ -135,10 +135,37 @@ function render(data){
  const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
  const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='LAST OVER';holder.append(label);
  for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
- let footer='';const target=number(c.target_runs,NaN);
- if(Number.isFinite(target)&&target>0){const needed=Math.max(0,target-number(c.score));const remaining=c.remaining_balls;footer=`Need ${needed} runs${remaining!=null?' · '+remaining+' balls left':''}${c.required_rr!=null?' · RRR '+c.required_rr:''}`;}
- else if(i1.score!=null&&batting===i2)footer=`Target ${number(i1.score)+1}`;
- else footer=[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
+ let footer='';
+ const secondInnings = batting===i2 && i2.inning_id!=null && String(m.current_inning_id)===String(i2.inning_id);
+ if(secondInnings){
+   // The first-innings total is the source of truth for a normal chase.
+   // CricBay's target_runs / required_rr may be stale or have different semantics.
+   const firstScore=Number(i1.scorecard?.total?.total_runs ?? i1.score);
+   const currentScore=Number(c.score ?? i2.score);
+   if(Number.isFinite(firstScore)&&Number.isFinite(currentScore)){
+     const target=firstScore+1;
+     const needed=Math.max(0,target-currentScore);
+     if(needed===0){
+       footer='Target reached';
+     }else{
+       const maxOvers=Number(m.max_overs ?? m.maximum_overs);
+       const oversText=String(c.over ?? i2.overs ?? '0.0');
+       const parts=oversText.split('.');
+       const completedBalls=Number(parts[0])*6+Number(parts[1]||0);
+       const derivedBalls=Number.isFinite(maxOvers)&&maxOvers>0&&Number.isFinite(completedBalls)
+         ?Math.max(0,Math.round(maxOvers*6)-completedBalls):null;
+       const apiBalls=Number(c.remaining_balls);
+       const ballsLeft=derivedBalls??(c.remaining_balls!=null&&Number.isFinite(apiBalls)?apiBalls:null);
+       footer=`Need ${needed} run${needed===1?'':'s'}`;
+       if(ballsLeft!=null)footer+=` · ${ballsLeft} balls left`;
+       if(ballsLeft>0)footer+=` · RRR ${(needed*6/ballsLeft).toFixed(2)}`;
+     }
+   }else{
+     footer='Second innings';
+   }
+ }else{
+   footer=[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
+ }
  if(m.status&&m.status!=='LIVE')footer=`${m.status} · ${footer}`;
  set('message',footer);
 }
