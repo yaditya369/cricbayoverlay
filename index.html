@@ -264,7 +264,10 @@ function render(data){
  const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
  const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='LAST OVER';holder.append(label);
  for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
- let footer=matchFooter(data);
+ // The second bar is independent of the optional innings summary panel.
+ // Determine the break from innings data, never from match.status.
+ const phase=getMatchPhase(data);
+ let footer=phase==='innings'?'INNINGS BREAK':matchFooter(data);
  if(!footer){
   const chase=chaseContext(data);
   if(chase.second&&Number.isFinite(chase.firstRuns)&&Number.isFinite(chase.secondRuns)){
