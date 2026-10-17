@@ -67,9 +67,9 @@ const q=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 const matchId=(q.get('matchId')||'31584').trim();
 const worker=(q.get('worker')||'https://cricbay-api.y-aditya369.workers.dev').replace(/\/$/,'');
-// refresh URL parameter is in seconds (default 5 seconds, range 1–60).
-const refreshSeconds=Number(q.get('refresh')??5);
-const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:5))*1000;
+// refresh URL parameter is in seconds (default 10 seconds, range 1–60).
+const refreshSeconds=Number(q.get('refresh')??10);
+const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:10))*1000;
 const theme=['graphite','blue','red'].includes(q.get('theme'))?q.get('theme'):'graphite';
 const overlay=$('overlay');overlay.className='overlay theme-'+theme;
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
@@ -129,7 +129,56 @@ function track(data){
  const event=newBalls.filter(b=>b.kind).at(-1);if(event)showEvent(event.kind);
  return balls;
 }
+// CricBay may keep match.status=LIVE throughout the match; never use it for phase detection.
+// The official current_super_over result is authoritative; scheduled rows are not final results.
+function meaningfulResult(value){
+ if(value==null)return '';
+ if(typeof value==='object'){
+   const v=value.result||value.result_text||value.result_description||value.description||value.winner_name||value.winning_team_name;
+   return v==null?'':meaningfulResult(v);
+ }
+ const t=String(value).trim();return t&&!/^(null|none|pending|live|toss|scheduled|not started)$/i.test(t)?t:'';
+}
+function superOverPhase(data){
+ const rows=Array.isArray(data.super_overs)?data.super_overs:[];
+ const current=data.current_super_over;
+ const currentResult=meaningfulResult(current?.result||current?.result_text||current?.result_description);
+ const matchResult=meaningfulResult(data.match?.result);
+ if(!rows.length&&!current)return null;
+ const ordered=rows.slice().sort((a,b)=>Number(a.super_over_number||0)-Number(b.super_over_number||0));
+ // Result overrides any later scheduled Super Over row.
+ if(currentResult||matchResult){
+   const activeNumber=Number(current?.super_over_number||current?.superover_number||0);
+   const row=ordered.find(x=>Number(x.super_over_number)===activeNumber)||ordered.filter(x=>/complete/i.test(String(x.inning2_status||''))).at(-1)||ordered.at(-1)||{};
+   return {row,current,result:currentResult||matchResult,number:Number(row.super_over_number||activeNumber||1),complete:true};
+ }
+ const activeNumber=Number(current?.super_over_number||current?.superover_number||0);
+ const row=(activeNumber&&ordered.find(x=>Number(x.super_over_number)===activeNumber))||ordered.at(-1)||{};
+ return {row,current,result:'',number:Number(row.super_over_number||activeNumber||1),complete:false};
+}
+function renderSuperOver(data,phase){
+ const r=phase.row||{},c=phase.current||{};
+ const first=r.superover_inning1_team_name||'Team 1',second=r.superover_inning2_team_name||'Team 2';
+ const one=r.superover_inning1_score,two=r.superover_inning2_score;
+ const scoreText=(score,wickets)=>score==null?'—':`${score}/${wickets??0}`;
+ const firstScore=scoreText(one,r.superover_inning1_wicket),secondScore=scoreText(two,r.superover_inning2_wicket);
+ const firstOvers=r.superover_inning1_over??'0.0',secondOvers=r.superover_inning2_over??'0.0';
+ const secondHasStarted=two!=null&&(/started|complete|live/i.test(String(r.inning2_status||''))||Number(two)>0||String(secondOvers)!=='0.0');
+ const battingSecond=secondHasStarted;
+ set('batTeam',battingSecond?second:first);set('bowlTeam',battingSecond?first:second);
+ set('score',battingSecond?secondScore:firstScore);
+ set('meta',`SUPER OVER ${phase.number} · ${battingSecond?secondOvers:firstOvers} ov`);
+ // Normal-innings player, bowler, powerplay and recent balls are not Super Over statistics.
+ $('batters').replaceChildren();set('bowler','');set('figures','');$('balls').replaceChildren();
+ $('powerplay').className='pp-marker';$('powerplay').textContent='';
+ const scores=`${first} ${firstScore} (${firstOvers} ov) · ${second} ${secondScore} (${secondOvers} ov)`;
+ const status=String(r.status||'').toUpperCase();
+ const pending=status==='TOSS'||(!secondHasStarted&&String(firstOvers)==='0.0');
+ set('message',phase.result?`SUPER OVER ${phase.number} · ${phase.result}`:`SUPER OVER ${phase.number}${pending?' · Awaiting start':''} · ${scores}`);
+}
 function render(data){
+ const superPhase=superOverPhase(data);
+ if(superPhase){renderSuperOver(data,superPhase);return;}
  const m=data.match||{},c=data.current||{},ins=data.innings||{};
  const i1=ins.inning1||{},i2=ins.inning2||{};
  const batting=m.current_inning_id===i2.inning_id?i2:i1;
@@ -154,54 +203,80 @@ function render(data){
  const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
  const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='LAST OVER';holder.append(label);
  for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
- let footer='';
- const secondInnings = batting===i2 && i2.inning_id!=null && String(m.current_inning_id)===String(i2.inning_id);
- if(secondInnings){
-   // The first-innings total is the source of truth for a normal chase.
-   // CricBay's target_runs / required_rr may be stale or have different semantics.
-   const firstScore=Number(i1.scorecard?.total?.total_runs ?? i1.score);
-   const currentScore=Number(c.score ?? i2.score);
-   if(Number.isFinite(firstScore)&&Number.isFinite(currentScore)){
-     const target=firstScore+1;
-     const needed=Math.max(0,target-currentScore);
-     if(needed===0){
-       footer='Target reached';
-     }else{
-       const maxOvers=Number(m.max_overs ?? m.maximum_overs);
-       const oversText=String(c.over ?? i2.overs ?? '0.0');
-       const parts=oversText.split('.');
-       const completedBalls=Number(parts[0])*6+Number(parts[1]||0);
-       const derivedBalls=Number.isFinite(maxOvers)&&maxOvers>0&&Number.isFinite(completedBalls)
-         ?Math.max(0,Math.round(maxOvers*6)-completedBalls):null;
-       const apiBalls=Number(c.remaining_balls);
-       const ballsLeft=derivedBalls??(c.remaining_balls!=null&&Number.isFinite(apiBalls)?apiBalls:null);
-       footer=`Need ${needed} run${needed===1?'':'s'}`;
-       if(ballsLeft!=null)footer+=` · ${ballsLeft} balls left`;
-       if(ballsLeft>0)footer+=` · RRR ${(needed*6/ballsLeft).toFixed(2)}`;
-     }
-   }else{
-     footer='Second innings';
-   }
- }else{
-   footer=[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
+ let footer=matchFooter(data);
+ if(!footer){
+  const chase=chaseContext(data);
+  if(chase.second&&Number.isFinite(chase.firstRuns)&&Number.isFinite(chase.secondRuns)){
+   const needed=Math.max(0,chase.firstRuns+1-chase.secondRuns);
+   footer=`Need ${needed} run${needed===1?'':'s'}`;
+   if(chase.ballsLeft!=null)footer+=` · ${chase.ballsLeft} balls left`;
+   if(chase.ballsLeft>0)footer+=` · RRR ${(needed*6/chase.ballsLeft).toFixed(2)}`;
+  }else footer=[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
  }
- if(m.status&&m.status!=='LIVE')footer=`${m.status} · ${footer}`;
  set('message',footer);
 }
 
+// Result is authoritative when CricBay publishes it; otherwise avoid declaring
+// a winner until the second innings is clearly finished.
+function officialResult(data){
+ const value=superOverPhase(data)?.result||summaryScorecard?.result||data.match?.result;
+ const result=String(value??'').trim();
+ return result&&!/^(null|none|pending|not started|live)$/i.test(result)?result:'';
+}
+function chaseContext(data){
+ const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{},c=data.current||{};
+ const second=i2.inning_id!=null&&String(m.current_inning_id)===String(i2.inning_id);
+ const firstRuns=Number(i1.scorecard?.total?.total_runs??i1.score);
+ const secondRuns=Number(c.score??i2.scorecard?.total?.total_runs??i2.score);
+ const maxOvers=Number(m.max_overs??m.maximum_overs);
+ const overs=String(c.over??i2.overs??'');
+ const parts=/^(\d+)\.(\d+)$/.exec(overs);
+ const used=parts?Number(parts[1])===6?(Number(parts[0])+1)*6:Number(parts[0])*6+Number(parts[1]):null;
+ const computed=Number.isFinite(maxOvers)&&maxOvers>0&&used!=null?Math.max(0,Math.round(maxOvers*6)-used):null;
+ const apiBalls=c.remaining_balls==null?null:Number(c.remaining_balls);
+ const ballsLeft=computed??(Number.isFinite(apiBalls)?apiBalls:null);
+ const inningsStatus=inningsState(i2);
+ // match.status is ignored: CricBay may keep it at LIVE after play ends.
+ const officiallyFinished=/complete|finished|ended/.test(inningsStatus)||Boolean(meaningfulResult(m.result));
+ const allOut=Number.isFinite(Number(m.max_players_per_team))&&Number(c.wickets??i2.wickets)>=Number(m.max_players_per_team)-1;
+ const targetReached=second&&Number.isFinite(firstRuns)&&Number.isFinite(secondRuns)&&secondRuns>firstRuns;
+ const exhausted=second&&ballsLeft===0;
+ return {second,firstRuns,secondRuns,ballsLeft,finished:second&&(officiallyFinished||allOut||targetReached||exhausted),officiallyFinished,targetReached,exhausted};
+}
+function matchFooter(data){
+ const official=officialResult(data);if(official)return official;
+ if(superOverPhase(data))return '';
+ const x=chaseContext(data);if(!x.second||!x.finished)return '';
+ const i1=data.innings?.inning1||{},i2=data.innings?.inning2||{};
+ const firstName=i1.team?.short_name||i1.team?.team_name||data.match?.batting_first_team_name||'First innings team';
+ const secondName=i2.team?.short_name||i2.team?.team_name||'Chasing team';
+ if(x.targetReached){
+   const wickets=Number(data.current?.wickets??i2.wickets);
+   const players=Number(data.match?.max_players_per_team);
+   if(Number.isFinite(players)&&players>1&&Number.isFinite(wickets))return `${secondName} won by ${Math.max(0,players-1-wickets)} wickets`;
+   return `${secondName} won (target reached)`;
+ }
+ // Don't declare a run-margin win just because a stale counter says 0 balls.
+ if(!x.officiallyFinished&&!x.exhausted)return 'Awaiting official result';
+ if(Number.isFinite(x.firstRuns)&&Number.isFinite(x.secondRuns)){
+   if(x.secondRuns===x.firstRuns)return 'Match tied';
+   if(x.secondRuns<x.firstRuns)return `${firstName} won by ${x.firstRuns-x.secondRuns} run${x.firstRuns-x.secondRuns===1?'':'s'}`;
+ }
+ return 'Innings complete · Awaiting official result';
+}
 // Summary uses full scorecards embedded in the snapshot, not just current players.
 // A scorecard fetch is optional and occurs only for completed matches (POM/result).
-let summaryScorecard=null, scorecardAttempted=false;
+let summaryScorecard=null, scorecardAttempted=false, scorecardLastAttempt=0;
 const statNum=v=>Number.isFinite(Number(v))?Number(v):0;
 function inningsState(x){return String(x?.status||'').trim().toLowerCase();}
 function getMatchPhase(data){
+ const sp=superOverPhase(data);if(sp)return sp.result?'match':'';
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{};
- const status=String(m.status||'').toLowerCase();
- const finalStatus=/complete|completed|finished|result|ended|abandon|cancel|closed/.test(status);
+ // Do not use match.status to determine the match phase.
  const result=String(m.result||'').trim();
  const resultPresent=result.length>0 && !/^(null|none|pending|not started)$/i.test(result);
  const i2done=/complete|completed|finished|ended/.test(inningsState(i2));
- if(finalStatus||resultPresent||i2done)return 'match';
+ if(resultPresent||i2done||chaseContext(data).finished)return 'match';
  const firstDone=/complete|completed|finished|ended/.test(inningsState(i1));
  const secondStarted=/started|in.progress|live/.test(inningsState(i2));
  if(firstDone&&!secondStarted)return 'innings';
@@ -232,7 +307,7 @@ function renderSummary(data,phase){
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{};
  const isMatch=phase==='match';
  set('summaryTitle',isMatch?'Match Complete':'Innings Break');
- const result=isMatch?(summaryScorecard?.result||m.result||'Final scores'):'First innings complete';
+ const result=isMatch?(matchFooter(data)||'Awaiting official result'):'First innings complete';
  set('summaryResult',result);
  const scores=$('summaryScores');scores.replaceChildren();
  for(const inn of (isMatch?[i1,i2]:[i1])){
@@ -256,9 +331,18 @@ function renderSummary(data,phase){
  panel.classList.add('visible');
 }
 async function updateSummary(data){
- if(!summaryEnabled&&!summaryPreview)return;
+ const phaseDetected=getMatchPhase(data);
+ const x=chaseContext(data);
+ const shouldFetch=phaseDetected==='match'||(x.finished&&!superOverPhase(data));
+ if(shouldFetch&&!officialResult(data)&&Date.now()-scorecardLastAttempt>60000){
+  scorecardLastAttempt=Date.now();
+  try{const r=await fetch(`${worker}/scorecard/${matchId}`,{cache:'no-store'});if(r.ok)summaryScorecard=await r.json();}catch(e){console.warn('Result lookup failed:',e);}
+  // Update footer immediately when CricBay publishes the result.
+  const result=matchFooter(data);if(result)set('message',result);
+ }
+ if(!summaryEnabled&&!summaryPreview){$('summaryPanel').classList.remove('visible');return;}
  const actualPhase=getMatchPhase(data),phase=summaryPreview||actualPhase;
- if(phase==='match'&&actualPhase==='match'&&!scorecardAttempted){
+ if(phase==='match'&&actualPhase==='match'&&!scorecardAttempted&&!summaryScorecard){
   scorecardAttempted=true;
   try{const r=await fetch(`${worker}/scorecard/${matchId}`,{cache:'no-store'});if(r.ok)summaryScorecard=await r.json();else console.warn('Scorecard unavailable:',r.status);}catch(e){console.warn('Scorecard fetch failed:',e);}
  }
@@ -269,7 +353,7 @@ async function refresh(){if(busy)return;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const r=await fetch(`${worker}/live/snapshot/${matchId}`,{cache:'no-store'});if(!r.ok)throw Error(`Snapshot HTTP ${r.status}: ${(await r.text()).slice(0,150)}`);
  const data=await r.json();if(!data||!data.match||!data.current)throw Error('Snapshot JSON missing match/current');
- if(data.version!==lastVersion||!initialized){render(data);lastVersion=data.version;}
+ render(data);lastVersion=data.version;
  await updateSummary(data);
  }catch(e){console.error('CricBay overlay:',e);if(!initialized)set('message','Waiting for CricBay live score…');}finally{busy=false;}}
 window.showCricBayEvent=showEvent;
