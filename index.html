@@ -222,15 +222,18 @@ function renderSuperOver(data,phase){
  set('message',phase.result?`MATCH COMPLETE · ${phase.result}`:`SUPER OVER ${phase.number}${pending?' · Awaiting start':''} · ${scores}`);
 }
 function inningsBalls(overs){
+ // CricBay records completed overs as 19.6 (20 overs), not necessarily 20.0.
  const p=/^(\d+)(?:\.(\d+))?$/.exec(String(overs??''));
- if(!p||Number(p[2]||0)>5)return null;
- return Number(p[1])*6+Number(p[2]||0);
+ if(!p)return null;
+ const completed=Number(p[1]), deliveries=Number(p[2]||0);
+ if(deliveries<0||deliveries>6)return null;
+ return completed*6+deliveries;
 }
 function firstInningsFinished(data){
  const m=data.match||{},i1=data.innings?.inning1||{},c=data.current||{};
  if(/complete|finished|ended/.test(inningsState(i1)))return true;
  const limit=Number(m.max_overs??m.maximum_overs);
- const balls=inningsBalls(c.over??i1.overs);
+ const balls=Math.max(...[inningsBalls(c.over),inningsBalls(i1.overs)].filter(x=>x!==null),0);
  if(Number.isFinite(limit)&&limit>0&&balls!==null&&balls>=Math.round(limit*6))return true;
  const players=Number(m.max_players_per_team);
  const wickets=Number(c.wickets??i1.wickets);
@@ -253,8 +256,8 @@ function firstInningsProjection(data){
  const limit=Number(m.max_overs??m.maximum_overs);
  const parts=/^(\d+)(?:\.(\d+))?$/.exec(String(c.over??i1.overs??'0.0'));
  if(!parts||!Number.isFinite(limit)||limit<=0)return '';
- const balls=Number(parts[0].split('.')[0])*6+Number(parts[2]||0);
- if(balls<=0||balls>limit*6||Number(parts[2]||0)>6)return '';
+ const balls=inningsBalls(c.over??i1.overs);
+ if(balls===null||balls<=0||balls>=limit*6)return '';
  const runs=Number(c.score??i1.scorecard?.total?.total_runs??i1.score);
  if(!Number.isFinite(runs))return '';
  const rr=runs*6/balls;
