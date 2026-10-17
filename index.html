@@ -67,6 +67,24 @@
 .summary-panel.innings-compact .summary-credit{display:none}
 .summary-panel.innings-compact .summary-scoreline{margin:0;gap:0}
 .summary-panel.innings-compact .summary-scoreline span{font-size:18px;padding:8px 12px;width:100%;text-align:center}
+
+/* Landscape: keep the match card clear of the bottom score overlay. */
+@media (orientation:landscape) and (max-height:700px){
+ .summary-panel:not(.innings-compact){
+   top:12px;bottom:calc(var(--offset,0px) + 112px);left:50%;
+   transform:translateX(-50%);width:min(960px,91vw);max-height:none;
+   padding:12px 18px;overflow-y:auto;overscroll-behavior:contain;
+ }
+ .summary-panel:not(.innings-compact) .summary-title{font-size:20px;margin:2px 0 4px}
+ .summary-panel:not(.innings-compact) .summary-result{font-size:13px;margin:2px 0 7px}
+ .summary-panel:not(.innings-compact) .summary-scoreline{margin:5px 0 9px;gap:8px}
+ .summary-panel:not(.innings-compact) .summary-scoreline span{padding:5px 9px;font-size:13px}
+ .summary-panel:not(.innings-compact) .summary-columns{gap:12px}
+ .summary-panel:not(.innings-compact) .summary-col h3{font-size:11px;margin-bottom:4px}
+ .summary-panel:not(.innings-compact) .summary-player{padding:5px 9px;margin:4px 0;font-size:12px}
+ .summary-panel:not(.innings-compact) .summary-pom{margin-top:7px;font-size:13px}
+ .summary-panel:not(.innings-compact) .summary-credit{display:none}
+}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -343,7 +361,11 @@ function matchFooter(data){
  if(x.targetReached){
    const wickets=Number(data.current?.wickets??i2.wickets);
    const players=Number(data.match?.max_players_per_team);
-   if(Number.isFinite(players)&&players>1&&Number.isFinite(wickets))return `${secondName} won by ${Math.max(0,players-1-wickets)} wickets`;
+   const maxWickets=Number.isFinite(players)&&players>1?players-1:10;
+   if(Number.isFinite(wickets)){
+     const margin=Math.max(0,maxWickets-wickets);
+     return `${secondName} won by ${margin} wicket${margin===1?'':'s'}`;
+   }
    return `${secondName} won (target reached)`;
  }
  // Don't declare a run-margin win just because a stale counter says 0 balls.
