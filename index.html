@@ -319,12 +319,11 @@ function chaseContext(data){
  const firstRuns=Number(i1.scorecard?.total?.total_runs??i1.score);
  const secondRuns=Number(c.score??i2.scorecard?.total?.total_runs??i2.score);
  const maxOvers=Number(m.max_overs??m.maximum_overs);
- const overs=String(c.over??i2.overs??'');
- const parts=/^(\d+)\.(\d+)$/.exec(overs);
- const used=parts?Number(parts[1])===6?(Number(parts[0])+1)*6:Number(parts[0])*6+Number(parts[1]):null;
+ // Cricket overs are base-6 notation, not decimal fractions.
+ const used=inningsBalls(c.over??i2.overs);
  const computed=Number.isFinite(maxOvers)&&maxOvers>0&&used!=null?Math.max(0,Math.round(maxOvers*6)-used):null;
  const apiBalls=c.remaining_balls==null?null:Number(c.remaining_balls);
- const ballsLeft=computed??(Number.isFinite(apiBalls)?apiBalls:null);
+ const ballsLeft=computed??(Number.isFinite(apiBalls)?Math.max(0,Math.round(apiBalls)):null);
  const inningsStatus=inningsState(i2);
  // match.status is ignored: CricBay may keep it at LIVE after play ends.
  const officiallyFinished=/complete|finished|ended/.test(inningsStatus)||Boolean(meaningfulResult(m.result));
