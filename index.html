@@ -119,7 +119,8 @@ function showEvent(kind){
 }
 // Reuse the original boundary audio for both FOUR and SIX.
 // Keep boundary-horn.mp3 alongside index.html on GitHub Pages.
-const boundaryAudio = new Audio('boundary-horn.mp3');
+const boundaryAudio = new Audio(new URL('boundary-horn.mp3', document.baseURI).href);
+let audioUnlocked=false;
 boundaryAudio.preload = 'auto';
 boundaryAudio.volume = Math.max(0,Math.min(1,Number(q.get('volume')??1)||0));
 function playBoundaryAudio(){
@@ -127,7 +128,7 @@ function playBoundaryAudio(){
    boundaryAudio.pause();
    boundaryAudio.currentTime = 0;
    const attempt=boundaryAudio.play();
-   if(attempt&&typeof attempt.catch==='function')attempt.catch(e=>console.warn('Boundary audio blocked; tap the page once to enable playback:',e));
+   if(attempt&&typeof attempt.catch==='function')attempt.catch(e=>console.warn('Boundary audio blocked by browser/WebView:',e));
  } catch(e) { console.warn('Boundary audio unavailable:',e); }
 }
 function track(data){
@@ -288,7 +289,7 @@ function render(data){
  pp.textContent=activePP?(rawPP==='BAPP'?'BATTING POWERPLAY':'BOWLING POWERPLAY'):'';
  const balls=track(data),latestOver=Array.isArray(data.recent_overs)?data.recent_overs[0]:null;
  const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
- const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='LAST OVER';holder.append(label);
+ const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='THIS OVER';holder.append(label);
  for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
@@ -445,13 +446,21 @@ async function refresh(){if(busy)return;busy=true;try{
  await updateSummary(data);
  }catch(e){console.error('CricBay overlay:',e);if(!initialized)set('message','Waiting for CricBay live score…');}finally{busy=false;}}
 window.showCricBayEvent=showEvent;
-// A tap/click unlocks media playback where the browser requires a user gesture.
-// Android WebView may also require setMediaPlaybackRequiresUserGesture(false).
-if(soundEnabled)document.addEventListener('pointerdown',()=>{
- boundaryAudio.muted=true;
- const attempt=boundaryAudio.play();
- if(attempt&&typeof attempt.then==='function')attempt.then(()=>{boundaryAudio.pause();boundaryAudio.currentTime=0;boundaryAudio.muted=false;}).catch(()=>{boundaryAudio.muted=false;});
-},{once:true});
+// Browser/WebView audio policies require a genuine gesture before sound playback.
+// Do not attempt a muted play/pause: that does not reliably unlock unmuted audio.
+if(soundEnabled){
+ const unlockAudio=()=>{
+   if(audioUnlocked)return;
+   boundaryAudio.muted=false;
+   const attempt=boundaryAudio.play();
+   if(attempt&&typeof attempt.then==='function'){
+     attempt.then(()=>{audioUnlocked=true;boundaryAudio.pause();boundaryAudio.currentTime=0;})
+       .catch(e=>console.warn('Audio unlock failed:',e));
+   }
+ };
+ document.addEventListener('pointerdown',unlockAudio,{once:true});
+ document.addEventListener('touchend',unlockAudio,{once:true});
+}
 const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
 refresh();setInterval(refresh,interval);
 })();
