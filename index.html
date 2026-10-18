@@ -377,7 +377,40 @@ function firstInningsProjection(data){
  const rr=runs*6/balls;
  return `Projected Score ${Math.round(rr*limit)}`;
 }
+function renderToss(data){
+ const m=data.match||{},i1=data.innings?.inning1||{};
+ const t1=m.team1||{},t2=m.team2||{};
+ const first=String(m.batting_first_team_name||i1.team?.team_name||'').trim();
+ const sameTeam=(team,name)=>[team.team_name,team.short_name,team.vshort_name]
+   .some(v=>v&&String(v).trim().toLowerCase()===String(name).trim().toLowerCase());
+ const batting=sameTeam(t1,first)?t1:sameTeam(t2,first)?t2:
+   (i1.team?.team_id===t2.team_id?t2:t1);
+ const bowling=batting===t1?t2:t1;
+ set('batTeam',batting.short_name||batting.team_name||'TEAM 1');
+ set('bowlTeam',bowling.short_name||bowling.team_name||'TEAM 2');
+ set('score','—');set('meta','Match yet to start');
+ $('batters').replaceChildren();set('bowler','—');set('figures','');
+ $('balls').replaceChildren();$('powerplay').className='pp-marker';$('powerplay').textContent='';
+ const toss=String(m.toss_won_by_team_name||m.toss_won_by||'').trim();
+ const choice=String(m.toss_decision||m.toss_elected_to||m.toss_choice||'').trim();
+ let message='Waiting for toss';
+ if(toss){
+   const tossTeam=[t1,t2].find(t=>sameTeam(t,toss));
+   const inferred=tossTeam&&first?(tossTeam.team_id===batting.team_id?'bat':'bowl'):'';
+   const decision=choice||inferred;
+   message=`${toss} won the toss${decision?' and elected to '+decision:''}`;
+ }else if(first)message=`${first} batting first`;
+ set('message',message);
+}
+function hasStartedInnings(data){
+ const ins=data.innings||{},c=data.current||{};
+ return [ins.inning1,ins.inning2].some(i=>i&&(
+   (Number(i.score)>0)||(Number(i.wickets)>0)||(inningsBalls(i.overs)>0)||
+   /started|complete|finished/i.test(String(i.status||''))
+ ))||Number(c.score)>0||Number(c.wickets)>0||inningsBalls(c.over)>0;
+}
 function render(data){
+ if(!hasStartedInnings(data)&&!superOverPhase(data)){renderToss(data);return;}
  const superPhase=superOverPhase(data);
  if(superPhase){renderSuperOver(data,superPhase);return;}
  const m=data.match||{},c=data.current||{},ins=data.innings||{};
@@ -567,10 +600,10 @@ async function updateSummary(data){
 async function refresh(){if(busy)return;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const r=await fetch(`${worker}/live/snapshot/${matchId}`,{cache:'no-store'});if(!r.ok)throw Error(`Snapshot HTTP ${r.status}: ${(await r.text()).slice(0,150)}`);
- const data=await r.json();if(!data||!data.match||!data.current)throw Error('Snapshot JSON missing match/current');
+ const data=await r.json();if(!data||!data.match)throw Error('Snapshot JSON missing match');
  render(data);lastVersion=data.version;
  await updateSummary(data);
- }catch(e){console.error('CricBay overlay:',e);if(!initialized)set('message','Waiting for CricBay live score…');}finally{busy=false;}}
+ }catch(e){console.error('CricBay overlay:',e);set('message','Score unavailable · Retrying in '+Math.round(interval/1000)+'s');}finally{busy=false;}}
 window.showCricBayEvent=showEvent;
 // Browser/WebView audio policies require a genuine gesture before sound playback.
 // Do not attempt a muted play/pause: that does not reliably unlock unmuted audio.
