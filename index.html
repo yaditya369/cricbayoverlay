@@ -85,6 +85,18 @@
  .summary-panel:not(.innings-compact) .summary-pom{margin-top:7px;font-size:13px}
  .summary-panel:not(.innings-compact) .summary-credit{display:none}
 }
+
+/* Marvel-inspired red: #ED1D24. High-contrast white text and event accents. */
+.theme-marvel .top{background:rgba(237,29,36,var(--alpha));color:#fff}
+.theme-marvel .bottom{background:rgba(170,9,17,var(--alpha));color:#fff;border-top-color:#fff9}
+.theme-marvel .name,.theme-marvel .score,.theme-marvel .stats,.theme-marvel .person,.theme-marvel .message{color:#fff}
+.theme-marvel .meta,.theme-marvel .ball-label,.theme-marvel .credit{color:#fff}
+.theme-marvel .scorebox{background:rgba(60,0,4,.24);border-color:#fff9}
+.theme-marvel .ball{border-color:#fffc;font-weight:900}
+.theme-marvel .ball.wicket{background:#161616;color:#fff;border-color:#fff}
+.theme-marvel .ball.four{background:#ffe66b;color:#171717;border-color:#ffe66b}
+.theme-marvel .ball.six{background:#fff;color:#a5000a;border-color:#fff}
+.theme-marvel .player:first-child,.theme-marvel .bowler-row{border-bottom-color:#ffffff99}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -99,7 +111,7 @@ const worker=(q.get('worker')||'https://cricbay-api.y-aditya369.workers.dev').re
 // refresh URL parameter is in seconds (default 10 seconds, range 1–60).
 const refreshSeconds=Number(q.get('refresh')??10);
 const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:10))*1000;
-const theme=['graphite','blue','red'].includes(q.get('theme'))?q.get('theme'):'graphite';
+const theme=['graphite','blue','red','marvel'].includes(q.get('theme'))?q.get('theme'):'graphite';
 const overlay=$('overlay');overlay.className='overlay theme-'+theme;
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
 overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
@@ -312,7 +324,8 @@ function render(data){
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
  const phase=getMatchPhase(data);
- let footer=phase==='innings'?'INNINGS BREAK':matchFooter(data);
+ const firstTotal=Number(data.innings?.inning1?.score??data.current?.score);
+ let footer=phase==='innings'?('INNINGS BREAK'+(Number.isFinite(firstTotal)?` · Target ${firstTotal+1}`:'')):matchFooter(data);
  if(!footer){
   const chase=chaseContext(data);
   if(chase.second&&Number.isFinite(chase.firstRuns)&&Number.isFinite(chase.secondRuns)){
@@ -407,7 +420,9 @@ function summaryRows(id,people,kind){
   const row=document.createElement('div');row.className='summary-player';
   const name=document.createElement('span');name.textContent=`${index+1}. ${p.batter_name||p.bowler_name||p.player_name||fullName(p)}`;
   const stats=document.createElement('strong');
-  stats.textContent=kind==='bat'?`${statNum(p.runs)} (${statNum(p.balls_faced??p.balls)})`:`${statNum(p.wickets)}/${statNum(p.runs)} (${p.overs??'0.0'})`;
+  const dismissal=String(p.dismissal??p.dismissal_type??p.how_out??'').trim();
+  const isNotOut=kind==='bat' && (/^not[\s-]*out$/i.test(dismissal)||p.is_not_out===true||p.isNotOut===true||String(p.batting_status??'').toLowerCase()==='not out');
+  stats.textContent=kind==='bat'?`${statNum(p.runs)}${isNotOut?'*':''} (${statNum(p.balls_faced??p.balls)})`:`${statNum(p.wickets)}/${statNum(p.runs)} (${p.overs??'0.0'})`;
   row.append(name,stats);el.append(row);
  }
 }
