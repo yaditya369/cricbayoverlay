@@ -95,8 +95,18 @@
 .theme-marvel .ball{border-color:#fffc;font-weight:900}
 .theme-marvel .ball.wicket{background:#161616;color:#fff;border-color:#fff}
 .theme-marvel .ball.four{background:#ffe66b;color:#171717;border-color:#ffe66b}
-.theme-marvel .ball.six{background:#fff;color:#a5000a;border-color:#fff}
+.theme-marvel .ball.six{background:#00c853;color:#fff;border-color:#00c853}
 .theme-marvel .player:first-child,.theme-marvel .bowler-row{border-bottom-color:#ffffff99}
+
+/* Marvel theme for summary panels: colors only, layout unchanged. */
+body.theme-marvel .summary-panel{background:rgba(133,8,17,.97);border-color:#ffb5b8;color:#fff;box-shadow:0 14px 60px #000b}
+body.theme-marvel .summary-kicker,body.theme-marvel .summary-col h3{color:#ffe66b}
+body.theme-marvel .summary-title,body.theme-marvel .summary-result{color:#fff}
+body.theme-marvel .summary-scoreline span{background:#ed1d24;color:#fff;border:1px solid #ffb5b8}
+body.theme-marvel .summary-player{background:#b70d19;color:#fff;border:1px solid #ffffff35}
+body.theme-marvel .summary-player strong{color:#fff}
+body.theme-marvel .summary-pom{color:#ffe66b}
+body.theme-marvel .summary-credit{color:#ffe1e2}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -113,6 +123,7 @@ const refreshSeconds=Number(q.get('refresh')??10);
 const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:10))*1000;
 const theme=['graphite','blue','red','marvel'].includes(q.get('theme'))?q.get('theme'):'graphite';
 const overlay=$('overlay');overlay.className='overlay theme-'+theme;
+document.body.classList.toggle('theme-marvel',theme==='marvel');
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
 overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
 document.documentElement.style.setProperty('--offset',Math.max(0,Number(q.get('bottomOffset')||0))+'px');
