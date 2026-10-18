@@ -107,6 +107,71 @@ body.theme-marvel .summary-player{background:#b70d19;color:#fff;border:1px solid
 body.theme-marvel .summary-player strong{color:#fff}
 body.theme-marvel .summary-pom{color:#ffe66b}
 body.theme-marvel .summary-credit{color:#ffe1e2}
+
+/* Match summary is OUTSIDE #overlay: theme it directly, independently of the footer. */
+#summaryPanel.theme-marvel-summary{background:#850811!important;background-color:#850811!important;border-color:#ffb5b8!important;color:#fff!important}
+#summaryPanel.theme-marvel-summary .summary-kicker,
+#summaryPanel.theme-marvel-summary .summary-col h3{color:#ffe66b!important}
+#summaryPanel.theme-marvel-summary .summary-title,
+#summaryPanel.theme-marvel-summary .summary-result{color:#fff!important}
+#summaryPanel.theme-marvel-summary .summary-scoreline span{background:#ed1d24!important;color:#fff!important;border-color:#ffb5b8!important}
+#summaryPanel.theme-marvel-summary .summary-player{background:#b70d19!important;color:#fff!important;border-color:#ffffff35!important}
+#summaryPanel.theme-marvel-summary .summary-player strong{color:#fff!important}
+#summaryPanel.theme-marvel-summary .summary-pom{color:#ffe66b!important}
+#summaryPanel.theme-marvel-summary .summary-credit{color:#ffe1e2!important}
+
+/* CricClubs blue palette: distinct scoreboard, score panel and second bar. */
+.overlay.theme-blue .top{background:rgba(20,57,105,var(--alpha))}
+.overlay.theme-blue .scorebox{background:rgba(35,79,128,var(--alpha));border-color:#bedafa80}
+.overlay.theme-blue .bottom{background:rgba(12,39,77,var(--alpha))}
+/* Marvel also uses layered surfaces, never a flat single-color footer. */
+.overlay.theme-marvel .top{background:rgba(237,29,36,var(--alpha))}
+.overlay.theme-marvel .scorebox{background:rgba(129,10,18,.85)}
+.overlay.theme-marvel .bottom{background:rgba(92,7,14,var(--alpha))}
+/* Delivery badges: bold, centered, larger dot, and distinct extras. */
+.ball{font-weight:800;text-align:center;flex-shrink:0}
+.ball.dot{font-size:18px;font-weight:900;line-height:1}
+.ball.extra{background:#4d7dcb;color:#fff;border-color:#c7ddff;font-weight:900}
+.theme-marvel .ball.extra{background:#fff;color:#9c0710;border-color:#fff}
+.theme-blue .ball.extra{background:#80d8ff;color:#092746;border-color:#80d8ff}
+.ball-label{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;flex-shrink:0}
+.ball-label .over-run-count{font-size:10px;color:#fff;font-weight:800;margin-top:2px}
+.theme-blue .ball-label .over-run-count{color:#b5e5ff}
+.theme-marvel .ball-label .over-run-count{color:#ffe66b}
+@media(max-width:650px){.ball.dot{font-size:16px}.ball-label .over-run-count{font-size:8px}}
+
+/* Shared delivery formatting and distinct layered surfaces for EVERY theme. */
+.overlay.theme-graphite .top{background:rgba(35,40,47,var(--alpha))}
+.overlay.theme-graphite .scorebox{background:rgba(72,83,100,.88);border-color:#cbd5e180}
+.overlay.theme-graphite .bottom{background:rgba(18,22,28,var(--alpha))}
+.overlay.theme-red .top{background:rgba(138,12,24,var(--alpha))}
+.overlay.theme-red .scorebox{background:rgba(180,31,46,.88);border-color:#ffd5d580}
+.overlay.theme-red .bottom{background:rgba(67,6,15,var(--alpha))}
+.overlay.theme-blue .top{background:rgba(20,57,105,var(--alpha))}
+.overlay.theme-blue .scorebox{background:rgba(35,79,128,.88);border-color:#bedafa80}
+.overlay.theme-blue .bottom{background:rgba(12,39,77,var(--alpha))}
+.overlay.theme-marvel .top{background:rgba(237,29,36,var(--alpha))}
+.overlay.theme-marvel .scorebox{background:rgba(129,10,18,.88);border-color:#fff8}
+.overlay.theme-marvel .bottom{background:rgba(92,7,14,var(--alpha))}
+/* Center and embolden all balls, including extras, across all themes. */
+.overlay .ball{font-weight:900;justify-content:center;align-items:center;text-align:center;line-height:1;min-height:18px}
+.overlay .ball.dot{font-size:19px;font-weight:900;line-height:1}
+.overlay .ball.extra{font-weight:900;background:#5579bd;color:#fff;border-color:#d6e5ff}
+.overlay.theme-blue .ball.extra{background:#80d8ff;color:#092746;border-color:#80d8ff}
+.overlay.theme-red .ball.extra{background:#ffb6c1;color:#490611;border-color:#ffb6c1}
+.overlay.theme-marvel .ball.extra{background:#fff;color:#9c0710;border-color:#fff}
+.overlay.theme-graphite .ball.four,.overlay.theme-red .ball.four,.overlay.theme-blue .ball.four{background:#e6bb5d;color:#17263a}
+.overlay.theme-graphite .ball.six,.overlay.theme-red .ball.six,.overlay.theme-blue .ball.six{background:#36a269;color:#fff}
+.overlay.theme-graphite .ball.wicket,.overlay.theme-red .ball.wicket,.overlay.theme-blue .ball.wicket{background:#d92f45;color:#fff}
+.overlay.theme-marvel .ball.four{background:#ffe66b;color:#171717}
+.overlay.theme-marvel .ball.six{background:#00c853;color:#fff}
+.overlay.theme-marvel .ball.wicket{background:#161616;color:#fff}
+.overlay .ball-label .over-run-count{font-weight:900}
+.overlay.theme-graphite .ball-label .over-run-count{color:#cde7ff}
+.overlay.theme-red .ball-label .over-run-count{color:#ffe2a1}
+.overlay.theme-blue .ball-label .over-run-count{color:#b5e5ff}
+.overlay.theme-marvel .ball-label .over-run-count{color:#ffe66b}
+@media(max-width:650px){.overlay .ball.dot{font-size:17px}}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -124,6 +189,7 @@ const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSec
 const theme=['graphite','blue','red','marvel'].includes(q.get('theme'))?q.get('theme'):'graphite';
 const overlay=$('overlay');overlay.className='overlay theme-'+theme;
 document.body.classList.toggle('theme-marvel',theme==='marvel');
+$('summaryPanel').classList.toggle('theme-marvel-summary',theme==='marvel');
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
 overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
 document.documentElement.style.setProperty('--offset',Math.max(0,Number(q.get('bottomOffset')||0))+'px');
@@ -137,8 +203,14 @@ const scoreOver=v=>{if(v==null)return '0.0';const t=String(v);const m=t.match(/^
 const set=(id,value)=>$(id).textContent=String(value??'—');
 function normalizeBall(b){
  const n=number(b.runs),w=number(b.wides),nb=number(b.noballs),by=number(b.byes),lb=number(b.legbyes),pen=number(b.penalty_runs);
- let label=String(n),kind='';
- if(w)label='Wd'+(w>1?w:'');else if(nb)label='Nb'+(n+nb>1?n+nb:'');else if(by)label='B'+by;else if(lb)label='Lb'+lb;else if(pen)label='P'+pen;
+ let label=n===0?'●':String(n),kind=n===0?'dot':'';
+ // Wides = Y, no-balls = N, byes = B, leg-byes = LB.
+ // Preserve extra runs without mislabeling them as ordinary bat runs.
+ if(w){label='Y'+(w>1?'+'+(w-1):'')+(by?'+B'+(by>1?by:''):'')+(lb?'+LB'+(lb>1?lb:''):'');kind='extra';}
+ else if(nb){label='N'+(n?('+'+n):'')+(by?'+B'+(by>1?by:''):'')+(lb?'+LB'+(lb>1?lb:''):'');kind='extra';}
+ else if(by){label='B'+(by>1?by:'');kind='extra';}
+ else if(lb){label='LB'+(lb>1?lb:'');kind='extra';}
+ else if(pen){label='P'+pen;kind='extra';}
  if(b.wicket){label='W';kind='wicket';}
  else if(!w&&!nb&&!by&&!lb&&n===4){kind='four';label='4';}
  else if(!w&&!nb&&!by&&!lb&&n===6){kind='six';label='6';}
@@ -330,7 +402,13 @@ function render(data){
  pp.textContent=activePP?(rawPP==='BAPP'?'BATTING POWERPLAY':'BOWLING POWERPLAY'):'';
  const balls=track(data),latestOver=Array.isArray(data.recent_overs)?data.recent_overs[0]:null;
  const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
- const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';label.textContent='THIS OVER';holder.append(label);
+ const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';
+ const heading=document.createElement('span');heading.textContent='THIS OVER';label.append(heading);
+ const overRuns=Number(latestOver?.runs_in_this_over);
+ if(latestOver?.runs_in_this_over!=null&&Number.isFinite(overRuns)){
+  const runCount=document.createElement('span');runCount.className='over-run-count';runCount.textContent=`(${overRuns} run${overRuns===1?'':'s'})`;label.append(runCount);
+ }
+ holder.append(label);
  for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
