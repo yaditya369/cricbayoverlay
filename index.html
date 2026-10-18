@@ -53,6 +53,13 @@
 .name{font-size:clamp(13px,1.45vw,21px);line-height:1.15;letter-spacing:.15px;-webkit-line-clamp:2;overflow-wrap:break-word;width:100%}
 @media(max-width:650px){.top{grid-template-columns:minmax(75px,18%) minmax(0,1fr) minmax(96px,18%) minmax(0,1fr) minmax(75px,18%)}.identity{padding:4px}.name{font-size:clamp(10px,2vw,13px)}}
 
+/* Pre-match: retain both team names and show a centered VS panel. */
+.overlay.pre-match .top{grid-template-columns:minmax(0,1fr) minmax(150px,30%) minmax(0,1fr)}
+.overlay.pre-match .top>.details{display:none}
+.overlay.pre-match .scorebox{grid-column:2;width:calc(100% - 12px)}
+.overlay.pre-match .identity:last-child{grid-column:3}
+.overlay.pre-match .score{font-size:clamp(17px,2.2vw,27px)}
+@media(max-width:650px){.overlay.pre-match .top{grid-template-columns:minmax(0,1fr) minmax(76px,25%) minmax(0,1fr)}}
 /* Optional summary: hidden unless summary=1 or summaryPreview is provided. */
 .summary-panel{position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);width:min(950px,94vw);max-height:80vh;overflow:auto;z-index:1500;background:rgba(17,25,39,.96);border:1px solid #7ba7d1;border-radius:14px;padding:20px 24px;box-shadow:0 14px 60px #000b;display:none;color:white}
 .summary-panel.visible{display:block}.summary-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.summary-kicker{color:#93c5fd;font-size:12px;letter-spacing:1.5px;font-weight:800}.summary-title{font-size:26px;font-weight:900;margin:6px 0}.summary-result{color:#d8e9ff;font-size:15px;margin:5px 0 15px}.summary-scoreline{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 18px}.summary-scoreline span{background:#293b50;border-radius:7px;padding:9px 14px;font-weight:700}.summary-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}.summary-col h3{color:#93c5fd;font-size:14px;letter-spacing:.6px;margin:0 0 9px}.summary-player{background:#243247;border-radius:7px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0;font-size:14px}.summary-player span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.summary-player strong{white-space:nowrap}.summary-pom{margin-top:15px;font-weight:800;color:#ffe39b}.summary-credit{text-align:right;color:#aabed4;font-size:11px;margin-top:15px}@media(max-width:650px){.summary-panel{padding:12px;top:42%}.summary-title{font-size:20px}.summary-columns{gap:8px}.summary-player{padding:6px;font-size:11px}.summary-col h3{font-size:11px}}
@@ -324,7 +331,8 @@ function renderSuperOver(data,phase){
  const firstOvers=r.superover_inning1_over??'0.0',secondOvers=r.superover_inning2_over??'0.0';
  const secondHasStarted=two!=null&&(/started|complete|live/i.test(String(r.inning2_status||''))||Number(two)>0||String(secondOvers)!=='0.0');
  const battingSecond=secondHasStarted;
- set('batTeam',battingSecond?second:first);set('bowlTeam',battingSecond?first:second);
+ overlay.classList.remove('pre-match');
+  set('batTeam',battingSecond?second:first);set('bowlTeam',battingSecond?first:second);
  set('score',battingSecond?secondScore:firstScore);
  set('meta',`SUPER OVER ${phase.number} · ${battingSecond?secondOvers:firstOvers} ov`);
  // Normal-innings player, bowler, powerplay and recent balls are not Super Over statistics.
@@ -396,9 +404,10 @@ function renderToss(data){
  const batting=sameTeam(t1,first)?t1:sameTeam(t2,first)?t2:
    (i1.team?.team_id===t2.team_id?t2:t1);
  const bowling=batting===t1?t2:t1;
- set('batTeam',batting.short_name||batting.team_name||'TEAM 1');
+ overlay.classList.add('pre-match');
+  set('batTeam',batting.short_name||batting.team_name||'TEAM 1');
  set('bowlTeam',bowling.short_name||bowling.team_name||'TEAM 2');
- set('score','—');set('meta','Match yet to start');
+ set('score','VS');set('meta','');
  $('batters').replaceChildren();set('bowler','—');set('figures','');
  $('balls').replaceChildren();$('powerplay').className='pp-marker';$('powerplay').textContent='';
  const toss=String(m.toss_won_by_team_name||m.toss_won_by||'').trim();
@@ -412,6 +421,10 @@ function renderToss(data){
  }else if(first)message=`${first} batting first`;
  set('message',message);
 }
+function hasSelectedBowler(data){
+  const b=data.current?.current_bowler;
+  return Boolean(b&&(b.player_id!=null||b.bowler_id!=null||b.player_name||b.bowler_name||b.first_name||b.last_name));
+}
 function hasStartedInnings(data){
  const ins=data.innings||{},c=data.current||{};
  return [ins.inning1,ins.inning2].some(i=>i&&(
@@ -420,7 +433,7 @@ function hasStartedInnings(data){
  ))||Number(c.score)>0||Number(c.wickets)>0||inningsBalls(c.over)>0;
 }
 function render(data){
- if(!hasStartedInnings(data)&&!superOverPhase(data)){renderToss(data);return;}
+ if(!hasStartedInnings(data)&&!hasSelectedBowler(data)&&!superOverPhase(data)){renderToss(data);return;}
  const superPhase=superOverPhase(data);
  if(superPhase){renderSuperOver(data,superPhase);return;}
  const m=data.match||{},c=data.current||{},ins=data.innings||{};
@@ -474,8 +487,7 @@ function render(data){
 // a winner until the second innings is clearly finished.
 function officialResult(data){
  const value=superOverPhase(data)?.result||summaryScorecard?.result||data.match?.result;
- const result=String(value??'').trim();
- return result&&!/^(null|none|pending|not started|live)$/i.test(result)?result:'';
+ return meaningfulResult(value);
 }
 function chaseContext(data){
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{},c=data.current||{};
@@ -491,10 +503,13 @@ function chaseContext(data){
  const inningsStatus=inningsState(i2);
  // match.status is ignored: CricBay may keep it at LIVE after play ends.
  const officiallyFinished=/complete|finished|ended/.test(inningsStatus)||Boolean(meaningfulResult(m.result));
- const allOut=Number.isFinite(Number(m.max_players_per_team))&&Number(c.wickets??i2.wickets)>=Number(m.max_players_per_team)-1;
+ const configuredPlayers=Number(m.max_players_per_team);
+ const maxWickets=Number.isFinite(configuredPlayers)&&configuredPlayers>1?configuredPlayers-1:10;
+ const wickets=Number(second?(c.wickets??i2.wickets):i2.wickets);
+ const allOut=second&&Number.isFinite(wickets)&&wickets>=maxWickets;
  const targetReached=second&&Number.isFinite(firstRuns)&&Number.isFinite(secondRuns)&&secondRuns>firstRuns;
  const exhausted=second&&ballsLeft===0;
- return {second,firstRuns,secondRuns,ballsLeft,finished:second&&(officiallyFinished||allOut||targetReached||exhausted),officiallyFinished,targetReached,exhausted};
+ return {second,firstRuns,secondRuns,ballsLeft,finished:second&&(officiallyFinished||allOut||targetReached||exhausted),officiallyFinished,targetReached,exhausted,allOut};
 }
 function matchFooter(data){
  const official=officialResult(data);if(official)return official;
@@ -514,7 +529,7 @@ function matchFooter(data){
    return `${secondName} won (target reached)`;
  }
  // Don't declare a run-margin win just because a stale counter says 0 balls.
- if(!x.officiallyFinished&&!x.exhausted)return 'Awaiting official result';
+ if(!x.officiallyFinished&&!x.exhausted&&!x.allOut)return 'Awaiting official result';
  if(Number.isFinite(x.firstRuns)&&Number.isFinite(x.secondRuns)){
    if(x.secondRuns===x.firstRuns)return 'Match tied';
    if(x.secondRuns<x.firstRuns)return `${firstName} won by ${x.firstRuns-x.secondRuns} run${x.firstRuns-x.secondRuns===1?'':'s'}`;
@@ -531,9 +546,9 @@ function getMatchPhase(data){
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{};
  // Do not use match.status to determine the match phase.
  const result=String(m.result||'').trim();
- const resultPresent=result.length>0 && !/^(null|none|pending|not started)$/i.test(result);
+ const resultPresent=Boolean(meaningfulResult(m.result)||meaningfulResult(summaryScorecard?.result));
  const i2done=/complete|completed|finished|ended/.test(inningsState(i2));
- if(resultPresent||i2done||chaseContext(data).finished)return 'match';
+ if(resultPresent||i2done&&secondInningsStarted(data)||chaseContext(data).finished)return 'match';
  if(firstInningsFinished(data)&&!secondInningsStarted(data))return 'innings';
  return '';
 }
