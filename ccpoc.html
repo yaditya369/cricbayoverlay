@@ -246,6 +246,37 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 .overlay.layout-3.pre-match .identity:last-child{grid-column:3}
 .overlay.layout-3.pre-match .identity{width:100%}
 </style>
+<style>
+/* FIX: layout=3 opacity applies to every panel, including angled teams and score gradient. */
+.overlay.layout-3{--dark-rgb:7,22,38;--left-rgb:11,87,156;--right-rgb:157,18,55;--score-top-rgb:23,100,173;--score-bottom-rgb:7,50,96}
+.overlay.layout-3.theme-graphite{--dark-rgb:20,28,39;--left-rgb:64,87,116;--right-rgb:77,92,112;--score-top-rgb:83,107,137;--score-bottom-rgb:37,53,76}
+.overlay.layout-3.theme-blue{--dark-rgb:7,29,56;--left-rgb:8,101,186;--right-rgb:162,11,57;--score-top-rgb:23,100,173;--score-bottom-rgb:7,50,96}
+.overlay.layout-3.theme-red{--dark-rgb:41,7,14;--left-rgb:163,25,46;--right-rgb:104,17,35;--score-top-rgb:189,52,71;--score-bottom-rgb:104,19,36}
+.overlay.layout-3.theme-marvel{--dark-rgb:32,5,9;--left-rgb:237,29,36;--right-rgb:163,9,21;--score-top-rgb:237,29,36;--score-bottom-rgb:113,8,15}
+.overlay.layout-3.theme-stadium{--dark-rgb:7,30,25;--left-rgb:18,97,76;--right-rgb:49,93,53;--score-top-rgb:43,121,94;--score-bottom-rgb:18,59,50}
+.overlay.layout-3 .top{background:rgba(var(--dark-rgb),var(--alpha))!important}
+.overlay.layout-3 .identity{background:rgba(var(--left-rgb),var(--alpha))!important}
+.overlay.layout-3 .identity:last-child{background:rgba(var(--right-rgb),var(--alpha))!important}
+.overlay.layout-3 .scorebox,
+.overlay.layout-3.theme-graphite .scorebox,
+.overlay.layout-3.theme-blue .scorebox,
+.overlay.layout-3.theme-red .scorebox,
+.overlay.layout-3.theme-marvel .scorebox,
+.overlay.layout-3.theme-stadium .scorebox{
+ background:linear-gradient(180deg,rgba(var(--score-top-rgb),var(--alpha)),rgba(var(--score-bottom-rgb),var(--alpha)))!important;
+}
+.overlay.layout-3.pre-match .scorebox{background:rgba(var(--dark-rgb),var(--alpha))!important}
+</style>
+<style>
+/* Layout 3: the lower 25px information bar stays visibly darker than the upper strip.
+   Preserve the user-selected opacity on both bars. */
+.overlay.layout-3 .bottom{background:rgba(3,7,12,var(--alpha))!important}
+.overlay.layout-3.theme-graphite .bottom{background:rgba(7,10,15,var(--alpha))!important}
+.overlay.layout-3.theme-blue .bottom{background:rgba(2,12,27,var(--alpha))!important}
+.overlay.layout-3.theme-red .bottom{background:rgba(29,3,9,var(--alpha))!important}
+.overlay.layout-3.theme-marvel .bottom{background:rgba(34,2,6,var(--alpha))!important}
+.overlay.layout-3.theme-stadium .bottom{background:rgba(2,17,13,var(--alpha))!important}
+</style>
 </head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
