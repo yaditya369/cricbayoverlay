@@ -224,6 +224,18 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
  .overlay.layout-3 .ball.dot{font-size:15px}.overlay.layout-3 .ball-label{font-size:7px}.overlay.layout-3 .ball-label .over-run-count{font-size:7px}
  .overlay.layout-3 .bottom{padding-right:72px}.overlay.layout-3 .message{max-width:calc(100% - 100px);font-size:10px}.overlay.layout-3 .credit{font-size:7px}
 }
+
+/* Layout 3: high-contrast delivery highlights for 4, 6, wickets and all extras. */
+.overlay.layout-3 .ball{border-width:1px;transition:background-color .15s,border-color .15s}
+.overlay.layout-3 .ball.four{background:#ffd34e!important;color:#241800!important;border:2px solid #fff0a5!important;box-shadow:0 0 0 1px #ffd34e80;font-weight:900}
+.overlay.layout-3 .ball.six{background:#00b95a!important;color:#fff!important;border:2px solid #a7ffcf!important;box-shadow:0 0 0 1px #00b95a80;font-weight:900}
+.overlay.layout-3 .ball.wicket{background:#f33452!important;color:#fff!important;border:2px solid #ffd4dd!important;box-shadow:0 0 0 1px #f3345280;font-weight:900}
+.overlay.layout-3 .ball.extra{background:#7ad9ff!important;color:#092136!important;border:2px solid #e0f7ff!important;box-shadow:0 0 0 1px #7ad9ff80;font-weight:900}
+/* Extras such as N+6, Y+B and LB2 need more room than a round single-run ball. */
+.overlay.layout-3 .ball.extra{border-radius:6px;min-width:22px;width:auto;max-width:none;padding:0 4px;white-space:nowrap;font-size:clamp(8px,.85vw,11px)}
+.overlay.layout-3 .ball.dot{background:rgba(255,255,255,.07);border-color:#ffffff65;color:#fff}
+.overlay.layout-3.theme-marvel .ball.wicket{background:#111!important;border-color:#ff98a8!important}
+
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -276,6 +288,25 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 .overlay.layout-3.theme-red .bottom{background:rgba(29,3,9,var(--alpha))!important}
 .overlay.layout-3.theme-marvel .bottom{background:rgba(34,2,6,var(--alpha))!important}
 .overlay.layout-3.theme-stadium .bottom{background:rgba(2,17,13,var(--alpha))!important}
+</style>
+<style>
+/* Layout 3 refinements: team names, black center, compact footer, Marvel wicket. */
+.overlay.layout-3 .name{font-size:clamp(13px,1.45vw,20px)!important;line-height:1.08}
+@media(max-width:650px){.overlay.layout-3 .name{font-size:clamp(10px,2.25vw,13px)!important}}
+/* Black center respects the opacity query parameter. */
+.overlay.layout-3 .scorebox,
+.overlay.layout-3.theme-graphite .scorebox,
+.overlay.layout-3.theme-blue .scorebox,
+.overlay.layout-3.theme-red .scorebox,
+.overlay.layout-3.theme-marvel .scorebox,
+.overlay.layout-3.theme-stadium .scorebox,
+.overlay.layout-3.pre-match .scorebox{background:rgba(0,0,0,var(--alpha))!important}
+/* Keep the main strip at 50px and reduce only the footer to 20px. */
+.overlay.layout-3 .bottom{height:20px!important;min-height:20px!important;line-height:16px!important;padding-top:1px!important;padding-bottom:1px!important}
+.overlay.layout-3 .message{font-size:clamp(9px,1.05vw,13px)!important}
+.overlay.layout-3 .credit{font-size:8px!important}
+/* Marvel-only wicket: red badge instead of black. */
+.overlay.layout-3.theme-marvel .ball.wicket{background:#e60033!important;color:#fff!important;border:2px solid #ff9cad!important;box-shadow:0 0 0 1px #e6003380!important}
 </style>
 </head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
@@ -550,23 +581,46 @@ function render(data){
  const bowler=c.current_bowler;set('bowler',bowler?fullName(bowler):'—');set('figures',bowler?`${bowler.wickets??0}/${bowler.runs??0} (${bowler.overs??'0.0'})`:'');
  // Powerplay is identified by the over's explicit BAPP/BOPP flag.
  // Remaining powerplay counters are NOT indicators that one is active.
+ const balls=track(data); // Event tracking is independent of the over displayed.
  const recent=Array.isArray(data.recent_overs)?data.recent_overs:[];
- const currentOver=recent[0];
- const rawPP=String(currentOver?.power_play_type||'').toUpperCase();
- const activePP=!currentOver?.over_completed && (rawPP==='BAPP'||rawPP==='BOPP');
+ const validBalls=o=>(Array.isArray(o?.balls)?o.balls:[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER');
+ // Select an actual over group, never the last N deliveries across over boundaries.
+ // recent_overs is generally newest-first, but use explicit over numbers where available.
+ const overNumber=o=>{
+  const direct=o?.over_number??o?.over_no??o?.over_num;
+  if(direct!=null&&Number.isFinite(Number(direct)))return Number(direct);
+  const ns=validBalls(o).map(b=>Number(b.over_number)).filter(Number.isFinite);
+  return ns.length?Math.max(...ns):null;
+ };
+ const ordered=recent.map((o,index)=>({o,index,n:overNumber(o)}));
+ ordered.sort((a,b)=>a.n==null&&b.n==null?a.index-b.index:a.n==null?1:b.n==null?-1:b.n-a.n||a.index-b.index);
+ const latest=ordered[0]?.o||null;
+ // If the scorer has created the next empty over, show its empty state;
+ // otherwise preserve the completed previous over until the next over appears.
+ const displayRaw=validBalls(latest);
+ const display=displayRaw.map(normalizeBall);
+ const rawPP=String(latest?.power_play_type||'').toUpperCase();
+ const activePP=!latest?.over_completed&&(rawPP==='BAPP'||rawPP==='BOPP');
  const pp=$('powerplay');
  pp.className='pp-marker'+(activePP?' active'+(rawPP==='BOPP'?' bowling':''):'');
  pp.textContent=activePP?(rawPP==='BAPP'?'BATTING POWERPLAY':'BOWLING POWERPLAY'):'';
- const balls=track(data),latestOver=Array.isArray(data.recent_overs)?data.recent_overs[0]:null;
- const display=latestOver?(latestOver.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(normalizeBall):balls.slice(-7);
  const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';
  const heading=document.createElement('span');heading.textContent='THIS OVER';label.append(heading);
- const overRuns=Number(latestOver?.runs_in_this_over);
- if(latestOver?.runs_in_this_over!=null&&Number.isFinite(overRuns)){
+ // Prefer the authoritative over total. When absent, derive it only from deliveries
+ // in the selected over (including wides, no-balls, byes and leg-byes).
+ let overRuns=latest?.runs_in_this_over==null?NaN:Number(latest.runs_in_this_over);
+ if(!Number.isFinite(overRuns)&&displayRaw.length){
+  overRuns=displayRaw.reduce((sum,b)=>{
+   const n=number(b.runs),w=number(b.wides),nb=number(b.noballs),by=number(b.byes),lb=number(b.legbyes),pen=number(b.penalty_runs);
+   // CricBay's runs field represents bat runs; extras are separate.
+   return sum+n+w+nb+by+lb+pen;
+  },0);
+ }
+ if(Number.isFinite(overRuns)){
   const runCount=document.createElement('span');runCount.className='over-run-count';runCount.textContent=`(${overRuns} run${overRuns===1?'':'s'})`;label.append(runCount);
  }
  holder.append(label);
- for(const b of display.slice(-9)){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
+ for(const b of display){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);holder.append(el);}
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
  const phase=getMatchPhase(data);
