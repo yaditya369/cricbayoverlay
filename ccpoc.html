@@ -293,14 +293,7 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 /* Layout 3 refinements: team names, black center, compact footer, Marvel wicket. */
 .overlay.layout-3 .name{font-size:clamp(13px,1.45vw,20px)!important;line-height:1.08}
 @media(max-width:650px){.overlay.layout-3 .name{font-size:clamp(10px,2.25vw,13px)!important}}
-/* Black center respects the opacity query parameter. */
-.overlay.layout-3 .scorebox,
-.overlay.layout-3.theme-graphite .scorebox,
-.overlay.layout-3.theme-blue .scorebox,
-.overlay.layout-3.theme-red .scorebox,
-.overlay.layout-3.theme-marvel .scorebox,
-.overlay.layout-3.theme-stadium .scorebox,
-.overlay.layout-3.pre-match .scorebox{background:rgba(0,0,0,var(--alpha))!important}
+/* Restored theme-specific center scorebox gradient; opacity remains supported. */
 /* Keep the main strip at 50px and reduce only the footer to 20px. */
 .overlay.layout-3 .bottom{height:20px!important;min-height:20px!important;line-height:16px!important;padding-top:1px!important;padding-bottom:1px!important}
 .overlay.layout-3 .message{font-size:clamp(9px,1.05vw,13px)!important}
@@ -308,8 +301,44 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 /* Marvel-only wicket: red badge instead of black. */
 .overlay.layout-3.theme-marvel .ball.wicket{background:#e60033!important;color:#fff!important;border:2px solid #ff9cad!important;box-shadow:0 0 0 1px #e6003380!important}
 </style>
+<style>
+/* Layout 3 compact height: 45px main + 15px footer (60px total). */
+.overlay.layout-3 .top{height:45px!important}
+.overlay.layout-3 .identity{height:45px!important;padding-top:2px;padding-bottom:2px}
+.overlay.layout-3 .scorebox{height:45px!important}
+.overlay.layout-3 .bottom{height:15px!important;min-height:15px!important;line-height:13px!important;padding-top:0!important;padding-bottom:0!important}
+.overlay.layout-3 .message{font-size:clamp(8px,.95vw,11px)!important;line-height:13px!important}
+.overlay.layout-3 .credit{font-size:7px!important;line-height:13px!important}
+.overlay.layout-3.theme-marvel .bottom{background:rgba(16,2,5,var(--alpha))!important}
+</style>
+<style>
+/* Layout 3: hexagonal score panel with a truly uniform outline. */
+.overlay.layout-3 .scorebox,
+.overlay.layout-3.theme-graphite .scorebox,
+.overlay.layout-3.theme-blue .scorebox,
+.overlay.layout-3.theme-red .scorebox,
+.overlay.layout-3.theme-marvel .scorebox,
+.overlay.layout-3.theme-stadium .scorebox,
+.overlay.layout-3.pre-match .scorebox{
+ position:relative;isolation:isolate;overflow:visible;
+ clip-path:none!important;border:0!important;box-shadow:none!important;
+ background:transparent!important;
+}
+.overlay.layout-3 .scorebox::before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ clip-path:polygon(9% 0,91% 0,100% 50%,91% 100%,9% 100%,0 50%);
+ background:linear-gradient(180deg,rgba(var(--score-top-rgb),var(--alpha)),rgba(var(--score-bottom-rgb),var(--alpha)));
+}
+.overlay.layout-3.pre-match .scorebox::before{background:rgba(var(--dark-rgb),var(--alpha))}
+.overlay.layout-3 .scorebox .hex-outline{
+ position:absolute;inset:0;width:100%;height:100%;z-index:3;
+ pointer-events:none;overflow:visible;fill:none;
+ stroke:var(--panel-accent);stroke-width:2px;stroke-linejoin:round;
+}
+.overlay.layout-3 .scorebox .score,.overlay.layout-3 .scorebox .meta{position:relative;z-index:2}
+</style>
 </head><body>
-<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
+<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></section>
 <script>
