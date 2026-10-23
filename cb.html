@@ -405,8 +405,24 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
  .overlay.layout-2 .meta,.overlay.layout-3 .meta{font-size:8px!important}
 }
 </style>
+<style>
+/* Compact powerplay badge alongside bowler figures, preserving existing colors. */
+.overlay.layout-2 .bowler-row,.overlay.layout-3 .bowler-row{
+  grid-template-columns:minmax(0,1fr) auto auto;
+  column-gap:4px;
+}
+.overlay.layout-2 .bowler-row .pp-marker,.overlay.layout-3 .bowler-row .pp-marker{
+  align-self:center;margin:0;padding:1px 3px;
+  font-size:9px;line-height:1.15;letter-spacing:0;
+  border-radius:3px;flex-shrink:0;
+}
+@media(max-width:650px){
+ .overlay.layout-2 .bowler-row,.overlay.layout-3 .bowler-row{column-gap:2px}
+ .overlay.layout-2 .bowler-row .pp-marker,.overlay.layout-3 .bowler-row .pp-marker{font-size:8px;padding:1px 2px}
+}
+</style>
 </head><body>
-<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
+<div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></section>
 <script>
@@ -707,7 +723,7 @@ function render(data){
  const activePP=!latest?.over_completed&&(rawPP==='BAPP'||rawPP==='BOPP');
  const pp=$('powerplay');
  pp.className='pp-marker'+(activePP?' active'+(rawPP==='BOPP'?' bowling':''):'');
- pp.textContent=activePP?(rawPP==='BAPP'?'BATTING POWERPLAY':'BOWLING POWERPLAY'):'';
+ pp.textContent=activePP?(rawPP==='BAPP'?'BAT PP':'BOWL PP'):'';
  const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';
  const heading=document.createElement('span');heading.textContent='THIS OVER';label.append(heading);
  // Prefer the authoritative over total. When absent, derive it only from deliveries
