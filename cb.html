@@ -471,7 +471,19 @@ function normalizeBall(b){
 function allDeliveries(data){
  const inning=data.match?.current_inning_id;
  const overs=Array.isArray(data.recent_overs)?data.recent_overs:[];
- return overs.flatMap(o=>(o.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(b=>({...normalizeBall(b),over:number(b.over_number),ball:number(b.ball_number),id:inning+':'+String(b.live_score_id??[b.over_number,b.ball_number,b.ball_count,b.runs,b.wicket].join(':'))}))).sort((a,b)=>a.over-b.over||a.ball-b.ball||Number(a.id.split(':').pop())-Number(b.id.split(':').pop()));
+  return overs.flatMap(o=>(o.balls||[]).filter(b=>!b.commentary_only&&b.commentary_type!=='NEXT_BATTER').map(b=>{
+   const normalized=normalizeBall(b);
+   const runs=number(b.runs),noBalls=number(b.noballs),wides=number(b.wides);
+   // Boundary runs off a no-ball are still FOUR/SIX events (N+4 / N+6).
+   // Wides, byes and leg-byes must not be mistaken for bat boundaries.
+   const batBoundary=!b.wicket&&!wides&&!number(b.byes)&&!number(b.legbyes)&&
+     (runs===4||runs===6)?(runs===4?'four':'six'):null;
+   return {...normalized,kind:batBoundary||normalized.kind,
+    over:number(b.over_number??o.over_number),ball:number(b.ball_number),
+    innings:inning,deliveryId:String(b.live_score_id??[b.over_number,b.ball_number,b.ball_count,b.runs,b.wicket].join(':')),
+    id:inning+':'+String(b.live_score_id??[b.over_number,b.ball_number,b.ball_count,b.runs,b.wicket].join(':')),
+    noBall:Boolean(noBalls)};
+  })).sort((a,b)=>a.over-b.over||a.ball-b.ball||Number(a.id.split(':').pop())-Number(b.id.split(':').pop()));
 }
 function showEvent(kind){
  const vals={four:['🏏','FOUR!','BOUNDARY'],six:['🚀','SIX!','MAXIMUM'],wicket:['💥','WICKET!','']};if(!vals[kind])return;
@@ -496,6 +508,21 @@ function playBoundaryAudio(){
    if(attempt&&typeof attempt.catch==='function')attempt.catch(e=>console.warn('Boundary audio blocked by browser/WebView:',e));
  } catch(e) { console.warn('Boundary audio unavailable:',e); }
 }
+ // Android bridge contract shared with the CricClubs overlay.
+ // Only called for newly scored bat boundaries; the first snapshot is seeded silently.
+ function notifyAndroidBoundary(delivery){
+  if(delivery.kind!=='four'&&delivery.kind!=='six')return;
+  const bridge=window.AndroidBridge;
+  if(!bridge||typeof bridge.onBoundary!=='function')return;
+  const payload={
+   type:delivery.kind==='four'?'FOUR':'SIX',matchId,clubId:'',
+   innings:delivery.innings,over:String(delivery.over),
+   deliveryId:delivery.deliveryId,timestamp:Date.now()
+  };
+  try{bridge.onBoundary(JSON.stringify(payload));}
+  catch(e){console.warn('Android boundary callback failed:',e);}
+ }
+
 function track(data){
  const inning=String(data.match?.current_inning_id??'');const balls=allDeliveries(data);
  if(!initialized||previousInning!==inning){seen=new Set(balls.map(b=>b.id));initialized=true;previousInning=inning;return balls;}
@@ -503,7 +530,11 @@ function track(data){
  // Keep only recent IDs, preventing unbounded growth in a long recording.
  if(seen.size>250){seen=new Set([...seen].slice(-150));}
  // Animate only the newest newly seen scoring event.
- const event=newBalls.filter(b=>['four','six','wicket'].includes(b.kind)).at(-1);if(event)showEvent(event.kind);
+  const event=newBalls.filter(b=>['four','six','wicket'].includes(b.kind)).at(-1);
+  if(event){
+   showEvent(event.kind);
+   if(event.kind==='four'||event.kind==='six')notifyAndroidBoundary(event);
+  }
  return balls;
 }
 // CricBay may keep match.status=LIVE throughout the match; never use it for phase detection.
