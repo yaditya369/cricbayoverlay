@@ -385,8 +385,8 @@ const worker=(q.get('worker')||'https://cricbay-api.y-aditya369.workers.dev').re
 const refreshSeconds=Number(q.get('refresh')??10);
 const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:10))*1000;
 const theme=['graphite','blue','red','marvel','stadium'].includes(q.get('theme'))?q.get('theme'):'graphite';
-// Supported layouts: 2 (default) and 3. Legacy layout=1 falls back to layout 2.
-const layout=['2','3'].includes(q.get('layout'))?q.get('layout'):'2';
+// Supported layouts: 2 and 3 (default). Legacy layout=1 falls back to layout 3.
+const layout=['2','3'].includes(q.get('layout'))?q.get('layout'):'3';
  const overlay=$('overlay');overlay.className='overlay theme-'+theme+' layout-'+layout;
 // The independent summary panel uses the same theme as the scoreboard.
 $('summaryPanel').className='summary-panel theme-'+theme;
