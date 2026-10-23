@@ -307,7 +307,7 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 .overlay.layout-3 .identity{height:40px!important;padding-top:2px;padding-bottom:2px}
 .overlay.layout-3 .scorebox{height:40px!important}
 .overlay.layout-3 .bottom{height:15px!important;min-height:15px!important;line-height:13px!important;padding-top:0!important;padding-bottom:0!important}
-.overlay.layout-3 .message{font-size:clamp(8px,.95vw,11px)!important;line-height:13px!important}
+.overlay.layout-3 .message{font-size:12px!important;font-weight:800!important;line-height:13px!important}
 .overlay.layout-3 .credit{font-size:7px!important;line-height:13px!important}
 .overlay.layout-3.theme-marvel .bottom{background:rgba(16,2,5,var(--alpha))!important}
 </style>
@@ -362,13 +362,16 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 .overlay.layout-2 .identity{gap:0;padding-top:1px;padding-bottom:1px}
 .overlay.layout-2 .player,.overlay.layout-2 .bowler-row{padding:0;line-height:1.1}
 .overlay.layout-2 .balls{margin-top:0}
-.overlay.layout-2 .message{font-size:clamp(8px,.95vw,11px)!important;line-height:13px!important}
+.overlay.layout-2 .message{font-size:12px!important;font-weight:800!important;line-height:13px!important}
 .overlay.layout-2 .credit{font-size:7px!important;line-height:13px!important}
 @media(max-width:650px){
  .overlay.layout-2 .top{height:40px!important}
  .overlay.layout-2 .bottom{height:15px!important;min-height:15px!important}
  .overlay.layout-2 .scorebox{height:36px!important}
 }
+</style>
+<style>
+@media(max-width:650px){.overlay.layout-2 .message,.overlay.layout-3 .message{font-size:10px!important}}
 </style>
 </head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span></div><div class="balls" id="balls"></div><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
