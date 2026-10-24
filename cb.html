@@ -1322,6 +1322,35 @@ function renderSummary(data,phase){
  set('summaryPom',isMatch&&pom?`🏆 Player of the Match: ${pom}`:'');
  panel.classList.add('visible');
 }
+// Lifecycle callbacks: once per event per WebView page load, including first snapshot.
+// Native Android: @JavascriptInterface onMatchEvent(String json).
+const lifecycleEmitted=new Set();
+function currentPom(data){
+ const m=data?.match||{},sc=summaryScorecard||{};
+ const raw=sc.pom_name??sc.player_of_match?.name??sc.player_of_match??m.pom_name??m.player_of_match?.name??m.player_of_match;
+ const name=typeof raw==='string'?raw.trim():'';
+ return name&&name!=='[object Object]'?name:'';
+}
+function emitLifecycle(type,data,extra={}){
+ if(lifecycleEmitted.has(type))return;
+ lifecycleEmitted.add(type);
+ const payload={type,matchId:String(matchId),timestamp:Date.now(),...extra};
+ try{
+  const bridge=window.AndroidBridge;
+  if(bridge&&typeof bridge.onMatchEvent==='function')bridge.onMatchEvent(JSON.stringify(payload));
+  // Browser and WebView listener fallback, same JSON payload.
+  window.dispatchEvent(new CustomEvent('cricbay:match-event',{detail:payload}));
+ }catch(e){console.warn('Match lifecycle callback failed:',e);}
+}
+function checkLifecycle(data){
+ const phase=getMatchPhase(data);
+ if(phase==='innings'||phase==='match'||secondInningsStarted(data))
+  emitLifecycle('INNINGS_BREAK',data,{innings:1});
+ if(secondInningsStarted(data))emitLifecycle('SECOND_INNINGS_STARTED',data,{innings:2});
+ if(phase==='match')emitLifecycle('MATCH_ENDED',data,{result:getMatchResult(data)||''});
+ const pom=currentPom(data);
+ if(pom&&phase==='match')emitLifecycle('POM_SUBMITTED',data,{playerName:pom});
+}
 function updateSummary(data){
  const actualPhase=getMatchPhase(data);
  const previewPhase=summaryPreview||actualPhase;
@@ -1334,6 +1363,7 @@ function updateSummary(data){
    const footer=matchFooter(currentData);
    if(footer)set('message',footer);
    if(summaryEnabled||summaryPreview)renderSummary(currentData,summaryPreview||getMatchPhase(currentData));
+   checkLifecycle(currentData);
   });
  }
  if(!summaryEnabled&&!summaryPreview){$('summaryPanel').classList.remove('visible','broadcast-active');document.body.classList.remove('broadcast-match-visible');return;}
@@ -1346,6 +1376,7 @@ async function refresh(){if(busy)return;busy=true;try{
  const data=await r.json();if(!data||!data.match)throw Error('Snapshot JSON missing match');
  latestSnapshot=data;render(data);lastVersion=data.version;
  updateSummary(data);
+ checkLifecycle(data);
  }catch(e){console.error('CricBay overlay:',e);set('message','Score unavailable · Retrying in '+Math.round(interval/1000)+'s');}finally{busy=false;}}
 window.showCricBayEvent=showEvent;
 // Browser/WebView audio policies require a genuine gesture before sound playback.
