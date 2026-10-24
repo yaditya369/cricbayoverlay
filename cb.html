@@ -236,6 +236,32 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 .overlay.layout-3 .ball.dot{background:rgba(255,255,255,.07);border-color:#ffffff65;color:#fff}
 .overlay.layout-3.theme-marvel .ball.wicket{background:#111!important;border-color:#ff98a8!important}
 
+
+/* Option 1 approved broadcast visual corrections */
+#summaryPanel.broadcast-active{width:min(1200px,94vw)}
+#summaryPanel.broadcast-active .broadcast-summary{filter:drop-shadow(0 5px 9px rgba(0,0,0,.7))}
+#summaryPanel.broadcast-active .broadcast-banner{width:51%;border:0;background:var(--broadcast-line);padding:3px;clip-path:polygon(9% 0,91% 0,100% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-banner::before{inset:3px;clip-path:polygon(9% 0,91% 0,100% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(105px,18%) minmax(0,1fr)}
+#summaryPanel.broadcast-active .broadcast-team{border:0;padding:3px;background:var(--broadcast-line);clip-path:polygon(5% 0,100% 0,100% 100%,5% 100%,0 85%,0 15%)}
+#summaryPanel.broadcast-active .broadcast-team::before{inset:3px;clip-path:polygon(5% 0,100% 0,100% 100%,5% 100%,0 85%,0 15%)}
+#summaryPanel.broadcast-active .broadcast-team:last-child{border:0;padding:3px;clip-path:polygon(0 0,95% 0,100% 15%,100% 85%,95% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{inset:3px;clip-path:polygon(0 0,95% 0,100% 15%,100% 85%,95% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-teamhead{display:block;text-align:center;margin:0 14px;padding:6px 0 5px}
+#summaryPanel.broadcast-active .broadcast-teamname{font-size:clamp(13px,1.6vw,22px)}
+#summaryPanel.broadcast-active .broadcast-total{font-size:clamp(25px,3.2vw,45px)}
+#summaryPanel.broadcast-active .broadcast-stats{display:flex;flex-direction:column;gap:4px;padding:6px 16px 8px}
+#summaryPanel.broadcast-active .broadcast-statgroup{padding:0!important;border:0!important}
+#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding:4px 0 0!important;border-top:1px solid var(--broadcast-line)!important}
+#summaryPanel.broadcast-active .broadcast-statrow{font-size:clamp(10px,1.12vw,14px);line-height:1.3}
+#summaryPanel.broadcast-active .broadcast-statrow strong{font-size:clamp(9px,1.02vw,13px)}
+#summaryPanel.broadcast-active .broadcast-center{border-top:3px solid var(--broadcast-line);border-bottom:3px solid var(--broadcast-line);box-shadow:inset 3px 0 0 var(--broadcast-line),inset -3px 0 0 var(--broadcast-line);gap:8px}
+#summaryPanel.broadcast-active .broadcast-final{color:#fff;background:linear-gradient(180deg,#ff3940 0%,#d0081b 50%,#75000c 100%);font-size:clamp(17px,2vw,28px);padding:7px 14px;min-width:78%;text-shadow:0 2px 4px #490009;filter:drop-shadow(0 3px 5px #0009)}
+#summaryPanel.broadcast-active .broadcast-margin{font-weight:950;text-shadow:0 2px 4px #000}
+#summaryPanel.broadcast-active .broadcast-pom{border:0;background:var(--broadcast-line);padding:3px;min-width:48%;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-pom::before{inset:3px;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-avatar,#summaryPanel.broadcast-active .broadcast-logo,#summaryPanel.broadcast-active .broadcast-monogram{display:none!important}
+@media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-teamhead{padding:3px 0}#summaryPanel.broadcast-active .broadcast-stats{gap:2px;padding:4px 13px 5px}#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding-top:2px!important}#summaryPanel.broadcast-active .broadcast-center{gap:5px}}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -458,10 +484,249 @@ body.broadcast-match-visible #overlay{display:none!important}
 @media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active{top:50%;width:min(1100px,96vw)}.broadcast-grid{min-height:120px}.broadcast-team{padding:6px 9px}.broadcast-team:last-child{padding-left:15px}.broadcast-teamhead{padding-bottom:3px;gap:8px}.broadcast-stats{padding-top:3px;gap:6px}.broadcast-statgroup+.broadcast-statgroup{padding-left:6px}.broadcast-statrow{line-height:1.35}.broadcast-banner{padding:4px 12px 5px}.broadcast-center{gap:5px}.broadcast-pom{padding:4px 14px}}
 @media (max-width:600px) and (orientation:portrait){.broadcast-grid{grid-template-columns:minmax(0,1fr) 75px minmax(0,1fr)}.broadcast-team{padding:6px}.broadcast-team:last-child{padding-left:9px}.broadcast-stats{grid-template-columns:1fr;gap:2px}.broadcast-statgroup+.broadcast-statgroup{border:0;padding:0}.broadcast-teamname{font-size:10px}.broadcast-statrow{font-size:9px}.broadcast-banner{width:80%}}
 </style>
-</head><body>
+<style id="option1-fidelity-v3">
+/* Fidelity v3: layered angled metallic broadcast wings, using theme tokens. */
+#summaryPanel.broadcast-active{width:min(1300px,94vw)!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;--broadcast-a:var(--alpha,.85);overflow:visible!important}
+#summaryPanel.broadcast-active .broadcast-summary{position:relative;filter:drop-shadow(0 7px 7px #000b) drop-shadow(0 0 5px color-mix(in srgb,var(--broadcast-line) 65%,transparent));}
+#summaryPanel.broadcast-active .broadcast-banner{width:49%;min-width:0;position:relative;margin:0 auto -3px;padding:6px 10px 9px;border:0;background:linear-gradient(110deg,#fff5 0%,var(--broadcast-line) 5%,var(--broadcast-line) 95%,#fff7 100%);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);isolation:isolate;z-index:3}
+#summaryPanel.broadcast-active .broadcast-banner::before{content:"";position:absolute;inset:3px;z-index:-1;clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)}
+#summaryPanel.broadcast-active .broadcast-banner span{position:relative;font-size:clamp(17px,2.2vw,29px);text-shadow:0 2px 2px #000a,0 0 9px #ffba5240}
+#summaryPanel.broadcast-active .broadcast-banner small{position:relative;font-size:clamp(9px,1.05vw,13px);margin-top:2px}
+#summaryPanel.broadcast-active .broadcast-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(126px,18%) minmax(0,1fr);align-items:stretch;gap:0;min-height:0}
+#summaryPanel.broadcast-active .broadcast-team{position:relative;isolation:isolate;min-width:0;padding:4px 5px 4px 7px;border:0!important;background:linear-gradient(100deg,#fff8,var(--broadcast-line) 2%,var(--broadcast-line) 98%,#fff8);clip-path:polygon(6% 0,100% 0,100% 100%,6% 100%,0 86%,0 14%);}
+#summaryPanel.broadcast-active .broadcast-team::before{content:"";position:absolute;inset:4px;z-index:-1;clip-path:polygon(6% 0,100% 0,100% 100%,6% 100%,0 86%,0 14%);background:linear-gradient(158deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-dark),var(--broadcast-a)) 62%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 100%)}
+#summaryPanel.broadcast-active .broadcast-team:last-child{padding:4px 7px 4px 5px;clip-path:polygon(0 0,94% 0,100% 14%,100% 86%,94% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{clip-path:polygon(0 0,94% 0,100% 14%,100% 86%,94% 100%,0 100%)}
+#summaryPanel.broadcast-active .broadcast-teamhead{display:block;text-align:center;margin:0 18px;padding:5px 0 4px;border-bottom:1px solid color-mix(in srgb,var(--broadcast-line) 75%,transparent)}
+#summaryPanel.broadcast-active .broadcast-teamname{font-size:clamp(13px,1.4vw,21px);font-weight:950}
+#summaryPanel.broadcast-active .broadcast-total{font-size:clamp(28px,3.05vw,43px);line-height:1.05;text-shadow:0 2px 3px #0008}
+#summaryPanel.broadcast-active .broadcast-overs{font-size:clamp(10px,1.04vw,14px)}
+#summaryPanel.broadcast-active .broadcast-stats{display:flex!important;flex-direction:column!important;gap:3px;padding:5px 22px 8px}
+#summaryPanel.broadcast-active .broadcast-statgroup{padding:0!important;border:0!important;min-width:0}
+#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding:4px 0 0!important;border-top:1px solid color-mix(in srgb,var(--broadcast-line) 70%,transparent)!important}
+#summaryPanel.broadcast-active .broadcast-label{font-size:clamp(10px,1vw,13px);margin-bottom:1px;text-shadow:0 1px 3px #000}
+#summaryPanel.broadcast-active .broadcast-statrow{font-size:clamp(10px,1.06vw,14px);line-height:1.34;gap:8px}
+#summaryPanel.broadcast-active .broadcast-statrow strong{font-size:clamp(10px,1.02vw,13px)}
+#summaryPanel.broadcast-active .broadcast-center{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 5px;background:linear-gradient(90deg,rgba(var(--broadcast-dark),var(--broadcast-a)),rgba(var(--broadcast-primary),var(--broadcast-a)) 50%,rgba(var(--broadcast-dark),var(--broadcast-a)));border-top:4px solid var(--broadcast-line);border-bottom:4px solid var(--broadcast-line);box-shadow:inset 3px 0 0 var(--broadcast-line),inset -3px 0 0 var(--broadcast-line)}
+#summaryPanel.broadcast-active .broadcast-center::before{content:"";position:absolute;inset:4px;z-index:-1;background:linear-gradient(180deg,#ffffff08,transparent 50%,#0005);pointer-events:none}
+#summaryPanel.broadcast-active .broadcast-final{min-width:84%;padding:8px 5px;clip-path:polygon(12% 0,88% 0,100% 100%,0 100%);color:white;background:linear-gradient(180deg,#ff4346 0%,#d50821 46%,#6b0010 100%);font-size:clamp(19px,2vw,29px);font-weight:1000;text-shadow:0 2px 3px #410006;filter:drop-shadow(0 4px 3px #0008)}
+#summaryPanel.broadcast-active .broadcast-margin{font-size:clamp(11px,1.15vw,15px);font-weight:950;text-shadow:0 2px 3px #000}
+#summaryPanel.broadcast-active .broadcast-pom{position:relative;isolation:isolate;min-width:50%;max-width:80%;width:max-content;margin:-2px auto 0;padding:6px 28px;border:0;background:var(--broadcast-line);clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);font-size:clamp(11px,1.12vw,15px);line-height:1.25;z-index:3}
+#summaryPanel.broadcast-active .broadcast-pom::before{content:"";position:absolute;inset:3px;z-index:-1;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);background:linear-gradient(90deg,rgba(var(--broadcast-dark),var(--broadcast-a)),rgba(var(--broadcast-primary),var(--broadcast-a)),rgba(var(--broadcast-dark),var(--broadcast-a)))}
+#summaryPanel.broadcast-active .broadcast-avatar,#summaryPanel.broadcast-active .broadcast-logo,#summaryPanel.broadcast-active .broadcast-monogram,#summaryPanel.broadcast-active .team-avatar{display:none!important}
+body.broadcast-match-visible #overlay{display:none!important}
+@media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-banner{padding:3px 10px 5px}#summaryPanel.broadcast-active .broadcast-teamhead{padding:3px 0}#summaryPanel.broadcast-active .broadcast-stats{gap:2px;padding:3px 18px 5px}#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding-top:2px!important}#summaryPanel.broadcast-active .broadcast-final{padding:5px 4px}#summaryPanel.broadcast-active .broadcast-center{gap:5px}#summaryPanel.broadcast-active .broadcast-pom{padding:4px 20px}}
+</style>
+<style id="option1-broadcast-premium-v4">
+/* Visual-only revision: leave snapshot, cricket formatting and Android callbacks untouched. */
+#summaryPanel.broadcast-active{width:min(1350px,94vw)!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;--broadcast-a:var(--alpha,.85)}
+#summaryPanel.broadcast-active .broadcast-summary{filter:drop-shadow(0 10px 8px #0009) drop-shadow(0 0 7px color-mix(in srgb,var(--broadcast-line) 48%,transparent));}
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(140px,18%) minmax(0,1fr);position:relative;z-index:2;filter:drop-shadow(0 2px 1px #0008)}
+#summaryPanel.broadcast-active .broadcast-team{padding:5px 7px 5px 10px!important;background:linear-gradient(160deg,#fff8 0%,var(--broadcast-line) 3%,color-mix(in srgb,var(--broadcast-line) 65%,#44200a) 50%,var(--broadcast-line) 97%,#fff8 100%)!important;clip-path:polygon(7% 0,98% 0,100% 9%,100% 90%,98% 100%,7% 100%,0 85%,0 15%)!important;filter:none;box-shadow:none}
+#summaryPanel.broadcast-active .broadcast-team:last-child{padding:5px 10px 5px 7px!important;clip-path:polygon(2% 0,93% 0,100% 15%,100% 85%,93% 100%,2% 100%,0 90%,0 10%)!important}
+#summaryPanel.broadcast-active .broadcast-team::before{inset:4px!important;clip-path:polygon(7% 0,98% 0,100% 9%,100% 90%,98% 100%,7% 100%,0 85%,0 15%)!important;background:linear-gradient(168deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 15%,rgba(var(--broadcast-dark),var(--broadcast-a)) 55%,rgba(var(--broadcast-primary),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{clip-path:polygon(2% 0,93% 0,100% 15%,100% 85%,93% 100%,2% 100%,0 90%,0 10%)!important}
+#summaryPanel.broadcast-active .broadcast-teamhead{margin:0 18px!important;padding:5px 0 6px!important;border-bottom:1px solid color-mix(in srgb,var(--broadcast-line) 80%,transparent)!important}
+#summaryPanel.broadcast-active .broadcast-teamname{font-size:clamp(13px,1.35vw,21px)!important;letter-spacing:.3px;text-shadow:0 2px 3px #0009}
+#summaryPanel.broadcast-active .broadcast-total{font-size:clamp(29px,3.1vw,46px)!important;text-shadow:0 2px 4px #000b,0 0 10px #ffffff16}
+#summaryPanel.broadcast-active .broadcast-stats{padding:6px 22px 10px!important;gap:4px!important}
+#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding-top:5px!important;border-top:1px solid color-mix(in srgb,var(--broadcast-line) 70%,transparent)!important}
+#summaryPanel.broadcast-active .broadcast-label{letter-spacing:.5px;font-weight:950}
+#summaryPanel.broadcast-active .broadcast-center{position:relative;z-index:4;border-top:4px solid var(--broadcast-line)!important;border-bottom:4px solid var(--broadcast-line)!important;background:linear-gradient(90deg,rgba(var(--broadcast-dark),var(--broadcast-a)) 0%,rgba(var(--broadcast-primary),var(--broadcast-a)) 48%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important;box-shadow:inset 4px 0 0 var(--broadcast-line),inset -4px 0 0 var(--broadcast-line),inset 0 0 26px #0007!important;gap:10px!important}
+#summaryPanel.broadcast-active .broadcast-center::after{content:"";position:absolute;inset:7px 8px;pointer-events:none;border:1px solid color-mix(in srgb,var(--broadcast-line) 30%,transparent);clip-path:polygon(0 0,100% 0,100% 100%,0 100%);z-index:-1}
+#summaryPanel.broadcast-active .broadcast-final{position:relative;z-index:2;min-width:95%!important;padding:9px 7px!important;font-size:clamp(21px,2.4vw,33px)!important;clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%)!important;background:linear-gradient(180deg,#ff7172 0%,#f41426 18%,#d00b1b 48%,#78010b 90%,#490007 100%)!important;filter:drop-shadow(0 4px 3px #000b) drop-shadow(0 0 4px #ff433b8a)!important;text-shadow:0 2px 3px #000a!important}
+#summaryPanel.broadcast-active .broadcast-margin{max-width:96%;font-size:clamp(11px,1.14vw,16px)!important;line-height:1.25;text-align:center;text-shadow:0 2px 3px #000c}
+#summaryPanel.broadcast-active .broadcast-banner{width:52%!important;z-index:5!important;margin-bottom:-3px!important;padding:6px 10px 9px!important;background:linear-gradient(110deg,#fff8,var(--broadcast-line) 5%,color-mix(in srgb,var(--broadcast-line) 75%,#63391a) 50%,var(--broadcast-line) 95%,#fff8)!important;clip-path:polygon(10% 0,90% 0,97% 35%,100% 100%,0 100%,3% 35%)!important;filter:drop-shadow(0 3px 3px #0008)}
+#summaryPanel.broadcast-active .broadcast-banner::before{inset:4px!important;clip-path:polygon(10% 0,90% 0,97% 35%,100% 100%,0 100%,3% 35%)!important;background:linear-gradient(180deg,rgba(var(--broadcast-secondary),var(--broadcast-a)),rgba(var(--broadcast-dark),var(--broadcast-a)))!important}
+#summaryPanel.broadcast-active .broadcast-banner span{font-size:clamp(19px,2.3vw,32px)!important;letter-spacing:.6px;text-shadow:0 2px 2px #000a,0 0 10px color-mix(in srgb,var(--broadcast-line) 40%,transparent)!important}
+#summaryPanel.broadcast-active .broadcast-pom{z-index:5!important;min-width:52%!important;max-width:83%;margin:-2px auto 0!important;padding:7px 25px!important;background:linear-gradient(110deg,#fff8,var(--broadcast-line) 4%,var(--broadcast-line) 96%,#fff8)!important;clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%)!important;filter:drop-shadow(0 3px 3px #0009)}
+#summaryPanel.broadcast-active .broadcast-pom::before{inset:3px!important;clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%)!important;background:linear-gradient(90deg,rgba(var(--broadcast-dark),var(--broadcast-a)),rgba(var(--broadcast-primary),var(--broadcast-a)) 50%,rgba(var(--broadcast-dark),var(--broadcast-a)))!important}
+#summaryPanel.broadcast-active .broadcast-avatar,#summaryPanel.broadcast-active .broadcast-logo,#summaryPanel.broadcast-active .broadcast-monogram,#summaryPanel.broadcast-active .team-avatar{display:none!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-teamhead{padding:2px 0 3px!important}#summaryPanel.broadcast-active .broadcast-stats{padding:3px 20px 5px!important;gap:2px!important}#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding-top:2px!important}#summaryPanel.broadcast-active .broadcast-final{padding:5px 5px!important}#summaryPanel.broadcast-active .broadcast-banner{padding:3px 10px 5px!important}#summaryPanel.broadcast-active .broadcast-pom{padding:4px 20px!important}}
+</style>
+
+<style id="option1-v5-critical-high">
+/* V5 is strictly visual: no match data, formatting, polling or callback changes. */
+#summaryPanel.broadcast-active{--v5-metal-light:color-mix(in srgb,var(--broadcast-line) 68%,#fff);--v5-metal-dark:color-mix(in srgb,var(--broadcast-line) 58%,#382313)}
+#summaryPanel.broadcast-active .broadcast-summary{filter:drop-shadow(0 9px 7px #0009) drop-shadow(0 0 7px color-mix(in srgb,var(--broadcast-line) 35%,transparent))!important}
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(126px,18%) minmax(0,1fr)!important}
+/* A brighter metallic outer silhouette with wider cut wings, while retaining team content. */
+#summaryPanel.broadcast-active .broadcast-team{z-index:1!important;clip-path:polygon(7% 0,100% 0,100% 100%,7% 100%,0 82%,0 18%)!important;background:linear-gradient(145deg,#fff9 0%,var(--v5-metal-light) 2%,var(--broadcast-line) 15%,var(--v5-metal-dark) 55%,var(--v5-metal-light) 91%,#fff9 100%)!important;filter:drop-shadow(0 3px 2px #0008)!important}
+#summaryPanel.broadcast-active .broadcast-team::before{clip-path:polygon(7% 0,100% 0,100% 100%,7% 100%,0 82%,0 18%)!important;background:linear-gradient(165deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 28%,rgba(var(--broadcast-dark),var(--broadcast-a)) 73%,rgba(var(--broadcast-primary),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child{clip-path:polygon(0 0,93% 0,100% 18%,100% 82%,93% 100%,0 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{clip-path:polygon(0 0,93% 0,100% 18%,100% 82%,93% 100%,0 100%)!important}
+/* The central section is one connected maroon bridge, not a framed box. */
+#summaryPanel.broadcast-active .broadcast-center{z-index:2!important;border:0!important;outline:0!important;box-shadow:inset 0 15px 20px -19px color-mix(in srgb,var(--broadcast-line) 70%,transparent),inset 0 -15px 20px -19px color-mix(in srgb,var(--broadcast-line) 70%,transparent)!important;background:linear-gradient(90deg,rgba(var(--broadcast-dark),var(--broadcast-a)) 0%,rgba(var(--broadcast-primary),var(--broadcast-a)) 50%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important;clip-path:polygon(0 0,100% 0,97% 50%,100% 100%,0 100%,3% 50%)!important;padding:10px 3px!important;gap:12px!important}
+#summaryPanel.broadcast-active .broadcast-center::before,#summaryPanel.broadcast-active .broadcast-center::after{content:none!important;display:none!important;border:0!important;box-shadow:none!important}
+#summaryPanel.broadcast-active .broadcast-final{min-width:92%!important;max-width:100%;padding:9px 5px!important;font-size:clamp(22px,2.5vw,34px)!important;background:linear-gradient(180deg,#ff7372 0%,#fb1729 18%,#d1091a 50%,#8c0311 80%,#4e0009 100%)!important;box-shadow:inset 0 2px 1px #ffb4ac55,inset 0 -3px 3px #33000788!important;filter:drop-shadow(0 5px 4px #000b) drop-shadow(0 0 5px #ed33367c)!important}
+#summaryPanel.broadcast-active .broadcast-margin{font-weight:950!important;line-height:1.3!important}
+/* Title and POM become layered ribbons with stronger metallic specular edges. */
+#summaryPanel.broadcast-active .broadcast-banner{background:linear-gradient(105deg,#fff9 0%,var(--broadcast-line) 5%,var(--v5-metal-dark) 47%,var(--v5-metal-light) 85%,#fff9 100%)!important;filter:drop-shadow(0 4px 3px #0008)!important}
+#summaryPanel.broadcast-active .broadcast-banner::before{background:linear-gradient(180deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 47%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-pom{min-width:56%!important;padding:9px 24px!important;font-size:clamp(12px,1.25vw,17px)!important;background:linear-gradient(100deg,#fff9 0%,var(--v5-metal-light) 7%,var(--v5-metal-dark) 50%,var(--v5-metal-light) 93%,#fff9 100%)!important;filter:drop-shadow(0 5px 3px #0009)!important}
+#summaryPanel.broadcast-active .broadcast-pom::before{background:linear-gradient(180deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 52%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-center{gap:8px!important;padding:5px 3px!important}#summaryPanel.broadcast-active .broadcast-final{padding:6px 4px!important}#summaryPanel.broadcast-active .broadcast-pom{padding:5px 20px!important}}
+</style>
+<style id="option1-v6-integrated-broadcast">
+/* Visual-only V6. Preserve all existing match logic and shared formatting. */
+#summaryPanel.broadcast-active .broadcast-summary{filter:drop-shadow(0 10px 8px #000b) drop-shadow(0 0 5px color-mix(in srgb,var(--broadcast-line) 35%,transparent))!important}
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(120px,17%) minmax(0,1fr)!important;isolation:isolate}
+#summaryPanel.broadcast-active .broadcast-team{z-index:1!important;clip-path:polygon(8% 0,97% 0,100% 7%,100% 92%,97% 100%,8% 100%,3% 90%,0 83%,0 17%,3% 10%)!important;background:linear-gradient(130deg,#fff6 0%,var(--v5-metal-light) 4%,var(--broadcast-line) 15%,var(--v5-metal-dark) 52%,var(--v5-metal-light) 94%,#fff9 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team::before{clip-path:polygon(8% 0,97% 0,100% 7%,100% 92%,97% 100%,8% 100%,3% 90%,0 83%,0 17%,3% 10%)!important;background:radial-gradient(ellipse at 20% 0%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,transparent 58%),linear-gradient(168deg,rgba(var(--broadcast-secondary),var(--broadcast-a)) 0%,rgba(var(--broadcast-dark),var(--broadcast-a)) 56%,rgba(var(--broadcast-primary),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child{clip-path:polygon(3% 0,92% 0,97% 10%,100% 17%,100% 83%,97% 90%,92% 100%,3% 100%,0 92%,0 7%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{clip-path:polygon(3% 0,92% 0,97% 10%,100% 17%,100% 83%,97% 90%,92% 100%,3% 100%,0 92%,0 7%)!important;background:radial-gradient(ellipse at 80% 0%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,transparent 58%),linear-gradient(190deg,rgba(var(--broadcast-secondary),var(--broadcast-a)),rgba(var(--broadcast-dark),var(--broadcast-a)) 58%,rgba(var(--broadcast-primary),var(--broadcast-a)))!important}
+/* No straight gold separators, outlines, inset rectangles or boxed center. */
+#summaryPanel.broadcast-active .broadcast-center{z-index:3!important;position:relative!important;border:0!important;outline:0!important;box-shadow:none!important;clip-path:none!important;margin:0 -3px!important;padding:9px 6px!important;background:radial-gradient(ellipse at 50% 44%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-dark),var(--broadcast-a)) 72%)!important;gap:8px!important}
+#summaryPanel.broadcast-active .broadcast-center::before{content:""!important;display:block!important;position:absolute;inset:0 auto 0 0;width:12px;z-index:0;pointer-events:none;background:linear-gradient(110deg,color-mix(in srgb,var(--broadcast-line) 45%,transparent),transparent 78%);clip-path:polygon(100% 0,0 0,100% 28%,30% 50%,100% 72%,0 100%,100% 100%)!important;border:0!important;box-shadow:none!important}
+#summaryPanel.broadcast-active .broadcast-center::after{content:""!important;display:block!important;position:absolute;inset:0 0 0 auto;width:12px;z-index:0;pointer-events:none;background:linear-gradient(250deg,color-mix(in srgb,var(--broadcast-line) 45%,transparent),transparent 78%);clip-path:polygon(0 0,100% 0,0 28%,70% 50%,0 72%,100% 100%,0 100%)!important;border:0!important;box-shadow:none!important}
+#summaryPanel.broadcast-active .broadcast-final{z-index:2!important;min-width:96%!important;clip-path:polygon(13% 0,87% 0,100% 50%,87% 100%,13% 100%,0 50%)!important;background:linear-gradient(180deg,#ff8581 0%,#ff2634 17%,#d00016 53%,#71000c 89%,#420006 100%)!important;filter:drop-shadow(0 5px 4px #000b) drop-shadow(0 0 7px #f22b3788)!important}
+#summaryPanel.broadcast-active .broadcast-margin{z-index:2!important;position:relative!important}
+#summaryPanel.broadcast-active .broadcast-pom{background:linear-gradient(100deg,#fff9,var(--v5-metal-light) 7%,var(--v5-metal-dark) 46%,var(--v5-metal-light) 94%,#fff9)!important;filter:drop-shadow(0 4px 4px #0009) drop-shadow(0 0 3px color-mix(in srgb,var(--broadcast-line) 45%,transparent))!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-center{gap:6px!important;padding:5px 5px!important}}
+</style><style id="option1-v7-clean-integrated-center">
+/* V7: visual-only overrides. No data, callback, polling or formatter changes. */
+#summaryPanel.broadcast-active .broadcast-grid{position:relative!important;isolation:isolate!important;grid-template-columns:minmax(0,1fr) minmax(120px,17%) minmax(0,1fr)!important;gap:0!important}
+/* A continuous dark center joins the team wings; no gold vertical rails. */
+#summaryPanel.broadcast-active .broadcast-center{z-index:2!important;position:relative!important;margin:0 -2px!important;padding:5px 7px!important;border:0!important;outline:0!important;box-shadow:inset 0 14px 22px -24px #ffdc8e70,inset 0 -15px 20px -24px #ffdc8e50!important;clip-path:none!important;background:radial-gradient(ellipse at 50% 39%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 37%,rgba(var(--broadcast-dark),var(--broadcast-a)) 90%)!important;gap:9px!important}
+#summaryPanel.broadcast-active .broadcast-center::before,#summaryPanel.broadcast-active .broadcast-center::after{content:none!important;display:none!important;background:none!important;border:0!important;box-shadow:none!important}
+/* Remove the central tips/spikes. Wings terminate flush, with a clean dark seam. */
+#summaryPanel.broadcast-active .broadcast-team{z-index:1!important;clip-path:polygon(8% 0,98% 0,100% 5%,100% 95%,98% 100%,8% 100%,3% 90%,0 82%,0 18%,3% 10%)!important;background:linear-gradient(145deg,#fff7 0%,var(--v5-metal-light) 3%,var(--broadcast-line) 16%,var(--v5-metal-dark) 55%,var(--v5-metal-light) 95%,#fff8 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team::before{clip-path:polygon(8% 0,98% 0,100% 5%,100% 95%,98% 100%,8% 100%,3% 90%,0 82%,0 18%,3% 10%)!important;background:linear-gradient(160deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 27%,rgba(var(--broadcast-dark),var(--broadcast-a)) 65%,rgba(var(--broadcast-primary),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child{clip-path:polygon(2% 0,92% 0,97% 10%,100% 18%,100% 82%,97% 90%,92% 100%,2% 100%,0 95%,0 5%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{clip-path:polygon(2% 0,92% 0,97% 10%,100% 18%,100% 82%,97% 90%,92% 100%,2% 100%,0 95%,0 5%)!important;background:linear-gradient(200deg,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 27%,rgba(var(--broadcast-dark),var(--broadcast-a)) 65%,rgba(var(--broadcast-primary),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-final{z-index:2!important;position:relative!important;min-width:96%!important;clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%)!important;background:linear-gradient(180deg,#ff7777 0%,#ff2839 18%,#cf001b 55%,#650008 100%)!important;filter:drop-shadow(0 5px 4px #000b) drop-shadow(0 0 6px #d41a3b75)!important}
+#summaryPanel.broadcast-active .broadcast-margin{position:relative!important;z-index:2!important}
+/* Metallic trim is concentrated on the outer silhouette and header, not the center seam. */
+#summaryPanel.broadcast-active .broadcast-summary{filter:drop-shadow(0 9px 7px #000a) drop-shadow(0 0 4px #ffd17645)!important}
+#summaryPanel.broadcast-active .broadcast-pom{background:linear-gradient(100deg,#fff9 0%,var(--v5-metal-light) 8%,var(--v5-metal-dark) 48%,var(--v5-metal-light) 92%,#fff9 100%)!important;filter:drop-shadow(0 4px 4px #000a)!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-center{padding:5px 5px!important;gap:6px!important}}
+</style><style id="option1-v8-critical-fixes">
+/* Visual-only V8: unified wing-to-center composition, no center rails or spikes. */
+#summaryPanel.broadcast-active .broadcast-grid{isolation:isolate!important;position:relative!important;grid-template-columns:minmax(0,1fr) minmax(132px,17%) minmax(0,1fr)!important;background:radial-gradient(ellipse at 50% 48%,rgba(var(--broadcast-primary),var(--broadcast-a)),rgba(var(--broadcast-dark),var(--broadcast-a)) 72%)!important;clip-path:polygon(3.4% 0,96.6% 0,100% 16%,100% 84%,96.6% 100%,3.4% 100%,0 84%,0 16%)!important}
+/* Side wings have stepped external ends; internal edges are deliberately straight and hidden beneath center bridge. */
+#summaryPanel.broadcast-active .broadcast-team{z-index:1!important;clip-path:polygon(8% 0,100% 0,100% 100%,8% 100%,3% 91%,0 82%,0 18%,3% 9%)!important;background:linear-gradient(145deg,#fff9 0%,var(--v5-metal-light) 3%,var(--broadcast-line) 12%,var(--v5-metal-dark) 58%,var(--v5-metal-light) 95%,#fff9 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team::before{clip-path:polygon(8% 0,100% 0,100% 100%,8% 100%,3% 91%,0 82%,0 18%,3% 9%)!important;background:radial-gradient(ellipse at 44% 12%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 53%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child{clip-path:polygon(0 0,92% 0,97% 9%,100% 18%,100% 82%,97% 91%,92% 100%,0 100%)!important}
+#summaryPanel.broadcast-active .broadcast-team:last-child::before{clip-path:polygon(0 0,92% 0,97% 9%,100% 18%,100% 82%,97% 91%,92% 100%,0 100%)!important;background:radial-gradient(ellipse at 56% 12%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 53%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important}
+/* Center overlaps the gold inner edges and visually merges with both wings. */
+#summaryPanel.broadcast-active .broadcast-center{z-index:4!important;position:relative!important;margin:0 -9px!important;clip-path:none!important;border:0!important;outline:0!important;box-shadow:none!important;background:radial-gradient(ellipse at 50% 46%,rgba(var(--broadcast-primary),var(--broadcast-a)) 0%,rgba(var(--broadcast-secondary),var(--broadcast-a)) 50%,rgba(var(--broadcast-dark),var(--broadcast-a)) 100%)!important;padding:10px 6px!important;gap:9px!important}
+#summaryPanel.broadcast-active .broadcast-center::before,#summaryPanel.broadcast-active .broadcast-center::after{content:none!important;display:none!important}
+#summaryPanel.broadcast-active .broadcast-final{min-width:94%!important;max-width:100%!important;filter:drop-shadow(0 4px 4px #000a) drop-shadow(0 0 5px #ff343b55)!important}
+#summaryPanel.broadcast-active .broadcast-margin{max-width:98%!important;line-height:1.25!important}
+/* POM remains outside the joined wing shape, and stays centered. */
+#summaryPanel.broadcast-active .broadcast-pom{z-index:5!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-center{padding:5px 5px!important;gap:6px!important}}
+</style>
+<style id="option1-v9-unified-silhouette">
+/* V9: one continuous SVG outline and background; team and FINAL content float above it. */
+#summaryPanel.broadcast-active .broadcast-grid{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(144px,21%) minmax(0,1fr)!important;isolation:isolate!important;background:transparent!important;clip-path:none!important;gap:0!important;overflow:visible!important}
+#summaryPanel.broadcast-active .broadcast-unified-art{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible;filter:drop-shadow(0 5px 4px #0008)}
+#summaryPanel.broadcast-active .broadcast-team,#summaryPanel.broadcast-active .broadcast-team:last-child{position:relative!important;z-index:1!important;background:transparent!important;border:0!important;clip-path:none!important;filter:none!important;box-shadow:none!important;padding:4px 8px!important}
+#summaryPanel.broadcast-active .broadcast-team::before,#summaryPanel.broadcast-active .broadcast-team::after,#summaryPanel.broadcast-active .broadcast-team:last-child::before,#summaryPanel.broadcast-active .broadcast-team:last-child::after{content:none!important;display:none!important}
+#summaryPanel.broadcast-active .broadcast-center{position:relative!important;z-index:1!important;margin:0!important;padding:0 8px!important;gap:7px!important;background:transparent!important;clip-path:none!important;border:0!important;outline:0!important;box-shadow:none!important;min-width:0!important}
+#summaryPanel.broadcast-active .broadcast-center::before,#summaryPanel.broadcast-active .broadcast-center::after{content:none!important;display:none!important}
+#summaryPanel.broadcast-active .broadcast-final{min-width:88%!important;max-width:98%!important;padding:7px 3px!important;clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%)!important;background:linear-gradient(180deg,#ff5754 0%,#f51427 30%,#b00018 65%,#62000e 100%)!important;box-shadow:none!important;filter:drop-shadow(0 5px 3px #000b) drop-shadow(0 0 5px #ff303050)!important}
+#summaryPanel.broadcast-active .broadcast-margin{max-width:100%!important;text-shadow:0 2px 3px #000,0 0 6px #000!important}
+#summaryPanel.broadcast-active .broadcast-teamhead{border-bottom:1px solid color-mix(in srgb,var(--broadcast-line) 70%,transparent)!important}
+#summaryPanel.broadcast-active .broadcast-stats{padding:5px 16px 9px!important}
+#summaryPanel.broadcast-active .broadcast-pom{filter:drop-shadow(0 3px 3px #0009)!important}
+@media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(138px,21%) minmax(0,1fr)!important}#summaryPanel.broadcast-active .broadcast-stats{padding:4px 15px 6px!important}}
+</style>
+<style id="option1-v13-final-visual">
+/* V9 baseline. One silhouette; no center dividers, rectangles or strips. */
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(176px,25%) minmax(0,1fr)!important}
+#summaryPanel.broadcast-active .broadcast-center{position:relative!important;isolation:isolate!important;justify-content:center!important;gap:9px!important;padding:0 6px!important}
+#summaryPanel.broadcast-active .broadcast-center::before,#summaryPanel.broadcast-active .broadcast-center::after{content:none!important;display:none!important}
+#summaryPanel.broadcast-active .broadcast-final{min-width:94%!important;max-width:100%!important;padding:9px 3px!important;font-size:clamp(19px,2.3vw,31px)!important;background:linear-gradient(180deg,#ff7770 0%,#ff2035 25%,#d90022 52%,#810014 85%,#4c000e 100%)!important;filter:drop-shadow(0 7px 5px #000a) drop-shadow(0 0 10px #e8223440)!important}
+#summaryPanel.broadcast-active .broadcast-margin{font-weight:800!important;line-height:1.28!important;max-width:100%!important;text-shadow:0 2px 4px #000!important}
+#summaryPanel.broadcast-active .broadcast-team{padding:4px 12px!important}
+#summaryPanel.broadcast-active .broadcast-pom{filter:drop-shadow(0 4px 4px #0009)!important}
+@media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(168px,25%) minmax(0,1fr)!important}}
+</style>
+<style id="match-summary-header-v14">
+/* Reduce only MATCH SUMMARY header lettering; preserve all other styling and logic. */
+#summaryPanel.broadcast-active .broadcast-banner span {
+  font-size: clamp(14px, 1.65vw, 22px) !important;
+  font-weight: 850 !important;
+  letter-spacing: .65px !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.5) !important;
+}
+</style>
+<style id="pom-empty-hide">#summaryPanel.broadcast-active .broadcast-pom:empty{display:none!important}</style><style id="v15-center-integration">
+/* One shared SVG silhouette. FINAL is a focal area, not a separate box. */
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(160px,23%) minmax(0,1fr)!important}
+#summaryPanel.broadcast-active .broadcast-center{background:transparent!important;box-shadow:none!important;border:0!important;outline:0!important;clip-path:none!important;margin:0!important;padding:0 8px!important;gap:9px!important;z-index:2!important}
+#summaryPanel.broadcast-active .broadcast-center::before,#summaryPanel.broadcast-active .broadcast-center::after{display:none!important;content:none!important}
+#summaryPanel.broadcast-active .broadcast-final{min-width:90%!important;max-width:98%!important;filter:drop-shadow(0 5px 4px #0009)!important}
+#summaryPanel.broadcast-active .broadcast-margin{font-size:clamp(10px,1.05vw,14px)!important;line-height:1.2!important;max-width:100%!important}
+#summaryPanel.broadcast-active .broadcast-pom:empty{display:none!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(154px,23%) minmax(0,1fr)!important}}
+</style><style id="v16-two-team-summary">
+/* Two equally sized teams, with a deliberate center seam. Result in top banner. */
+#summaryPanel.broadcast-active .broadcast-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:0!important}
+#summaryPanel.broadcast-active .broadcast-center{display:none!important}
+#summaryPanel.broadcast-active .broadcast-team{position:relative!important;z-index:2!important;min-width:0!important;padding:6px 22px!important}
+#summaryPanel.broadcast-active .broadcast-team:nth-of-type(2){border-left:2px solid color-mix(in srgb,var(--broadcast-line) 70%,transparent)!important;padding-left:23px!important}
+#summaryPanel.broadcast-active .broadcast-team:nth-of-type(2)::before{content:"";position:absolute;top:14%;bottom:14%;left:-5px;width:8px;pointer-events:none;background:linear-gradient(180deg,transparent,var(--broadcast-line) 25%,var(--broadcast-line) 75%,transparent);clip-path:polygon(50% 0,100% 12%,100% 88%,50% 100%,0 88%,0 12%);opacity:.8}
+#summaryPanel.broadcast-active .broadcast-banner{width:62%!important;padding:4px 12px 7px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important}
+#summaryPanel.broadcast-active .broadcast-banner span{font-size:clamp(13px,1.55vw,21px)!important;line-height:1.08!important}
+#summaryPanel.broadcast-active .broadcast-banner .broadcast-margin{font-size:clamp(10px,1.15vw,15px)!important;font-weight:750!important;color:#fff4db!important;line-height:1.15!important;text-align:center!important;white-space:normal!important;text-shadow:0 1px 3px #000!important;max-width:100%!important;overflow-wrap:anywhere!important}
+#summaryPanel.broadcast-active .broadcast-banner .broadcast-margin:empty{display:none!important}
+#summaryPanel.broadcast-active .broadcast-pom:empty{display:none!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-team{padding:4px 19px!important}#summaryPanel.broadcast-active .broadcast-team:nth-of-type(2){padding-left:21px!important}#summaryPanel.broadcast-active .broadcast-banner{padding:3px 12px 6px!important}}
+</style><style id="v17-compact-horizontal">
+/* Reduce oversized horizontal spread, while retaining the two-panel arrangement. */
+#summaryPanel.broadcast-active{width:min(780px,84vw)!important;max-width:84vw!important}
+#summaryPanel.broadcast-active .broadcast-team{padding:5px 11px!important}
+#summaryPanel.broadcast-active .broadcast-team:nth-of-type(2){padding-left:13px!important}
+#summaryPanel.broadcast-active .broadcast-stats{padding:4px 10px 6px!important;gap:2px!important}
+#summaryPanel.broadcast-active .broadcast-teamhead{padding:2px 0 4px!important}
+#summaryPanel.broadcast-active .broadcast-banner{width:70%!important}
+#summaryPanel.broadcast-active .broadcast-pom{max-width:77%!important;margin-inline:auto!important}
+@media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active{width:min(780px,84vw)!important;max-width:84vw!important}}
+</style><style id="v18-name-score-row">
+/* Team name fills the left of each scoreline; score and overs align on right. */
+#summaryPanel.broadcast-active .broadcast-teamhead{margin:0 11px!important;text-align:left!important}
+#summaryPanel.broadcast-active .broadcast-identity{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;column-gap:10px!important;align-items:center!important;width:100%!important}
+#summaryPanel.broadcast-active .broadcast-teamname{grid-column:1!important;grid-row:1 / 3!important;min-width:0!important;text-align:left!important;white-space:normal!important;overflow-wrap:break-word!important;line-height:1.14!important;font-size:clamp(13px,1.5vw,20px)!important}
+#summaryPanel.broadcast-active .broadcast-total{grid-column:2!important;grid-row:1!important;text-align:right!important;white-space:nowrap!important;font-size:clamp(23px,2.85vw,37px)!important}
+#summaryPanel.broadcast-active .broadcast-overs{grid-column:2!important;grid-row:2!important;text-align:right!important;white-space:nowrap!important;font-size:clamp(9px,.95vw,12px)!important}
+</style><style id="v19-tight-columns">
+/* Pull each team's values closer to its names, reducing the two large blank zones. */
+#summaryPanel.broadcast-active{width:min(680px,74vw)!important;max-width:74vw!important}
+#summaryPanel.broadcast-active .broadcast-team{padding:5px 9px!important}
+#summaryPanel.broadcast-active .broadcast-team:nth-of-type(2){padding-left:11px!important}
+#summaryPanel.broadcast-active .broadcast-teamhead{margin:0 7px!important}
+#summaryPanel.broadcast-active .broadcast-stats{padding:4px 6px 6px!important}
+#summaryPanel.broadcast-active .broadcast-statrow{gap:5px!important}
+#summaryPanel.broadcast-active .broadcast-banner{width:78%!important}
+#summaryPanel.broadcast-active .broadcast-pom{max-width:85%!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active{width:min(680px,74vw)!important;max-width:74vw!important}}
+</style><style id="v20-header-breathing-room">
+/* Keep the title away from the gold top border without changing scorecard geometry. */
+#summaryPanel.broadcast-active .broadcast-banner{padding-top:11px!important;padding-bottom:7px!important;gap:2px!important}
+#summaryPanel.broadcast-active .broadcast-banner span{line-height:1.15!important}
+@media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-banner{padding-top:10px!important;padding-bottom:7px!important}}
+</style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
-<section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><small id="broadcastSubtitle"></small></div><div class="broadcast-grid"><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center"><div class="broadcast-final" id="broadcastFinal">FINAL</div><div class="broadcast-margin" id="broadcastMargin"></div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
+<section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="v9gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b5"/><stop offset=".18" stop-color="#eec87c"/><stop offset=".48" stop-color="#a76529"/><stop offset=".75" stop-color="#f8d88a"/><stop offset="1" stop-color="#b46a31"/></linearGradient>
+<linearGradient id="v9base" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="rgb(var(--broadcast-primary))" stop-opacity="var(--broadcast-a)"/><stop offset=".56" stop-color="rgb(var(--broadcast-secondary))" stop-opacity="var(--broadcast-a)"/><stop offset="1" stop-color="rgb(var(--broadcast-dark))" stop-opacity="var(--broadcast-a)"/></linearGradient>
+<radialGradient id="v9shine"><stop offset="0" stop-color="rgb(var(--broadcast-primary))" stop-opacity=".48"/><stop offset="1" stop-color="rgb(var(--broadcast-primary))" stop-opacity="0"/></radialGradient>
+<linearGradient id="v9center" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgb(var(--broadcast-secondary))" stop-opacity="0"/><stop offset=".5" stop-color="rgb(var(--broadcast-dark))" stop-opacity=".44"/><stop offset="1" stop-color="rgb(var(--broadcast-secondary))" stop-opacity="0"/></linearGradient>
+<radialGradient id="v13centerlight" cx=".5" cy=".47" r=".7"><stop offset="0" stop-color="#ed2439" stop-opacity=".34"/><stop offset=".42" stop-color="#770c1b" stop-opacity=".26"/><stop offset="1" stop-color="#19020a" stop-opacity="0"/></radialGradient>
+<linearGradient id="v13centersheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b4" stop-opacity=".045"/><stop offset=".48" stop-color="#9a1323" stop-opacity=".06"/><stop offset="1" stop-color="#12020b" stop-opacity="0"/></linearGradient>
+<linearGradient id="v15center" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgb(var(--broadcast-dark))" stop-opacity="0"/><stop offset=".24" stop-color="rgb(var(--broadcast-dark))" stop-opacity=".32"/><stop offset=".5" stop-color="rgb(var(--broadcast-dark))" stop-opacity=".68"/><stop offset=".76" stop-color="rgb(var(--broadcast-dark))" stop-opacity=".32"/><stop offset="1" stop-color="rgb(var(--broadcast-dark))" stop-opacity="0"/></linearGradient>
+<linearGradient id="v15softgold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6b35a" stop-opacity="0"/><stop offset=".5" stop-color="#e6b35a" stop-opacity=".6"/><stop offset="1" stop-color="#e6b35a" stop-opacity="0"/></linearGradient>
+</defs>
+<path d="M 39 3 L 1161 3 L 1197 35 L 1197 235 L 1161 267 L 39 267 L 3 235 L 3 35 Z" fill="url(#v9base)" stroke="url(#v9gold)" stroke-width="6" stroke-linejoin="bevel"/>
+<path d="M 42 12 L 1158 12 L 1188 40 M 1188 230 L 1158 258 L 42 258 L 12 230 M 12 40 L 42 12" fill="none" stroke="var(--broadcast-line)" stroke-opacity=".5" stroke-width="1.6"/>
+<path d="M 60 14 L 1140 14 L 1100 49 L 100 49 Z" fill="url(#v9shine)" opacity=".35"/>
+<path d="M 465 4 L 735 4 L 795 135 L 735 266 L 465 266 L 405 135 Z" fill="url(#v15center)" opacity=".88"/>
+
+<path d="M 60 3 L 185 3 M 1015 3 L 1140 3 M 60 267 L 185 267 M 1015 267 L 1140 267" stroke="#ffe5a2" stroke-width="2.5" opacity=".8"/>
+</svg><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center" aria-hidden="true"><div class="broadcast-final" id="broadcastFinal">FINAL</div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
 <script>
 (() => {
 'use strict';
@@ -767,7 +1032,7 @@ function render(data){
  set('meta',`Overs ${scoreOver(active.over??batting.overs)} · RR ${active.current_rr??'—'}`);
  const batters=currentMatchesBatting?[c.batter1,c.batter2].filter(Boolean):[];
  $('batters').replaceChildren(...batters.map(b=>{const row=document.createElement('div');row.className='player';const name=document.createElement('span');name.className='person';name.textContent=(b.player_id===c.striker_id?'▸ ':'')+fullName(b);const stats=document.createElement('span');stats.className='stats';stats.textContent=`${b.runs??0} (${b.balls??0})`;row.append(name,stats);return row;}));
- const bowler=currentMatchesBatting?c.current_bowler:null;set('bowler',bowler?fullName(bowler):'—');set('figures',bowler?`${bowler.wickets??0}/${bowler.runs??0} (${bowler.overs??'0.0'})`:'');
+ const bowler=currentMatchesBatting?c.current_bowler:null;set('bowler',bowler?fullName(bowler):'—');set('figures',bowler?bowlingFigures(bowler):'');
  // Powerplay is identified by the over's explicit BAPP/BOPP flag.
  // Remaining powerplay counters are NOT indicators that one is active.
  const balls=track(data); // Event tracking is independent of the over displayed.
@@ -931,11 +1196,15 @@ function summaryRows(id,people,kind){
   row.append(name,stats);el.append(row);
  }
 }
+function bowlingFigures(p){
+ // Shared with live lower-third. CricBay reports overs in cricket notation (3.2 = 3 overs + 2 balls).
+ return `${p.wickets??0}/${p.runs??0} (${p.overs??p.overs_bowled??p.bowling_overs??'0.0'})`;
+}
 function broadcastRows(id,people,kind){
  const el=$(id);el.replaceChildren();
  const ranked=people.slice().sort((a,b)=>kind==='bat'?(statNum(b.runs)-statNum(a.runs)||statNum(a.balls_faced??a.balls)-statNum(b.balls_faced??b.balls)):(statNum(b.wickets)-statNum(a.wickets)||statNum(a.runs)-statNum(b.runs))).slice(0,2);
  if(!ranked.length){const row=document.createElement('div');row.className='broadcast-empty';row.textContent='Stats pending';el.append(row);return;}
- for(const p of ranked){const row=document.createElement('div');row.className='broadcast-statrow';const name=document.createElement('span');name.textContent=p.batter_name||p.bowler_name||p.player_name||fullName(p);const stats=document.createElement('strong');const dismissal=String(p.dismissal??p.dismissal_type??p.how_out??'').trim();const notOut=kind==='bat'&&(/^not[\s-]*out$/i.test(dismissal)||p.is_not_out===true||p.isNotOut===true||String(p.batting_status??'').toLowerCase()==='not out');stats.textContent=kind==='bat'?`${statNum(p.runs)}${notOut?'*':''} (${statNum(p.balls_faced??p.balls)})`:`${statNum(p.wickets)}/${statNum(p.runs)}`;row.append(name,stats);el.append(row);}
+ for(const p of ranked){const row=document.createElement('div');row.className='broadcast-statrow';const name=document.createElement('span');name.textContent=p.batter_name||p.bowler_name||p.player_name||fullName(p);const stats=document.createElement('strong');const dismissal=String(p.dismissal??p.dismissal_type??p.how_out??'').trim();const notOut=kind==='bat'&&(/^not[\s-]*out$/i.test(dismissal)||p.is_not_out===true||p.isNotOut===true||String(p.batting_status??'').toLowerCase()==='not out');stats.textContent=kind==='bat'?`${statNum(p.runs)}${notOut?'*':''} (${statNum(p.balls_faced??p.balls)})`:bowlingFigures(p);row.append(name,stats);el.append(row);}
 }
 function renderBroadcastSummary(data){
  const i1=data.innings?.inning1||{},i2=data.innings?.inning2||{},m=data.match||{};
@@ -966,7 +1235,7 @@ function renderBroadcastSummary(data){
   broadcastRows('broadcastBat'+n,bat,'bat');broadcastRows('broadcastBowl'+n,bowl,'bowl');
  });
  const result=matchFooter(data)||'Awaiting official result';
- set('broadcastSubtitle',result);set('broadcastMargin',result);
+ set('broadcastSubtitle','');set('broadcastMargin',result);
  const pom=sc?.pom_name||m.pom_name||'';
  set('broadcastPom',pom?`🏆 PLAYER OF THE MATCH · ${pom}`:'');
 }
