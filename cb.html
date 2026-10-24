@@ -746,6 +746,11 @@ body.broadcast-match-visible #summaryPanel{z-index:1500!important}
 /* Super Over only: suppress the regular bottom scoreboard, including after result. */
 body.cricbay-superover #overlay {display:none!important;visibility:hidden!important}
 </style>
+<style id="v40-dot-centering">
+/* Draw the dot as a geometric circle rather than a font glyph (which sits on the text baseline). */
+.overlay .ball.dot{font-size:0!important;line-height:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+.overlay .ball.dot::before{content:"";display:block;flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:currentColor;margin:0;padding:0}
+</style>
 </head><body>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
