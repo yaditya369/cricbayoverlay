@@ -1050,25 +1050,44 @@ function hasStartedInnings(data){
  ))||Number(c.score)>0||Number(c.wickets)>0||inningsBalls(c.over)>0;
 }
 let lastOrdinarySecondInningsRendered=false;
+let lastOrdinarySecondInningsSnapshot=null;
 function render(data){
  overlay.classList.remove('pre-match');
  if(!hasStartedInnings(data)&&!hasSelectedBowler(data)&&!superOverPhase(data)){renderToss(data);return;}
- if(!superOverPhase(data)&&secondInningsStarted(data))lastOrdinarySecondInningsRendered=true;
+ if(!superOverPhase(data)&&secondInningsStarted(data)){
+   lastOrdinarySecondInningsRendered=true;
+   // Preserve the complete second-innings payload before the API switches to Super Over.
+   lastOrdinarySecondInningsSnapshot=data;
+ }
  const superPhase=superOverPhase(data);
  if(superPhase){
-   // Freeze the ordinary second-innings scoreboard throughout the Super Over.
-   // Never replace its batsmen, bowler, score, or recent balls with Super Over data.
-   if(!lastOrdinarySecondInningsRendered){
-     // A page opened directly during a Super Over has no previous DOM to freeze.
-     // Render the last recorded second-innings total instead of a Super Over score.
-     const i2=data.innings?.inning2||{};
-     const fallback={...data,super_overs:[],current_super_over:null,
-       match:{...data.match,current_inning_id:i2.inning_id??'__SECOND__'},
-       innings:{...data.innings,inning2:{...i2,inning_id:i2.inning_id??'__SECOND__'}},
-       current:{score:i2.score??i2.scorecard?.total?.total_runs,wickets:i2.wickets??i2.scorecard?.total?.total_wickets,over:i2.overs??i2.scorecard?.total?.total_overs}};
-     render(fallback);
-     lastOrdinarySecondInningsRendered=true;
-   }
+   // If already rendered from the ordinary second innings, leave the DOM untouched.
+   // This preserves the complete scorecard (players, figures, over and deliveries).
+   if(lastOrdinarySecondInningsRendered)return;
+   const i2=data.innings?.inning2||{};
+   const secondId=i2.inning_id;
+   // A direct load during a Super Over must NOT use data.current, which now
+   // belongs to the Super Over. Nor may it show Super Over recent_overs.
+   // Only explicitly second-innings-tagged overs are safe to display.
+   const safeOvers=(data.recent_overs||[]).filter(o=>
+     secondId!=null && o.inning_id!=null && String(o.inning_id)===String(secondId) &&
+     (o.balls||[]).every(b=>b.inning_id==null||String(b.inning_id)===String(secondId)));
+   const total=i2.scorecard?.total||{};
+   const runs=i2.score??total.total_runs??0;
+   const wickets=i2.wickets??total.total_wickets??0;
+   const overs=i2.overs??total.total_overs??'0.0';
+   const balls=inningsBalls(overs);
+   const rr=balls>0?(Number(runs)*6/balls).toFixed(2):'—';
+   const fallback={...data,super_overs:[],current_super_over:null,
+     match:{...data.match,current_inning_id:secondId??'__SECOND__'},
+     innings:{...data.innings,inning2:{...i2,inning_id:secondId??'__SECOND__'}},
+     current:{score:runs,wickets,over:overs,current_rr:rr},
+     recent_overs:safeOvers};
+   // Rendering the fallback once reconstructs only verified regular-innings data.
+   // If no tagged deliveries are available, show no delivery circles rather
+   // than mixing in Super Over balls.
+   render(fallback);
+   lastOrdinarySecondInningsRendered=true;
    return;
  }
  const m=data.match||{},c=data.current||{},ins=data.innings||{};
