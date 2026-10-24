@@ -1341,10 +1341,10 @@ function renderSummary(data,phase){
  set('summaryPom',isMatch&&pom?`🏆 Player of the Match: ${pom}`:'');
  panel.classList.add('visible');
 }
-// Lifecycle callbacks: once per event per WebView page load, including first snapshot.
-// Native Android: @JavascriptInterface onMatchEvent(String json).
+// Lifecycle callbacks: transition-only, with the first successful snapshot as baseline.
+// A page opened mid-match must never replay historical lifecycle events.
 const lifecycleEmitted=new Set();
-let lifecycleLastStage=null; // 'first', 'break', 'second', 'super', 'ended'
+let lifecyclePrevious=null;
 function currentPom(data){
  const m=data?.match||{},sc=summaryScorecard||{};
  const raw=sc.pom_name??sc.player_of_match?.name??sc.player_of_match??m.pom_name??m.player_of_match?.name??m.player_of_match;
@@ -1353,35 +1353,52 @@ function currentPom(data){
 }
 function emitLifecycle(type,data,extra={}){
  if(lifecycleEmitted.has(type))return;
- lifecycleEmitted.add(type);
  const payload={type,matchId:String(matchId),timestamp:Date.now(),...extra};
+ let delivered=false;
  try{
   const bridge=window.AndroidBridge;
-  if(bridge&&typeof bridge.onMatchEvent==='function')bridge.onMatchEvent(JSON.stringify(payload));
-  // Browser and WebView listener fallback, same JSON payload.
-  window.dispatchEvent(new CustomEvent('cricbay:match-event',{detail:payload}));
+  if(bridge&&typeof bridge.onMatchEvent==='function'){
+   bridge.onMatchEvent(JSON.stringify(payload));
+   delivered=true;
+  }
+  // Browser consumers can subscribe without an Android bridge.
+  if(window.dispatchEvent(new CustomEvent('cricbay:match-event',{detail:payload})))delivered=true;
  }catch(e){console.warn('Match lifecycle callback failed:',e);}
+ if(delivered)lifecycleEmitted.add(type);
 }
-function checkLifecycle(data){
+function lifecycleState(data){
  const sp=superOverPhase(data);
  const phase=getMatchPhase(data);
  const second=secondInningsStarted(data);
- // Innings break is a live state, not a historical milestone to replay when
- // a viewer first opens the match during innings 2 or after completion.
- const atBreak=phase==='innings'&&!second&&!sp;
- // Emit first-innings start only while innings 1 is actively underway.
- // Never replay it when opening a later innings, Super Over, or completed match.
- if(firstInningsStarted(data)&&!firstInningsFinished(data)&&!second&&!sp&&phase!=='match')
-   emitLifecycle('FIRST_INNINGS_STARTED',data,{innings:1});
- if(atBreak && (lifecycleLastStage===null||lifecycleLastStage==='first'))
-   emitLifecycle('INNINGS_BREAK',data,{innings:1});
- if(second && phase!=='match' && !sp)
-   emitLifecycle('SECOND_INNINGS_STARTED',data,{innings:2});
- if(sp)emitLifecycle('SUPER_OVER_STARTED',data,{superOverNumber:sp.number});
- if(phase==='match')emitLifecycle('MATCH_ENDED',data,{result:getMatchResult(data)||''});
- const pom=currentPom(data);
- if(pom&&phase==='match')emitLifecycle('POM_SUBMITTED',data,{playerName:pom});
- lifecycleLastStage=phase==='match'?'ended':sp?'super':second?'second':atBreak?'break':'first';
+ const first=firstInningsStarted(data);
+ return {
+  first: first&&!second&&!sp&&phase!=='match',
+  break: phase==='innings'&&!second&&!sp,
+  second: second&&!sp&&phase!=='match',
+  super: Boolean(sp),
+  superNumber:sp?.number??1,
+  ended:phase==='match',
+  pom:phase==='match'?currentPom(data):''
+ };
+}
+function checkLifecycle(data){
+ const next=lifecycleState(data);
+ const prev=lifecyclePrevious;
+ // Baseline only: initial load can be in any phase, including an already-ended match.
+ if(!prev){lifecyclePrevious=next;return;}
+ if(!prev.first&&!prev.break&&!prev.second&&!prev.super&&!prev.ended&&next.first)
+  emitLifecycle('FIRST_INNINGS_STARTED',data,{innings:1});
+ if(!prev.break&&next.break)
+  emitLifecycle('INNINGS_BREAK',data,{innings:1});
+ if(!prev.second&&!prev.super&&!prev.ended&&next.second)
+  emitLifecycle('SECOND_INNINGS_STARTED',data,{innings:2});
+ if(!prev.super&&next.super)
+  emitLifecycle('SUPER_OVER_STARTED',data,{superOverNumber:next.superNumber});
+ if(!prev.ended&&next.ended)
+  emitLifecycle('MATCH_ENDED',data,{result:getMatchResult(data)||''});
+ if(!prev.pom&&next.pom)
+  emitLifecycle('POM_SUBMITTED',data,{playerName:next.pom});
+ lifecyclePrevious=next;
 }
 function updateSummary(data){
  const actualPhase=getMatchPhase(data);
