@@ -707,6 +707,9 @@ body.broadcast-match-visible #overlay{display:none!important}
 #summaryPanel.broadcast-active .broadcast-banner{padding-top:11px!important;padding-bottom:7px!important;gap:2px!important}
 #summaryPanel.broadcast-active .broadcast-banner span{line-height:1.15!important}
 @media(orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-banner{padding-top:10px!important;padding-bottom:7px!important}}
+</style><style id="v21-result-visibility">
+#summaryPanel.broadcast-active .broadcast-banner{min-height:52px!important;padding-bottom:9px!important}
+#summaryPanel.broadcast-active .broadcast-banner #broadcastMargin{display:block!important;visibility:visible!important;opacity:1!important;min-height:14px!important;position:relative!important;z-index:10!important;color:#fff5df!important}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -1234,10 +1237,23 @@ function renderBroadcastSummary(data){
   set('broadcastOvers'+n,`${scoreOver(inn.overs??total.total_overs??'0.0')} OVERS`);
   broadcastRows('broadcastBat'+n,bat,'bat');broadcastRows('broadcastBowl'+n,bowl,'bowl');
  });
- const result=matchFooter(data)||'Awaiting official result';
- set('broadcastSubtitle','');set('broadcastMargin',result);
- const pom=sc?.pom_name||m.pom_name||'';
- set('broadcastPom',pom?`🏆 PLAYER OF THE MATCH · ${pom}`:'');
+ // Preview snapshots may omit current_inning_id after the match ends.
+ // Derive the result from final innings totals only in summary preview mode,
+ // never during a live match.
+ let result=matchFooter(data);
+ if(!result && summaryPreview==='match'){
+  const a=data.innings?.inning1||{},b=data.innings?.inning2||{};
+  const runsA=optionalNumber(a.scorecard?.total?.total_runs??a.score);
+  const runsB=optionalNumber(b.scorecard?.total?.total_runs??b.score);
+  if(Number.isFinite(runsA)&&Number.isFinite(runsB)&&runsA!==runsB){
+   const winner=runsA>runsB?a:b;
+   const winnerName=winner.team?.short_name||winner.team?.team_name||'Winning team';
+   result=runsA>runsB?`${winnerName} won by ${runsA-runsB} runs`:`${winnerName} won`;
+  }
+ }
+ set('broadcastSubtitle','');set('broadcastMargin',result||'Awaiting official result');
+ const pom=String(sc?.pom_name||sc?.player_of_match?.name||sc?.player_of_match||m.pom_name||m.player_of_match?.name||m.player_of_match||'').trim();
+ set('broadcastPom',pom&&pom!=='[object Object]'?`🏆 PLAYER OF THE MATCH · ${pom}`:'');
 }
 function renderSummary(data,phase){
  const panel=$('summaryPanel');
@@ -1271,7 +1287,7 @@ function renderSummary(data,phase){
  batters.sort((a,b)=>statNum(b.runs)-statNum(a.runs)||statNum(a.balls_faced??a.balls)-statNum(b.balls_faced??b.balls));
  bowlers.sort((a,b)=>statNum(b.wickets)-statNum(a.wickets)||statNum(a.runs)-statNum(b.runs));
  summaryRows('summaryBatters',batters,'bat');summaryRows('summaryBowlers',bowlers,'bowl');
- const pom=summaryScorecard?.pom_name||m.pom_name||'';
+ const pom=summaryScorecard?.pom_name||summaryScorecard?.player_of_match?.name||m.pom_name||m.player_of_match?.name||'';
  set('summaryPom',isMatch&&pom?`🏆 Player of the Match: ${pom}`:'');
  panel.classList.add('visible');
 }
@@ -1280,7 +1296,7 @@ function updateSummary(data){
  const previewPhase=summaryPreview||actualPhase;
  // Only fetch once the match is actually complete; preview is visual only.
  if(actualPhase==='match'&&Date.now()-scorecardLastAttempt>=60000&&
-    (!officialResult(data)||((summaryEnabled||summaryPreview)&&!summaryScorecard))){
+    (!officialResult(data)||((summaryEnabled||summaryPreview)&&(!summaryScorecard||!String(summaryScorecard.pom_name||summaryScorecard.player_of_match?.name||summaryScorecard.player_of_match||data.match?.pom_name||'').trim())))){
   void fetchScorecardOnce().then(()=>{
    // Apply asynchronous results to the newest snapshot, never a stale poll.
    const currentData=latestSnapshot||data;
