@@ -1000,6 +1000,14 @@ function secondInningsStarted(data){
      (b.inning_id==null||String(b.inning_id)===String(i2.inning_id))));
  return Boolean(secondBalls);
 }
+function firstInningsStarted(data){
+ const m=data.match||{},i1=data.innings?.inning1||{},c=data.current||{};
+ const firstIsCurrent=i1.inning_id!=null&&m.current_inning_id!=null&&String(m.current_inning_id)===String(i1.inning_id);
+ const progressed=(inningsBalls(i1.overs)??0)>0||Number(i1.score??i1.scorecard?.total?.total_runs??0)>0||Number(i1.wickets??0)>0;
+ const explicitlyStarted=/started|in.progress|live|complete|finished|ended/.test(inningsState(i1));
+ const activeFirst=firstIsCurrent&&(hasSelectedBowler(data)||(inningsBalls(c.over)??0)>0||Number(c.score??0)>0||Number(c.wickets??0)>0);
+ return Boolean(progressed||explicitlyStarted||activeFirst);
+}
 function firstInningsProjection(data){
  const m=data.match||{},i1=data.innings?.inning1||{},i2=data.innings?.inning2||{},c=data.current||{};
  if(firstInningsFinished(data)||secondInningsStarted(data))return '';
@@ -1361,6 +1369,10 @@ function checkLifecycle(data){
  // Innings break is a live state, not a historical milestone to replay when
  // a viewer first opens the match during innings 2 or after completion.
  const atBreak=phase==='innings'&&!second&&!sp;
+ // Emit first-innings start only while innings 1 is actively underway.
+ // Never replay it when opening a later innings, Super Over, or completed match.
+ if(firstInningsStarted(data)&&!firstInningsFinished(data)&&!second&&!sp&&phase!=='match')
+   emitLifecycle('FIRST_INNINGS_STARTED',data,{innings:1});
  if(atBreak && (lifecycleLastStage===null||lifecycleLastStage==='first'))
    emitLifecycle('INNINGS_BREAK',data,{innings:1});
  if(second && phase!=='match' && !sp)
