@@ -742,6 +742,10 @@ body.broadcast-match-visible #summaryPanel{z-index:1500!important}
 /* Single-letter extras match circular delivery badges; multi-character extras stay wide. */
 .overlay.layout-3 .ball.extra.single-extra{width:17px;min-width:17px;max-width:17px;height:17px;min-height:17px;padding:0;border-radius:50%;font-size:10px}
 </style>
+<style id="v37-superover-visibility">
+/* Super Over only: suppress the regular bottom scoreboard, including after result. */
+body.cricbay-superover #overlay {display:none!important;visibility:hidden!important}
+</style>
 </head><body>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
@@ -1054,42 +1058,9 @@ let lastOrdinarySecondInningsSnapshot=null;
 function render(data){
  overlay.classList.remove('pre-match');
  if(!hasStartedInnings(data)&&!hasSelectedBowler(data)&&!superOverPhase(data)){renderToss(data);return;}
- if(!superOverPhase(data)&&secondInningsStarted(data)){
-   lastOrdinarySecondInningsRendered=true;
-   // Preserve the complete second-innings payload before the API switches to Super Over.
-   lastOrdinarySecondInningsSnapshot=data;
- }
- const superPhase=superOverPhase(data);
- if(superPhase){
-   // If already rendered from the ordinary second innings, leave the DOM untouched.
-   // This preserves the complete scorecard (players, figures, over and deliveries).
-   if(lastOrdinarySecondInningsRendered)return;
-   const i2=data.innings?.inning2||{};
-   const secondId=i2.inning_id;
-   // A direct load during a Super Over must NOT use data.current, which now
-   // belongs to the Super Over. Nor may it show Super Over recent_overs.
-   // Only explicitly second-innings-tagged overs are safe to display.
-   const safeOvers=(data.recent_overs||[]).filter(o=>
-     secondId!=null && o.inning_id!=null && String(o.inning_id)===String(secondId) &&
-     (o.balls||[]).every(b=>b.inning_id==null||String(b.inning_id)===String(secondId)));
-   const total=i2.scorecard?.total||{};
-   const runs=i2.score??total.total_runs??0;
-   const wickets=i2.wickets??total.total_wickets??0;
-   const overs=i2.overs??total.total_overs??'0.0';
-   const balls=inningsBalls(overs);
-   const rr=balls>0?(Number(runs)*6/balls).toFixed(2):'—';
-   const fallback={...data,super_overs:[],current_super_over:null,
-     match:{...data.match,current_inning_id:secondId??'__SECOND__'},
-     innings:{...data.innings,inning2:{...i2,inning_id:secondId??'__SECOND__'}},
-     current:{score:runs,wickets,over:overs,current_rr:rr},
-     recent_overs:safeOvers};
-   // Rendering the fallback once reconstructs only verified regular-innings data.
-   // If no tagged deliveries are available, show no delivery circles rather
-   // than mixing in Super Over balls.
-   render(fallback);
-   lastOrdinarySecondInningsRendered=true;
-   return;
- }
+ // Super Over display is deliberately suppressed. Do not render or reconstruct
+ // regular-innings players/balls using Super Over snapshot data.
+ if(superOverPhase(data))return;
  const m=data.match||{},c=data.current||{},ins=data.innings||{};
  const i1=ins.inning1||{},i2=ins.inning2||{};
  const secondIsCurrent=i2.inning_id!=null&&m.current_inning_id!=null&&String(m.current_inning_id)===String(i2.inning_id);
@@ -1365,6 +1336,7 @@ function renderSummary(data,phase){
 // Lifecycle callbacks: once per event per WebView page load, including first snapshot.
 // Native Android: @JavascriptInterface onMatchEvent(String json).
 const lifecycleEmitted=new Set();
+let lifecycleLastStage=null; // 'first', 'break', 'second', 'super', 'ended'
 function currentPom(data){
  const m=data?.match||{},sc=summaryScorecard||{};
  const raw=sc.pom_name??sc.player_of_match?.name??sc.player_of_match??m.pom_name??m.player_of_match?.name??m.player_of_match;
@@ -1383,17 +1355,21 @@ function emitLifecycle(type,data,extra={}){
  }catch(e){console.warn('Match lifecycle callback failed:',e);}
 }
 function checkLifecycle(data){
+ const sp=superOverPhase(data);
  const phase=getMatchPhase(data);
- if(phase==='innings'||phase==='match'||secondInningsStarted(data))
-  emitLifecycle('INNINGS_BREAK',data,{innings:1});
- if(secondInningsStarted(data))emitLifecycle('SECOND_INNINGS_STARTED',data,{innings:2});
- const superPhase=superOverPhase(data);
- if(superPhase){
-   emitLifecycle('SUPER_OVER_STARTED',data,{superOverNumber:superPhase.number});
- }
- if(phase==='match')emitLifecycle('MATCH_ENDED' ,data,{result:getMatchResult(data)||''});
+ const second=secondInningsStarted(data);
+ // Innings break is a live state, not a historical milestone to replay when
+ // a viewer first opens the match during innings 2 or after completion.
+ const atBreak=phase==='innings'&&!second&&!sp;
+ if(atBreak && (lifecycleLastStage===null||lifecycleLastStage==='first'))
+   emitLifecycle('INNINGS_BREAK',data,{innings:1});
+ if(second && phase!=='match' && !sp)
+   emitLifecycle('SECOND_INNINGS_STARTED',data,{innings:2});
+ if(sp)emitLifecycle('SUPER_OVER_STARTED',data,{superOverNumber:sp.number});
+ if(phase==='match')emitLifecycle('MATCH_ENDED',data,{result:getMatchResult(data)||''});
  const pom=currentPom(data);
  if(pom&&phase==='match')emitLifecycle('POM_SUBMITTED',data,{playerName:pom});
+ lifecycleLastStage=phase==='match'?'ended':sp?'super':second?'second':atBreak?'break':'first';
 }
 function updateSummary(data){
  const actualPhase=getMatchPhase(data);
@@ -1418,6 +1394,7 @@ async function refresh(){if(busy)return;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const r=await fetch(`${worker}/live/snapshot/${matchId}`,{cache:'no-store'});if(!r.ok)throw Error(`Snapshot HTTP ${r.status}: ${(await r.text()).slice(0,150)}`);
  const data=await r.json();if(!data||!data.match)throw Error('Snapshot JSON missing match');
+ document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
  latestSnapshot=data;render(data);lastVersion=data.version;
  updateSummary(data);
  checkLifecycle(data);
