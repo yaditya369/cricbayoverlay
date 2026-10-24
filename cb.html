@@ -716,6 +716,28 @@ body.broadcast-match-visible #overlay{display:none!important}
 #summaryPanel.broadcast-active .broadcast-banner span{flex:none!important;line-height:1.2!important}
 #summaryPanel.broadcast-active .broadcast-banner #broadcastMargin{display:block!important;position:relative!important;flex:none!important;min-height:17px!important;line-height:1.25!important;font-size:clamp(11px,1.15vw,15px)!important;color:#fff8e6!important;z-index:9!important;text-shadow:0 1px 3px #000!important}
 #summaryPanel.broadcast-active .broadcast-pom:empty{display:none!important}
+</style><style id="v25-banner-spacing-result-type">
+/* Compact the tall empty band above the scores while giving the result prominence. */
+#summaryPanel.broadcast-active .broadcast-banner{
+  min-height:64px!important;padding:9px 14px 10px!important;
+  gap:4px!important;justify-content:center!important;
+}
+#summaryPanel.broadcast-active .broadcast-banner span{font-size:clamp(14px,1.55vw,21px)!important;line-height:1.15!important}
+#summaryPanel.broadcast-active .broadcast-banner #broadcastMargin{
+  font-size:clamp(15px,1.7vw,21px)!important;font-weight:850!important;
+  min-height:20px!important;line-height:1.25!important;
+  white-space:normal!important;overflow:visible!important;
+}
+@media(orientation:landscape) and (max-height:470px){
+ #summaryPanel.broadcast-active .broadcast-banner{min-height:62px!important;padding:8px 12px 9px!important}
+}
+</style><style id="v26-retain-bottom-overlay">
+/* Keep the regular live-score overlay visible at the bottom during match summary. */
+body.broadcast-match-visible #overlay{display:block!important;visibility:visible!important;opacity:1!important;z-index:900!important}
+body.broadcast-match-visible #summaryPanel{z-index:1500!important}
+@media(orientation:landscape) and (max-height:470px){
+ body.broadcast-match-visible #summaryPanel.broadcast-active{top:43%!important}
+}
 </style></head><body>
 <div class="overlay theme-graphite" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
