@@ -777,7 +777,36 @@ body.cricbay-superover #overlay {display:none!important;visibility:hidden!import
 const q=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 const matchId=(q.get('matchId')||'31584').trim();
-const worker=(q.get('worker')||'https://cricbay-api.y-aditya369.workers.dev').replace(/\/$/,'');
+// Sticky two-Worker failover: new Worker is primary; successful fallback stays active.
+const workerPrimary=(q.get('worker')||'https://cricbay-api.aditya-yeddula09.workers.dev').replace(/\/$/,'');
+const workerBackup=(q.get('backupWorker')||'https://cricbay-api.y-aditya369.workers.dev').replace(/\/$/,'');
+const workerPool=[...new Set([workerPrimary,workerBackup])];
+let activeWorkerIndex=0;
+// Each request has a finite timeout, so a stalled Worker cannot block the overlay forever.
+async function fetchWorkerJSON(path,validate,timeoutMs=8000){
+ let lastError;
+ for(let attempt=0;attempt<workerPool.length;attempt++){
+  const index=(activeWorkerIndex+attempt)%workerPool.length;
+  const base=workerPool[index];
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+   const response=await fetch(`${base}${path}`,{cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw Error(`HTTP ${response.status}`);
+   const data=await response.json();
+   if(!validate(data))throw Error('Invalid API JSON');
+   if(index!==activeWorkerIndex){
+    console.warn('CricBay Worker failover:',workerPool[activeWorkerIndex],'->',base);
+    activeWorkerIndex=index;
+   }
+   return data;
+  }catch(error){
+   lastError=error;
+   console.warn('CricBay Worker request failed:',base,path,error.message);
+  }finally{clearTimeout(timeout);}
+ }
+ throw lastError||Error('All CricBay Workers failed');
+}
 // refresh URL parameter is in seconds (default 10 seconds, range 1–60).
 const refreshSeconds=Number(q.get('refresh')??10);
 const interval=Math.max(1,Math.min(60,Number.isFinite(refreshSeconds)?refreshSeconds:10))*1000;
@@ -1229,9 +1258,7 @@ async function fetchScorecardOnce(){
  scorecardLastAttempt=Date.now();
  scorecardPending=(async()=>{
   try{
-   const r=await fetch(`${worker}/scorecard/${matchId}`,{cache:'no-store'});
-   if(!r.ok)throw Error(`Scorecard HTTP ${r.status}`);
-   summaryScorecard=await r.json();
+   summaryScorecard=await fetchWorkerJSON(`/scorecard/${matchId}`,data=>data!==null&&typeof data==='object'&&!Array.isArray(data)&&!data.error);
   }catch(e){console.warn('Scorecard fetch failed:',e);}
   finally{scorecardPending=null;}
  })();
@@ -1426,8 +1453,7 @@ function updateSummary(data){
 
 async function refresh(){if(busy)return;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
- const r=await fetch(`${worker}/live/snapshot/${matchId}`,{cache:'no-store'});if(!r.ok)throw Error(`Snapshot HTTP ${r.status}: ${(await r.text()).slice(0,150)}`);
- const data=await r.json();if(!data||!data.match)throw Error('Snapshot JSON missing match');
+ const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
  latestSnapshot=data;render(data);lastVersion=data.version;
  updateSummary(data);
