@@ -262,6 +262,13 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 #summaryPanel.broadcast-active .broadcast-pom::before{inset:3px;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%)}
 #summaryPanel.broadcast-active .broadcast-avatar,#summaryPanel.broadcast-active .broadcast-logo,#summaryPanel.broadcast-active .broadcast-monogram{display:none!important}
 @media (orientation:landscape) and (max-height:470px){#summaryPanel.broadcast-active .broadcast-teamhead{padding:3px 0}#summaryPanel.broadcast-active .broadcast-stats{gap:2px;padding:4px 13px 5px}#summaryPanel.broadcast-active .broadcast-statgroup+.broadcast-statgroup{padding-top:2px!important}#summaryPanel.broadcast-active .broadcast-center{gap:5px}}
+
+/* Hide every overlay surface after three consecutive failed snapshot polls. */
+body.cricbay-score-offline #overlay,
+body.cricbay-score-offline #summaryPanel,
+body.cricbay-score-offline #scoreEvent {display:none!important;visibility:hidden!important;}
+.event-animation.milestone .event-text{color:#ffd456;text-shadow:0 0 24px #fba923,0 4px 0 #8e520a;}
+.event-animation.milestone .event-subtitle{color:#fff;}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -828,6 +835,62 @@ const summaryEnabled=q.get('summary')!=='0';
 const summaryPreview=q.get('summaryPreview')==='match'?'match':''; // Innings-break summary disabled, including preview
 const soundEnabled=q.get('sound')!=='0'; // enabled by default; sound=0 disables
 let lastVersion=null, seen=new Set(), initialized=false, previousInning=null, busy=false, eventTimer;
+let failedScoreFetches=0;
+let milestoneBaseline=null;
+const milestoneShown=new Set();
+const milestoneThresholds=[25,50,75,100,150,200,250,300];
+function hideForScoreFailure(){
+ document.body.classList.add('cricbay-score-offline');
+ $('scoreEvent').classList.remove('active');
+ clearTimeout(eventTimer);
+}
+function restoreAfterScoreSuccess(){
+ failedScoreFetches=0;
+ document.body.classList.remove('cricbay-score-offline');
+}
+function trackMilestones(data){
+ const inning=String(data.match?.current_inning_id??'');
+ const c=data.current||{};
+ const currentBatters=[c.batter1,c.batter2].filter(b=>b&&b.player_id!=null);
+ const now=new Map(currentBatters.map(b=>[String(b.player_id),Number(b.runs)||0]));
+ const teamScore=Number(c.score)||0;
+ const state={inning,now,teamScore};
+ if(!milestoneBaseline||milestoneBaseline.inning!==inning){milestoneBaseline=state;return;}
+ const events=[];
+ for(const [id,runs] of now){
+  const prior=milestoneBaseline.now.get(id);
+  if(prior==null)continue; // Never retrospectively celebrate a newly observed batsman.
+  for(const target of milestoneThresholds){
+   const key=inning+':batter:'+id+':'+target;
+   if(prior<target&&runs>=target&&!milestoneShown.has(key)){
+    const b=currentBatters.find(x=>String(x.player_id)===id);
+    events.push({key,label:fullName(b),target,type:'batter'});
+   }
+  }
+ }
+ for(const target of [50,100,150,200,250,300]){
+  const key=inning+':team:'+target;
+  if(milestoneBaseline.teamScore<target&&teamScore>=target&&!milestoneShown.has(key))
+   events.push({key,label:'TEAM TOTAL',target,type:'team'});
+ }
+ milestoneBaseline=state;
+ for(const event of events)milestoneShown.add(event.key);
+ // A milestone takes precedence over the ordinary delivery animation on this poll.
+ if(events.length){const event=events[0];showMilestone(event);return true;}
+ return false;
+}
+function showMilestone(event){
+ const el=$('scoreEvent');
+ clearTimeout(eventTimer);
+ el.className='event-animation milestone';
+ el.querySelector('.event-emoji').textContent='🏏';
+ el.querySelector('.event-text').textContent=event.target+' RUNS!';
+ el.querySelector('.event-subtitle').textContent=event.label.toUpperCase();
+ el.querySelector('.event-particles').replaceChildren();
+ void el.offsetWidth;
+ el.classList.add('active');
+ eventTimer=setTimeout(()=>el.classList.remove('active'),3000);
+}
 const number=(v,def=0)=>v==null||v===''?def:Number(v);
 const optionalNumber=v=>v==null||String(v).trim()===''?null:(Number.isFinite(Number(v))?Number(v):null);
 const fullName=p=>p?[p.first_name,p.last_name].filter(Boolean).join(' ').trim()||p.player_name||p.batter_name||p.bowler_name||'—':'—';
@@ -905,14 +968,15 @@ function playBoundaryAudio(){
 
 function track(data){
  const inning=String(data.match?.current_inning_id??'');const balls=allDeliveries(data);
- if(!initialized||previousInning!==inning){seen=new Set(balls.map(b=>b.id));initialized=true;previousInning=inning;return balls;}
+ if(!initialized||previousInning!==inning){seen=new Set(balls.map(b=>b.id));initialized=true;previousInning=inning;trackMilestones(data);return balls;}
  const newBalls=balls.filter(b=>!seen.has(b.id));for(const b of balls)seen.add(b.id);
  // Keep only recent IDs, preventing unbounded growth in a long recording.
  if(seen.size>250){seen=new Set([...seen].slice(-150));}
  // Animate only the newest newly seen scoring event.
+  const milestonePlayed=trackMilestones(data);
   const event=newBalls.filter(b=>['four','six','wicket'].includes(b.kind)).at(-1);
   if(event){
-   showEvent(event.kind);
+   if(!milestonePlayed)showEvent(event.kind);
    if(event.kind==='four'||event.kind==='six')notifyAndroidBoundary(event);
   }
  return balls;
@@ -1459,10 +1523,16 @@ async function refresh(){if(busy)return;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
+ restoreAfterScoreSuccess();
  latestSnapshot=data;render(data);lastVersion=data.version;
  updateSummary(data);
  checkLifecycle(data);
- }catch(e){console.error('CricBay overlay:',e);set('message','Score unavailable · Retrying in '+Math.round(interval/1000)+'s');}finally{busy=false;}}
+ }catch(e){
+ console.error('CricBay overlay:',e);
+ failedScoreFetches++;
+ if(failedScoreFetches>=3)hideForScoreFailure();
+ else set('message','Score unavailable · Retrying in '+Math.round(interval/1000)+'s');
+}finally{busy=false;}}
 window.showCricBayEvent=showEvent;
 // Browser/WebView audio policies require a genuine gesture before sound playback.
 // Do not attempt a muted play/pause: that does not reliably unlock unmuted audio.
