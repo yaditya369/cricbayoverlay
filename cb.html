@@ -269,6 +269,9 @@ body.cricbay-score-offline #summaryPanel,
 body.cricbay-score-offline #scoreEvent {display:none!important;visibility:hidden!important;}
 .event-animation.milestone .event-text{color:#ffd456;text-shadow:0 0 24px #fba923,0 4px 0 #8e520a;}
 .event-animation.milestone .event-subtitle{color:#fff;}
+/* V46: black upper bar and deeper-black lower footer; preserve other theme details. */
+.overlay.theme-red .top,.overlay.theme-marvel .top{background:rgba(18,18,18,var(--alpha))!important}
+.overlay.theme-red .bottom,.overlay.theme-marvel .bottom,.overlay.layout-3.theme-red .bottom,.overlay.layout-3.theme-marvel .bottom{background:rgba(3,3,3,var(--alpha))!important}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -758,11 +761,70 @@ body.cricbay-superover #overlay {display:none!important;visibility:hidden!import
 .overlay .ball.dot{font-size:0!important;line-height:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
 .overlay .ball.dot::before{content:"";display:block;flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:currentColor;margin:0;padding:0}
 </style>
+
+<style>
+/* V47: Marvel ONLY — red gradient on left/right team-name panels. */
+.overlay.theme-marvel .top > .identity:first-child{
+ background:linear-gradient(105deg,rgba(108,0,12,var(--alpha)) 0%,rgba(196,9,27,var(--alpha)) 52%,rgba(237,29,36,var(--alpha)) 100%)!important;
+}
+.overlay.theme-marvel .top > .identity:last-child{
+ background:linear-gradient(255deg,rgba(108,0,12,var(--alpha)) 0%,rgba(196,9,27,var(--alpha)) 52%,rgba(237,29,36,var(--alpha)) 100%)!important;
+}
+/* V48: stronger metallic-gold outlines around both Marvel team panels only. */
+.overlay.theme-marvel .top > .identity:first-child,
+.overlay.theme-marvel .top > .identity:last-child{
+ border:3px solid #ffd76b!important;
+ box-shadow:inset 0 0 0 1px #fff0b4,inset 0 0 9px #ffd76b70,0 0 7px #ffd76b88!important;
+}
+.overlay.layout-3.theme-marvel .top > .identity:first-child,
+.overlay.layout-3.theme-marvel .top > .identity:last-child{
+ border-color:#ffdf83!important;
+}
+/* Preserve the V46 black main strip and deep-black footer in layout 3. */
+.overlay.layout-3.theme-marvel .top{background:rgba(18,18,18,var(--alpha))!important}
+.overlay.layout-3.theme-marvel .bottom{background:rgba(3,3,3,var(--alpha))!important}
+</style>
+<style id="v50-batter-separator-striker-highlight">
+/* Separator between the two batsmen in both layouts, without shifting rows. */
+.overlay.layout-2 #batters .player:first-child:not(:last-child),
+.overlay.layout-3 #batters .player:first-child:not(:last-child){
+ border-bottom:1px solid rgba(255,255,255,.62)!important;
+}
+/* Star immediately after the striker's name, never before it. */
+.overlay #batters .striker-star{display:inline;color:#ffda65;font-size:.9em;margin-left:5px;font-weight:900;text-shadow:0 0 4px #ffb52b;vertical-align:baseline}
+/* Subtle CricClubs-style attention highlight confined to the striker's row. */
+.overlay #batters .player.striker-highlight{
+ border-radius:3px;
+ animation:cricbayStrikerHighlight 2.4s ease-in-out infinite;
+}
+@keyframes cricbayStrikerHighlight{
+ 0%,100%{background:rgba(255,215,107,.035);box-shadow:inset 2px 0 0 rgba(255,215,107,.45)}
+ 50%{background:rgba(255,215,107,.19);box-shadow:inset 2px 0 0 #ffd76b,0 0 7px rgba(255,215,107,.2)}
+}
+@media(prefers-reduced-motion:reduce){.overlay #batters .player.striker-highlight{animation:none;background:rgba(255,215,107,.12)}}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
 </style>
 <body>
+<style id="v49-this-over-zoom">
+/* Only newly received delivery badges animate; never the whole over on refresh. */
+.overlay .balls .ball.delivery-zoom-in {
+ animation:cricbayDeliveryZoom .65s cubic-bezier(.2,1.7,.3,1) both!important;
+ transform-origin:center center;
+ position:relative;
+ z-index:2;
+}
+@keyframes cricbayDeliveryZoom {
+ 0% {transform:scale(.15);opacity:0;filter:brightness(2);}
+ 55% {transform:scale(1.38);opacity:1;box-shadow:0 0 20px #ffd76b;}
+ 100% {transform:scale(1);opacity:1;box-shadow:none;}
+}
+@media (prefers-reduced-motion: reduce){
+ .overlay .balls .ball.delivery-zoom-in{animation:none!important;}
+}
+</style>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
@@ -839,63 +901,175 @@ let failedScoreFetches=0;
 let milestoneBaseline=null;
 const milestoneShown=new Set();
 const milestoneThresholds=[25,50,75,100,150,200,250,300];
+const milestoneQueue=[];
+let celebrationTimer=null,celebrationActive=false;
 function hideForScoreFailure(){
  document.body.classList.add('cricbay-score-offline');
  $('scoreEvent').classList.remove('active');
- clearTimeout(eventTimer);
+ clearTimeout(eventTimer);clearTimeout(celebrationTimer);
+ celebrationActive=false;
 }
 function restoreAfterScoreSuccess(){
  failedScoreFetches=0;
  document.body.classList.remove('cricbay-score-offline');
+ drainCelebrations();
 }
-function trackMilestones(data){
- const inning=String(data.match?.current_inning_id??'');
- const c=data.current||{};
- const currentBatters=[c.batter1,c.batter2].filter(b=>b&&b.player_id!=null);
- const now=new Map(currentBatters.map(b=>[String(b.player_id),Number(b.runs)||0]));
- const teamScore=Number(c.score)||0;
- const state={inning,now,teamScore};
- if(!milestoneBaseline||milestoneBaseline.inning!==inning){milestoneBaseline=state;return;}
- const events=[];
- for(const [id,runs] of now){
-  const prior=milestoneBaseline.now.get(id);
-  if(prior==null)continue; // Never retrospectively celebrate a newly observed batsman.
-  for(const target of milestoneThresholds){
-   const key=inning+':batter:'+id+':'+target;
-   if(prior<target&&runs>=target&&!milestoneShown.has(key)){
-    const b=currentBatters.find(x=>String(x.player_id)===id);
-    events.push({key,label:fullName(b),target,type:'batter'});
-   }
-  }
- }
- for(const target of [50,100,150,200,250,300]){
-  const key=inning+':team:'+target;
-  if(milestoneBaseline.teamScore<target&&teamScore>=target&&!milestoneShown.has(key))
-   events.push({key,label:'TEAM TOTAL',target,type:'team'});
- }
- milestoneBaseline=state;
- for(const event of events)milestoneShown.add(event.key);
- // A milestone takes precedence over the ordinary delivery animation on this poll.
- if(events.length){const event=events[0];showMilestone(event);return true;}
- return false;
+function enqueueCelebration(e){
+ if(e.key&&milestoneShown.has(e.key))return;
+ if(e.key)milestoneShown.add(e.key);
+ milestoneQueue.push(e);drainCelebrations();
 }
-function showMilestone(event){
+function drainCelebrations(){
+ if(celebrationActive||document.body.classList.contains('cricbay-score-offline')||!milestoneQueue.length)return;
+ celebrationActive=true;
+ const e=milestoneQueue.shift();
  const el=$('scoreEvent');
  clearTimeout(eventTimer);
- el.className='event-animation milestone';
- el.querySelector('.event-emoji').textContent='🏏';
- el.querySelector('.event-text').textContent=event.target+' RUNS!';
- el.querySelector('.event-subtitle').textContent=event.label.toUpperCase();
- el.querySelector('.event-particles').replaceChildren();
- void el.offsetWidth;
- el.classList.add('active');
- eventTimer=setTimeout(()=>el.classList.remove('active'),3000);
+ el.className='event-animation '+(e.kind||'milestone');
+ el.querySelector('.event-emoji').textContent=e.emoji||'🏏';
+ el.querySelector('.event-text').textContent=e.title;
+ el.querySelector('.event-subtitle').textContent=(e.subtitle||'').toUpperCase();
+ const particles=el.querySelector('.event-particles');particles.replaceChildren();
+ void el.offsetWidth;el.classList.add('active');
+ if(e.kind==='four'||e.kind==='six'){if(soundEnabled)playBoundaryAudio();}
+ celebrationTimer=setTimeout(()=>{
+  el.classList.remove('active');celebrationActive=false;
+  celebrationTimer=setTimeout(drainCelebrations,220);
+ },e.duration||2800);
+}
+function inningSnapshot(data){
+ const id=String(data.match?.current_inning_id??'');
+ const innings=Object.values(data.innings||{}).filter(x=>x&&typeof x==='object');
+ const inning=innings.find(x=>String(x.inning_id)===id);
+ return {id,inning,sc:inning?.scorecard||{},current:data.current||{}};
+}
+function milestoneState(data){
+ const {id,inning,sc,current}=inningSnapshot(data);
+ const batters=new Map(),bowlers=new Map();
+ for(const b of sc.batter_details||[]){
+  if(b.batter_id==null)continue;
+  batters.set(String(b.batter_id),{runs:Number(b.runs)||0,name:b.batter_name||[b.batter_first_name,b.batter_last_name].filter(Boolean).join(' ')});
+ }
+ for(const b of [current.batter1,current.batter2]){
+  if(b?.player_id==null)continue;
+  const key=String(b.player_id),old=batters.get(key);
+  if(!old||Number(b.runs)>old.runs)batters.set(key,{runs:Number(b.runs)||0,name:fullName(b)});
+ }
+ for(const b of sc.bowling_figures||[]){
+  if(b.bowler_id==null)continue;
+  bowlers.set(String(b.bowler_id),{wickets:Number(b.wickets)||0,maidens:Number(b.maidens)||0,
+   hattricks:Number(b.hattricks)||0,name:b.bowler_name||[b.bowler_first_name,b.bowler_last_name].filter(Boolean).join(' ')});
+ }
+ const cb=current.current_bowler;
+ if(cb?.player_id!=null){
+  const key=String(cb.player_id),old=bowlers.get(key);
+  if(!old||Number(cb.wickets)>old.wickets||Number(cb.maidens)>old.maidens)
+   bowlers.set(key,{wickets:Number(cb.wickets)||0,maidens:Number(cb.maidens)||0,hattricks:old?.hattricks||0,name:fullName(cb)});
+ }
+ const score=Number(inning?.score??current.score)||0;
+ const wickets=Number(inning?.wickets??current.wickets)||0;
+ const fow=(sc.fall_of_wickets_list||[]).filter(w=>Number.isFinite(Number(w.score)))
+  .sort((a,b)=>Number(a.wicket_number)-Number(b.wicket_number));
+ const last=fow.filter(w=>Number(w.wicket_number)<=wickets).at(-1);
+ const partnership=Math.max(0,score-(last?Number(last.score):0));
+ const partnershipId=last?String(last.wicket_number):'0';
+ return {id,batters,bowlers,score,wickets,partnership,partnershipId};
+}
+// Delivery-level milestones. Never infer events from cumulative maidens/hattricks.
+const deliveryMilestoneSeen=new Set();
+let deliveryMilestonesInitialized=new Set();
+function creditedBowlerWicket(ball){
+ if(!ball.wicket||Number(ball.noballs||0)>0)return false;
+ const desc=String(ball.commentary||'').replace(/<[^>]*>/g,' ').toLowerCase();
+ // Run-outs, retired out, and obstructing the field are not credited to the bowler.
+ if(/run[ -]?out|retired\s+out|obstructing\s+the\s+field/.test(desc))return false;
+ // If dismissal type is not present, avoid claiming a hat-trick from an ambiguous wicket.
+ return /\b(bowled|caught|lbw|stumped|hit wicket|cbw)\b|\bb\s+[a-z]/i.test(desc);
+}
+function trackDeliveryMilestones(data,announce){
+ const {id,inning}=inningSnapshot(data);
+ if(!id||!inning)return;
+ const overs=(inning.over_history||[]).slice().sort((a,b)=>Number(a.over_number)-Number(b.over_number));
+ const discovered=[];
+ const byBowler=new Map();
+ for(const over of overs){
+  const balls=(over.balls||[]).filter(b=>!b.commentary_only).slice().sort((a,b)=>Number(a.live_score_id)-Number(b.live_score_id));
+  let legal=0,allDots=true,bowlerId=null,bowlerName='';
+  for(const ball of balls){
+   const bid=ball.bowler_id==null?null:String(ball.bowler_id);
+   if(!bid){allDots=false;continue;}
+   if(bowlerId===null){bowlerId=bid;bowlerName=[ball.bowler__first_name,ball.bowler__last_name].filter(Boolean).join(' ');}
+   else if(bowlerId!==bid)allDots=false;
+   const legalBall=!(Number(ball.wides||0)>0||Number(ball.noballs||0)>0);
+   if(legalBall)legal++;
+   const zero=Number(ball.runs||0)===0&&Number(ball.wides||0)===0&&Number(ball.noballs||0)===0&&Number(ball.byes||0)===0&&Number(ball.legbyes||0)===0&&Number(ball.penalty_runs||0)===0;
+   if(!zero)allDots=false;
+   // Bowler's consecutive legal deliveries, including across overs.
+   const streak=byBowler.get(bid)||{count:0,ids:[]};
+   if(!legalBall){streak.count=0;streak.ids=[];}
+   else if(creditedBowlerWicket(ball)){
+    streak.count++;streak.ids.push(String(ball.live_score_id));
+    if(streak.count===3){
+     discovered.push({key:id+':hat:'+streak.ids.join('-'),title:'HAT-TRICK!',subtitle:[ball.bowler__first_name,ball.bowler__last_name].filter(Boolean).join(' '),emoji:'🔥'});
+    }
+   }else{streak.count=0;streak.ids=[];}
+   byBowler.set(bid,streak);
+  }
+  // Six legal dot balls, no extras, completed over; key by innings+over.
+  if(over.over_completed===true&&legal===6&&allDots&&bowlerId){
+   discovered.push({key:id+':maiden:'+over.over_number,title:'MAIDEN OVER!',subtitle:bowlerName,emoji:'🎯'});
+  }
+ }
+ if(!deliveryMilestonesInitialized.has(id)){
+  discovered.forEach(e=>deliveryMilestoneSeen.add(e.key));
+  deliveryMilestonesInitialized.add(id);
+  return;
+ }
+ for(const e of discovered){
+  if(deliveryMilestoneSeen.has(e.key))continue;
+  deliveryMilestoneSeen.add(e.key);
+  if(announce)enqueueCelebration({...e,kind:'milestone'});
+ }
+}
+function trackMilestones(data){
+ const now=milestoneState(data),prior=milestoneBaseline;
+ trackDeliveryMilestones(data,!!prior&&prior.id===now.id);
+ milestoneBaseline=now;
+ if(!prior||prior.id!==now.id)return;
+ const emit=(key,title,subtitle,emoji='🏏')=>enqueueCelebration({key:now.id+':'+key,title,subtitle,emoji,kind:'milestone'});
+ for(const [id,b] of now.batters){
+  const before=prior.batters.get(id);if(!before)continue;
+  for(const t of milestoneThresholds)
+   if(before.runs<t&&b.runs>=t)emit('bat:'+id+':'+t,t+' RUNS!',b.name);
+ }
+ for(const t of [50,100,150,200,250,300]){
+  if(prior.score<t&&now.score>=t)emit('team:'+t,t+' TEAM RUNS!','TEAM MILESTONE','🏆');
+ }
+ for(const [id,b] of now.bowlers){
+  const before=prior.bowlers.get(id);if(!before)continue;
+  for(const t of [5,10]){
+   if(before.wickets<t&&b.wickets>=t)emit('wickets:'+id+':'+t,t+' WICKETS!',b.name,'🎯');
+  }
+
+ }
+ // Partnership score is reset at each wicket; do not celebrate a new partnership
+ // based on the previous pair's runs.
+ if(prior.partnershipId===now.partnershipId){
+  for(const t of [25,50,100,150,200]){
+   if(prior.partnership<t&&now.partnership>=t)
+    emit('partnership:'+now.partnershipId+':'+t,t+' RUN PARTNERSHIP!','BATTING PARTNERSHIP','🤝');
+  }
+ }
 }
 const number=(v,def=0)=>v==null||v===''?def:Number(v);
 const optionalNumber=v=>v==null||String(v).trim()===''?null:(Number.isFinite(Number(v))?Number(v):null);
 const fullName=p=>p?[p.first_name,p.last_name].filter(Boolean).join(' ').trim()||p.player_name||p.batter_name||p.bowler_name||'—':'—';
 const scoreOver=v=>{if(v==null)return '0.0';const t=String(v);const m=t.match(/^(\d+)\.(\d+)$/);if(!m)return t;return Number(m[2])===6?String(Number(m[1])+1)+'.0':t};
 const set=(id,value)=>$(id).textContent=String(value??'—');
+// Track which delivery IDs have already appeared in This Over across polls.
+// Reset when the active innings changes, without animating the initial snapshot.
+let thisOverSeen=null;
+let thisOverInnings=null;
 function normalizeBall(b){
  const n=number(b.runs),w=number(b.wides),nb=number(b.noballs),by=number(b.byes),lb=number(b.legbyes),pen=number(b.penalty_runs);
  let label=n===0?'●':String(n),kind=n===0?'dot':'';
@@ -929,13 +1103,10 @@ function allDeliveries(data){
   })).sort((a,b)=>a.over-b.over||a.ball-b.ball||Number(a.id.split(':').pop())-Number(b.id.split(':').pop()));
 }
 function showEvent(kind){
- const vals={four:['🏏','FOUR!','BOUNDARY'],six:['🚀','SIX!','MAXIMUM'],wicket:['💥','WICKET!','']};if(!vals[kind])return;
- const el=$('scoreEvent');clearTimeout(eventTimer);el.className='event-animation '+kind;
- el.querySelector('.event-emoji').textContent=vals[kind][0];el.querySelector('.event-text').textContent=vals[kind][1];el.querySelector('.event-subtitle').textContent=vals[kind][2];
- const particles=el.querySelector('.event-particles');particles.replaceChildren();
- for(let i=0;i<26;i++){const x=document.createElement('span');x.className='particle';const angle=i/26*Math.PI*2,radius=95+(i%5)*23;x.style.setProperty('--dx',Math.cos(angle)*radius+'px');x.style.setProperty('--dy',Math.sin(angle)*radius+'px');x.style.setProperty('--rot',i*53+'deg');x.style.setProperty('--delay',i%5*.035+'s');x.style.setProperty('--particle',kind==='wicket'?'#ff647e':kind==='six'?'#6df6c2':'#ffd456');particles.append(x);}
- void el.offsetWidth;el.classList.add('active');eventTimer=setTimeout(()=>el.classList.remove('active'),2500);
- if(soundEnabled&&(kind==='four'||kind==='six'))playBoundaryAudio();
+ const vals={four:['🏏','FOUR!','BOUNDARY'],six:['🚀','SIX!','MAXIMUM'],wicket:['💥','WICKET!','']};
+ if(!vals[kind])return;
+ const v=vals[kind];
+ enqueueCelebration({title:v[1],subtitle:v[2],emoji:v[0],kind,duration:2500});
 }
 // Reuse the original boundary audio for both FOUR and SIX.
 // Keep boundary-horn.mp3 alongside index.html on GitHub Pages.
@@ -973,10 +1144,10 @@ function track(data){
  // Keep only recent IDs, preventing unbounded growth in a long recording.
  if(seen.size>250){seen=new Set([...seen].slice(-150));}
  // Animate only the newest newly seen scoring event.
-  const milestonePlayed=trackMilestones(data);
+  trackMilestones(data);
   const event=newBalls.filter(b=>['four','six','wicket'].includes(b.kind)).at(-1);
   if(event){
-   if(!milestonePlayed)showEvent(event.kind);
+   showEvent(event.kind);
    if(event.kind==='four'||event.kind==='six')notifyAndroidBoundary(event);
   }
  return balls;
@@ -1183,7 +1354,7 @@ function render(data){
  set('score',`${active.score??batting.score??batting.scorecard?.total?.total_runs??0}/${active.wickets??batting.wickets??batting.scorecard?.total?.total_wickets??0}`);
  set('meta',`Overs ${scoreOver(active.over??batting.overs)} · RR ${active.current_rr??'—'}`);
  const batters=currentMatchesBatting?[c.batter1,c.batter2].filter(Boolean):[];
- $('batters').replaceChildren(...batters.map(b=>{const row=document.createElement('div');row.className='player';const name=document.createElement('span');name.className='person';name.textContent=(b.player_id===c.striker_id?'▸ ':'')+fullName(b);const stats=document.createElement('span');stats.className='stats';stats.textContent=`${b.runs??0} (${b.balls??0})`;row.append(name,stats);return row;}));
+ $('batters').replaceChildren(...batters.map(b=>{const row=document.createElement('div');row.className='player';const isStriker=b.player_id!=null&&c.striker_id!=null&&String(b.player_id)===String(c.striker_id);if(isStriker)row.classList.add('striker-highlight');const name=document.createElement('span');name.className='person';name.textContent=fullName(b);if(isStriker){const star=document.createElement('span');star.className='striker-star';star.textContent='★';star.setAttribute('aria-label','Striker');name.append(star);}const stats=document.createElement('span');stats.className='stats';stats.textContent=`${b.runs??0} (${b.balls??0})`;row.append(name,stats);return row;}));
  const bowler=currentMatchesBatting?c.current_bowler:null;set('bowler',bowler?fullName(bowler):'—');set('figures',bowler?bowlingFigures(bowler):'');
  // Powerplay is identified by the over's explicit BAPP/BOPP flag.
  // Remaining powerplay counters are NOT indicators that one is active.
@@ -1205,6 +1376,18 @@ function render(data){
  // otherwise preserve the completed previous over until the next over appears.
  const displayRaw=validBalls(latest);
  const display=displayRaw.map(normalizeBall);
+ const activeInnings=String(data.match?.current_inning_id??'');
+ if(thisOverSeen===null||thisOverInnings!==activeInnings){
+  thisOverSeen=new Set(display.map(b=>b.id));
+  thisOverInnings=activeInnings;
+ }
+ const newDeliveryIds=new Set();
+ for(const b of display){
+  if(!thisOverSeen.has(b.id))newDeliveryIds.add(b.id);
+  thisOverSeen.add(b.id);
+ }
+ // Avoid unbounded growth; recent_overs is a rolling window, but retain IDs
+ // from all displayed overs to prevent a correction/refresh replay.
  const rawPP=String(latest?.power_play_type||'').toUpperCase();
  const activePP=!latest?.over_completed&&(rawPP==='BAPP'||rawPP==='BOPP');
  const pp=$('powerplay');
@@ -1226,7 +1409,7 @@ function render(data){
   const runCount=document.createElement('span');runCount.className='over-run-count';runCount.textContent=`(${overRuns} run${overRuns===1?'':'s'})`;label.append(runCount);
  }
  holder.append(label);
- for(const b of display){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);if(b.kind==='extra'&&b.label.length===1)el.classList.add('single-extra');holder.append(el);}
+ for(const b of display){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);if(b.kind==='extra'&&b.label.length===1)el.classList.add('single-extra');if(newDeliveryIds.has(b.id))el.classList.add('delivery-zoom-in');holder.append(el);}
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
  const phase=getMatchPhase(data);
