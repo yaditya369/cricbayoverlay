@@ -974,6 +974,16 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #overlay.pre-match .bottom{overflow:hidden!important}
 #overlay.pre-match .bottom .message{top:50%!important;line-height:1.05!important;transform:translate(-50%,-50%)!important;margin:0!important;max-width:calc(100% - 180px)!important}
 </style>
+<style id="v64-approved-delivery-zoom">
+@keyframes cricbayDeliveryZoomV64 {
+  0% {transform:scale(1);box-shadow:0 0 0 rgba(255,215,107,0)}
+  30% {transform:scale(1.5);box-shadow:0 0 14px 4px rgba(255,215,107,.5)}
+  65% {transform:scale(.88);box-shadow:0 0 0 rgba(255,215,107,0)}
+  82% {transform:scale(1.45)}
+  100% {transform:scale(1);box-shadow:0 0 0 rgba(255,215,107,0)}
+}
+#overlay .balls .ball.delivery-zoom-in{animation:cricbayDeliveryZoomV64 1000ms ease-in-out 1!important}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1589,21 +1599,23 @@ function render(data){
   if(b.kind==='extra'&&b.label.length===1)el.classList.add('single-extra');
   nextNodes.push(el);
   if(isNewNode&&newDeliveryIds.has(b.id)){
-   el.classList.add('delivery-zoom-in');
-   // Queue after DOM insertion so the browser has a real layout box to animate.
+   // Approved tuner: 1.5x peak, 1000ms, 45% bounce, 50% glow.
+   // Run only after the node is in the document; keep the badge persistent.
    requestAnimationFrame(()=>{
     if(!el.isConnected)return;
-    el.classList.remove('delivery-zoom-in');
     if(typeof el.animate==='function'){
      el.animate([
-      {transform:'scale(.2)',opacity:.2,filter:'brightness(2)'},
-      {transform:'scale(2.2)',opacity:1,filter:'brightness(2) drop-shadow(0 0 12px #ffd76b)',offset:.35},
-      {transform:'scale(1.35)',opacity:1,offset:.75},
-      {transform:'scale(1)',opacity:1,filter:'none'}
-     ],{duration:2400,easing:'ease-out',iterations:1});
+      {transform:'scale(1)',boxShadow:'0 0 0 rgba(255,215,107,0)',offset:0},
+      {transform:'scale(1.5)',boxShadow:'0 0 14px 4px rgba(255,215,107,.5)',offset:.30},
+      {transform:'scale(.88)',boxShadow:'0 0 0 rgba(255,215,107,0)',offset:.65},
+      {transform:'scale(1.45)',offset:.82},
+      {transform:'scale(1)',boxShadow:'0 0 0 rgba(255,215,107,0)',offset:1}
+     ],{duration:1000,easing:'ease-in-out',iterations:1});
     }else{
+     el.classList.remove('delivery-zoom-in');
      void el.offsetWidth;
      el.classList.add('delivery-zoom-in');
+     setTimeout(()=>el.classList.remove('delivery-zoom-in'),1000);
     }
    });
   }
