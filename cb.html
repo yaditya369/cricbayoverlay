@@ -1023,6 +1023,15 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  .overlay .balls .ball.delivery-zoom-in{animation:none!important;}
 }
 </style>
+<style id="v66-team-font-plus-3px">
+/* Increase only the live footer team names by 3px, across layouts and breakpoints. */
+#overlay .identity .name{font-size:clamp(16px,calc(1.45vw + 3px),24px)!important}
+#overlay.layout-3 .identity .name{font-size:clamp(16px,calc(1.45vw + 3px),23px)!important}
+@media(max-width:650px){
+ #overlay .identity .name{font-size:clamp(13px,calc(2vw + 3px),16px)!important}
+ #overlay.layout-3 .identity .name{font-size:clamp(13px,calc(2.25vw + 3px),16px)!important}
+}
+</style>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
