@@ -804,6 +804,29 @@ body.cricbay-superover #overlay {display:none!important;visibility:hidden!import
  box-shadow:none!important;border-radius:0!important;
 }
 </style>
+<style id="v52-summary-behind-footer-and-striker-font">
+/* Match summary must pass BEHIND the persistent batting/bowling scoreboard.
+   In particular its result banner must never draw on top of the footer. */
+body.broadcast-match-visible #summaryPanel{z-index:800!important;}
+body.broadcast-match-visible #overlay{z-index:1600!important;}
+/* Only during a visible summary, make the scoreboard surface opaque so
+   underlying summary text cannot show through the configured transparency. */
+body.broadcast-match-visible #overlay .top{background-color:#121212!important;}
+body.broadcast-match-visible #overlay .bottom{background-color:#030303!important;}
+/* Preserve Marvel red team-name gradient, even with the opaque scoreboard. */
+body.broadcast-match-visible #overlay.theme-marvel .identity{
+ background-color:#990713!important;
+}
+/* Increase ONLY the striker's name and star by 2px; keep stats and rows unchanged. */
+.overlay #batters .player.striker-highlight .person{
+ font-size:calc(1em + 2px)!important;
+}
+.overlay #batters .player.striker-highlight .striker-star{
+ font-size:1em!important;
+ line-height:1!important;
+ vertical-align:middle!important;
+}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
