@@ -862,6 +862,50 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
   background:#121212!important;
 }
 </style>
+<style id="v55-marvel-team-inner-edge-fix">
+/* Layout 3: the original diagonal identity clip-path and its border were
+   visible beneath the batting/bowling names. Remove ONLY the inward edges. */
+#overlay.layout-3.theme-marvel .top > .identity:first-child{
+  clip-path:none!important;
+  border-right:0!important;
+  border-radius:5px 0 0 5px!important;
+  box-shadow:inset 1px 0 0 #fff0b4,inset 0 1px 0 #fff0b4,inset 0 -1px 0 #fff0b4!important;
+}
+#overlay.layout-3.theme-marvel .top > .identity:last-child{
+  clip-path:none!important;
+  border-left:0!important;
+  border-radius:0 5px 5px 0!important;
+  box-shadow:inset -1px 0 0 #fff0b4,inset 0 1px 0 #fff0b4,inset 0 -1px 0 #fff0b4!important;
+}
+</style>
+<style id="v56-approved-marvel-panel-settings">
+/* Approved Marvel-only adjustments: each team panel 18%, gold 2px,
+   MH-inspired red gradient on the center score panel. */
+#overlay.theme-marvel .top{
+ grid-template-columns:minmax(0,18%) minmax(0,1fr) clamp(112px,16%,220px) minmax(0,1fr) minmax(0,18%)!important;
+}
+#overlay.theme-marvel .top > .identity:first-child{
+ box-shadow:inset 2px 0 0 #ffd76b,inset 0 2px 0 #ffd76b,inset 0 -2px 0 #ffd76b!important;
+ border-right:0!important;
+}
+#overlay.theme-marvel .top > .identity:last-child{
+ box-shadow:inset -2px 0 0 #ffd76b,inset 0 2px 0 #ffd76b,inset 0 -2px 0 #ffd76b!important;
+ border-left:0!important;
+}
+/* Layout 2 has a conventional center box. */
+#overlay.layout-2.theme-marvel .scorebox,
+#overlay.theme-marvel:not(.layout-3) .scorebox{
+ background:linear-gradient(110deg,#490006,#b60919,#6b000e)!important;
+ border:2px solid #ffd76b!important;
+}
+/* Layout 3 uses the hexagonal pseudo-element for the actual fill. */
+#overlay.layout-3.theme-marvel .scorebox::before{
+ background:linear-gradient(110deg,#490006,#b60919,#6b000e)!important;
+}
+#overlay.layout-3.theme-marvel .scorebox .hex-outline polygon{
+ stroke:#ffd76b!important;stroke-width:2!important;
+}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
