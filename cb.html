@@ -906,6 +906,21 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  stroke:#ffd76b!important;stroke-width:2!important;
 }
 </style>
+<style id="v57-restore-triangular-team-panels">
+/* Restore the diagonal ends removed by V55, keeping the approved 18% widths. */
+#overlay.layout-3.theme-marvel .top > .identity:first-child{
+ clip-path:polygon(0 0,94% 0,100% 100%,0 100%)!important;
+ border:0!important;
+ box-shadow:inset 2px 0 0 #ffd76b,inset 0 2px 0 #ffd76b,inset 0 -2px 0 #ffd76b!important;
+}
+#overlay.layout-3.theme-marvel .top > .identity:last-child{
+ clip-path:polygon(6% 0,100% 0,100% 100%,0 100%)!important;
+ border:0!important;
+ box-shadow:inset -2px 0 0 #ffd76b,inset 0 2px 0 #ffd76b,inset 0 -2px 0 #ffd76b!important;
+}
+/* Player panels cover any interior spill, without masking the team names. */
+#overlay.layout-3.theme-marvel .top > .details{position:relative;z-index:2!important;background:#121212!important}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
