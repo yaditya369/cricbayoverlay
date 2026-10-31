@@ -984,6 +984,23 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 }
 #overlay .balls .ball.delivery-zoom-in{animation:cricbayDeliveryZoomV64 1000ms ease-in-out 1!important}
 </style>
+<style id="v65-delivery-visibility-and-autoscroll">
+/* Reserve space around the zoomed badge so the parent row does not crop it. */
+#overlay .details:has(> #balls){overflow:visible!important;min-width:0!important;}
+#overlay #balls{
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  min-width:0!important;max-width:100%!important;
+  padding:10px 8px!important;margin:-8px -8px -8px 0!important;
+  scrollbar-width:none!important;overscroll-behavior-x:contain;
+  scroll-behavior:auto!important;
+  -webkit-overflow-scrolling:touch;
+}
+#overlay #balls::-webkit-scrollbar{display:none!important}
+#overlay #balls > *{flex-shrink:0!important}
+#overlay #balls .ball{position:relative!important;transform-origin:center center!important;z-index:1}
+#overlay #balls .ball.delivery-zoom-in{z-index:8!important}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1627,6 +1644,16 @@ function render(data){
  }
  const wanted=new Set(nextNodes);
  for(const node of [...holder.children])if(!wanted.has(node))node.remove();
+ // Keep the newest delivery visible when the row exceeds the available width.
+ // Defer until layout has measured the new children. No scrolling on unchanged polls.
+ const overScrollKey=activeInnings+'|'+String(overNumber(latest)??'')+'|'+display.map(b=>b.id).join(',');
+ if(holder.dataset.scrollKey!==overScrollKey){
+  holder.dataset.scrollKey=overScrollKey;
+  requestAnimationFrame(()=>{
+   if(!holder.isConnected)return;
+   holder.scrollLeft=Math.max(0,holder.scrollWidth-holder.clientWidth);
+  });
+ }
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
  const phase=getMatchPhase(data);
