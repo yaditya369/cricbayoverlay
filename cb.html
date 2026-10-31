@@ -929,6 +929,21 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #overlay #batters .player .striker-star-svg{display:block;width:16px;height:16px;overflow:visible;filter:drop-shadow(0 0 2px #ffb52b)}
 </style>
 <style id="v59-striker-cricket-bat">#overlay #batters .player .striker-star{font-size:16px!important;line-height:1!important;filter:none!important;text-shadow:none!important;font-family:"Noto Color Emoji","Segoe UI Emoji",sans-serif!important}</style>
+<style id="v60-prematch-grid-regression-fix">
+/* The V56 five-column Marvel override must never apply to the three-column toss screen. */
+#overlay.pre-match.theme-marvel .top,
+#overlay.pre-match.layout-3.theme-marvel .top,
+#overlay.pre-match.layout-2.theme-marvel .top{
+ grid-template-columns:minmax(0,1fr) minmax(115px,25%) minmax(0,1fr)!important;
+}
+#overlay.pre-match .top > .identity:first-child{grid-column:1!important;grid-row:1!important;width:100%!important}
+#overlay.pre-match .top > .scorebox{grid-column:2!important;grid-row:1!important;width:calc(100% - 12px)!important}
+#overlay.pre-match .top > .identity:last-child{grid-column:3!important;grid-row:1!important;width:100%!important}
+#overlay.pre-match .top > .details{display:none!important}
+/* Toss message remains entirely inside the slim footer. */
+#overlay.pre-match .bottom{overflow:hidden!important}
+#overlay.pre-match .bottom .message{top:50%!important;line-height:1.05!important;transform:translate(-50%,-50%)!important;margin:0!important;max-width:calc(100% - 180px)!important}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
