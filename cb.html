@@ -1564,7 +1564,7 @@ function render(data){
  const pp=$('powerplay');
  pp.className='pp-marker'+(activePP?' active'+(rawPP==='BOPP'?' bowling':''):'');
  pp.textContent=activePP?(rawPP==='BAPP'?'BAT PP':'BOWL PP'):'';
- const holder=$('balls');holder.replaceChildren();const label=document.createElement('span');label.className='ball-label';
+ const holder=$('balls');const existingBadges=new Map([...holder.querySelectorAll('.ball[data-delivery-id]')].map(el=>[el.dataset.deliveryId,el]));const label=document.createElement('span');label.className='ball-label';
  const heading=document.createElement('span');heading.textContent='THIS OVER';label.append(heading);
  // Prefer the authoritative over total. When absent, derive it only from deliveries
  // in the selected over (including wides, no-balls, byes and leg-byes).
@@ -1579,25 +1579,42 @@ function render(data){
  if(Number.isFinite(overRuns)){
   const runCount=document.createElement('span');runCount.className='over-run-count';runCount.textContent=`(${overRuns} run${overRuns===1?'':'s'})`;label.append(runCount);
  }
- holder.append(label);
+ // Reuse badge nodes between polling cycles: replacing them cancels active animations.
+ const nextNodes=[label];
  for(const b of display){
-  const el=document.createElement('span');el.className='ball';el.textContent=b.label;
+  const el=existingBadges.get(b.id)||document.createElement('span');
+  const isNewNode=!existingBadges.has(b.id);
+  el.className='ball';el.dataset.deliveryId=b.id;el.textContent=b.label;
   if(b.kind)el.classList.add(b.kind);
   if(b.kind==='extra'&&b.label.length===1)el.classList.add('single-extra');
-  const fresh=newDeliveryIds.has(b.id);
-  if(fresh)el.classList.add('delivery-zoom-in');
-  holder.append(el);
-  // Start on the inserted DOM element. Web Animations runs independently of
-  // stylesheet animation precedence and avoids the CSS-only WebView regression.
-  if(fresh&&typeof el.animate==='function'){
-    el.animate([
-      {transform:'scale(0.25)',opacity:0.35,filter:'brightness(2)'},
-      {transform:'scale(1.8)',opacity:1,filter:'brightness(1.8) drop-shadow(0 0 9px #ffd76b)',offset:0.32},
-      {transform:'scale(1.35)',opacity:1,filter:'brightness(1.3)',offset:0.68},
+  nextNodes.push(el);
+  if(isNewNode&&newDeliveryIds.has(b.id)){
+   el.classList.add('delivery-zoom-in');
+   // Queue after DOM insertion so the browser has a real layout box to animate.
+   requestAnimationFrame(()=>{
+    if(!el.isConnected)return;
+    el.classList.remove('delivery-zoom-in');
+    if(typeof el.animate==='function'){
+     el.animate([
+      {transform:'scale(.2)',opacity:.2,filter:'brightness(2)'},
+      {transform:'scale(2.2)',opacity:1,filter:'brightness(2) drop-shadow(0 0 12px #ffd76b)',offset:.35},
+      {transform:'scale(1.35)',opacity:1,offset:.75},
       {transform:'scale(1)',opacity:1,filter:'none'}
-    ],{duration:2100,easing:'cubic-bezier(.2,.7,.25,1)',iterations:1});
+     ],{duration:2400,easing:'ease-out',iterations:1});
+    }else{
+     void el.offsetWidth;
+     el.classList.add('delivery-zoom-in');
+    }
+   });
   }
  }
+ // Moving existing nodes within the same holder preserves their running animations.
+ for(let i=0;i<nextNodes.length;i++){
+  const node=nextNodes[i];
+  if(holder.children[i]!==node)holder.insertBefore(node,holder.children[i]||null);
+ }
+ const wanted=new Set(nextNodes);
+ for(const node of [...holder.children])if(!wanted.has(node))node.remove();
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
  const phase=getMatchPhase(data);
