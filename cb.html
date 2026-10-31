@@ -827,6 +827,41 @@ body.broadcast-match-visible #overlay.theme-marvel .identity{
  vertical-align:middle!important;
 }
 </style>
+<style id="v53-star-center-alignment">
+/* A flex row aligns the star's visual box with the name's line box. */
+.overlay #batters .player .person{
+ display:inline-flex!important;align-items:center!important;min-width:0;
+ gap:5px;line-height:1.15!important;
+}
+.overlay #batters .player .batter-name-text{
+ display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.overlay #batters .player .striker-star{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto;margin:0!important;padding:0!important;
+ line-height:1!important;vertical-align:unset!important;
+ transform:translateY(1px)!important;
+}
+</style>
+<style id="v54-marvel-team-border-containment">
+/* Marvel only: team-panel gold borders/glows must not bleed into the
+   adjacent batting and bowling statistics panels. Keep the visible gold
+   outline inside the red team-name panels. */
+#overlay.theme-marvel .top > .identity:first-child,
+#overlay.theme-marvel .top > .identity:last-child{
+  z-index:1!important;
+  box-shadow:inset 0 0 0 1px #fff0b4,inset 0 0 9px #ffd76b70!important;
+}
+#overlay.theme-marvel .top > .details{
+  position:relative!important;
+  z-index:3!important;
+  background:rgba(18,18,18,var(--alpha))!important;
+}
+/* During the match summary the lower scoreboard is intentionally opaque. */
+body.broadcast-match-visible #overlay.theme-marvel .top > .details{
+  background:#121212!important;
+}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1378,7 +1413,7 @@ function render(data){
  set('score',`${active.score??batting.score??batting.scorecard?.total?.total_runs??0}/${active.wickets??batting.wickets??batting.scorecard?.total?.total_wickets??0}`);
  set('meta',`Overs ${scoreOver(active.over??batting.overs)} · RR ${active.current_rr??'—'}`);
  const batters=currentMatchesBatting?[c.batter1,c.batter2].filter(Boolean):[];
- $('batters').replaceChildren(...batters.map(b=>{const row=document.createElement('div');row.className='player';const isStriker=b.player_id!=null&&c.striker_id!=null&&String(b.player_id)===String(c.striker_id);if(isStriker)row.classList.add('striker-highlight');const name=document.createElement('span');name.className='person';name.textContent=fullName(b);if(isStriker){const star=document.createElement('span');star.className='striker-star';star.textContent='★';star.setAttribute('aria-label','Striker');name.append(star);}const stats=document.createElement('span');stats.className='stats';stats.textContent=`${b.runs??0} (${b.balls??0})`;row.append(name,stats);return row;}));
+ $('batters').replaceChildren(...batters.map(b=>{const row=document.createElement('div');row.className='player';const isStriker=b.player_id!=null&&c.striker_id!=null&&String(b.player_id)===String(c.striker_id);if(isStriker)row.classList.add('striker-highlight');const name=document.createElement('span');name.className='person';name.textContent='';const nameText=document.createElement('span');nameText.className='batter-name-text';nameText.textContent=fullName(b);name.append(nameText);if(isStriker){const star=document.createElement('span');star.className='striker-star';star.textContent='★';star.setAttribute('aria-label','Striker');name.append(star);}const stats=document.createElement('span');stats.className='stats';stats.textContent=`${b.runs??0} (${b.balls??0})`;row.append(name,stats);return row;}));
  const bowler=currentMatchesBatting?c.current_bowler:null;set('bowler',bowler?fullName(bowler):'—');set('figures',bowler?bowlingFigures(bowler):'');
  // Powerplay is identified by the over's explicit BAPP/BOPP flag.
  // Remaining powerplay counters are NOT indicators that one is active.
