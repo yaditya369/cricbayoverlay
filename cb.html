@@ -929,6 +929,36 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #overlay #batters .player .striker-star-svg{display:block;width:16px;height:16px;overflow:visible;filter:drop-shadow(0 0 2px #ffb52b)}
 </style>
 <style id="v59-striker-cricket-bat">#overlay #batters .player .striker-star{font-size:16px!important;line-height:1!important;filter:none!important;text-shadow:none!important;font-family:"Noto Color Emoji","Segoe UI Emoji",sans-serif!important}</style>
+<style id="v61-striker-ball-badges-zoom-fix">
+/* Fixed icon box below the player row height, and a real gap from the name. */
+#overlay #batters .player .person{gap:7px!important;align-items:center!important;}
+#overlay #batters .player .striker-star{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:12px!important;height:12px!important;flex:0 0 12px!important;
+  font-size:11px!important;line-height:12px!important;overflow:hidden!important;
+  margin:0!important;padding:0!important;vertical-align:middle!important;
+  transform:none!important;position:relative!important;top:0!important;
+}
+/* All delivery values: explicit bold, exact center for every theme and layout. */
+#overlay .balls .ball{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  text-align:center!important;font-weight:900!important;
+  line-height:1!important;font-variant-numeric:tabular-nums;
+  vertical-align:middle!important;box-sizing:border-box!important;
+}
+#overlay .balls .ball.delivery-zoom-in{
+  animation:cricbayDeliveryZoomV61 2100ms cubic-bezier(.16,1,.3,1) both!important;
+  transform-origin:center center!important;will-change:transform,filter;
+  position:relative!important;z-index:5!important;
+}
+@keyframes cricbayDeliveryZoomV61{
+  0%{transform:scale(.15);opacity:.25;filter:brightness(2.5)}
+  48%{transform:scale(1.55);opacity:1;filter:brightness(1.65) drop-shadow(0 0 6px #ffd76b)}
+  72%{transform:scale(.92);filter:brightness(1.15)}
+  100%{transform:scale(1);opacity:1;filter:none}
+}
+@media(prefers-reduced-motion:reduce){#overlay .balls .ball.delivery-zoom-in{animation:none!important}}
+</style>
 <style id="v60-prematch-grid-regression-fix">
 /* The V56 five-column Marvel override must never apply to the three-column toss screen. */
 #overlay.pre-match.theme-marvel .top,
@@ -1550,7 +1580,24 @@ function render(data){
   const runCount=document.createElement('span');runCount.className='over-run-count';runCount.textContent=`(${overRuns} run${overRuns===1?'':'s'})`;label.append(runCount);
  }
  holder.append(label);
- for(const b of display){const el=document.createElement('span');el.className='ball';el.textContent=b.label;if(b.kind)el.classList.add(b.kind);if(b.kind==='extra'&&b.label.length===1)el.classList.add('single-extra');if(newDeliveryIds.has(b.id))el.classList.add('delivery-zoom-in');holder.append(el);}
+ for(const b of display){
+  const el=document.createElement('span');el.className='ball';el.textContent=b.label;
+  if(b.kind)el.classList.add(b.kind);
+  if(b.kind==='extra'&&b.label.length===1)el.classList.add('single-extra');
+  const fresh=newDeliveryIds.has(b.id);
+  if(fresh)el.classList.add('delivery-zoom-in');
+  holder.append(el);
+  // Start on the inserted DOM element. Web Animations runs independently of
+  // stylesheet animation precedence and avoids the CSS-only WebView regression.
+  if(fresh&&typeof el.animate==='function'){
+    el.animate([
+      {transform:'scale(0.25)',opacity:0.35,filter:'brightness(2)'},
+      {transform:'scale(1.8)',opacity:1,filter:'brightness(1.8) drop-shadow(0 0 9px #ffd76b)',offset:0.32},
+      {transform:'scale(1.35)',opacity:1,filter:'brightness(1.3)',offset:0.68},
+      {transform:'scale(1)',opacity:1,filter:'none'}
+    ],{duration:2100,easing:'cubic-bezier(.2,.7,.25,1)',iterations:1});
+  }
+ }
  // The second bar is independent of the optional innings summary panel.
  // Determine the break from innings data, never from match.status.
  const phase=getMatchPhase(data);
