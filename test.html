@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CricBay Player API Tester</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:dark;background:#0b1220;color:#eaf0fa}*{box-sizing:border-box}body{margin:0;padding:32px 16px}.wrap{max-width:900px;margin:auto}h1{margin:0 0 8px;font-size:28px}p{color:#9facbf;line-height:1.5}.panel{background:#172235;border:1px solid #2c3b52;border-radius:14px;padding:22px;margin:20px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:650px){.grid{grid-template-columns:1fr}}label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}input{width:100%;padding:12px;border:1px solid #43516b;background:#0c1729;color:#fff;border-radius:8px;font-size:14px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{border:0;background:#3989f5;color:white;padding:12px 17px;border-radius:8px;font-weight:700;cursor:pointer}button.secondary{background:#34445f}button:disabled{opacity:.55;cursor:wait}.status{margin:14px 0;color:#9facbf;min-height:24px}.status.error{color:#ff9797}.status.ok{color:#9ce0bc}pre{background:#08101e;border:1px solid #2c3b52;border-radius:10px;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;min-height:110px;max-height:520px;overflow:auto;font-size:13px}.hint{font-size:13px}
+</style>
+</head>
+<body><main class="wrap">
+<h1>CricBay Player API Tester</h1>
+<p>Call your Cloudflare Worker to fetch and display decrypted player profile and career statistics JSON.</p>
+<section class="panel">
+<div class="grid">
+<div><label for="worker">Cloudflare Worker URL</label><input id="worker" placeholder="https://your-worker.workers.dev" autocomplete="url"></div>
+<div><label for="player">Player ID</label><input id="player" type="text" inputmode="numeric" value="14254"></div>
+<div style="grid-column:1/-1"><label for="proxy">Player Proxy Key (for private testing only)</label><input id="proxy" type="password" placeholder="Enter PLAYER_PROXY_KEY at runtime" autocomplete="off"></div>
+</div>
+<div class="buttons"><button id="profile">Get Player Profile</button><button id="career">Get Career Statistics</button><button id="both" class="secondary">Get Both APIs</button></div>
+<div id="status" class="status" role="status" aria-live="polite">Ready</div>
+<p class="hint">The proxy key is never stored by this page. Do not publish a real key in HTML or use this page publicly with a shared secret. Your Worker must allow your page's Origin through CORS.</p>
+</section>
+<section class="panel"><h2>Player Profile</h2><pre id="profileOutput">Click “Get Player Profile” to load.</pre></section>
+<section class="panel"><h2>Career Statistics</h2><pre id="careerOutput">Click “Get Career Statistics” to load.</pre></section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const controls = ['profile','career','both'];
+function setBusy(busy) { controls.forEach(id => $(id).disabled = busy); }
+function status(message, type = '') { $('status').textContent = message; $('status').className = `status ${type}`; }
+function settings() {
+  const base = $('worker').value.trim().replace(/\/+$/, '');
+  const playerId = $('player').value.trim();
+  const proxyKey = $('proxy').value;
+  if (!/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(base)) throw Error('Enter a valid HTTPS Worker origin, without a path.');
+  if (!/^\d+$/.test(playerId)) throw Error('Player ID must contain digits only.');
+  if (!proxyKey) throw Error('Enter your PLAYER_PROXY_KEY.');
+  return {base, playerId, proxyKey};
+}
+async function requestJson(url, proxyKey) {
+  const response = await fetch(url, {method:'GET', headers:{'X-Proxy-Key':proxyKey, 'Accept':'application/json'}, cache:'no-store'});
+  const text = await response.text();
+  let body;
+  try { body = JSON.parse(text); } catch { throw Error(`HTTP ${response.status}: Response was not JSON (${text.slice(0,150)})`); }
+  if (!response.ok) throw Error(`HTTP ${response.status}: ${body.error || body.message || JSON.stringify(body)}`);
+  return body;
+}
+async function run(kind) {
+  setBusy(true);
+  status('Calling CricBay through Cloudflare Worker…');
+  try {
+    const {base,playerId,proxyKey} = settings();
+    const requests = [];
+    if (kind === 'profile' || kind === 'both') requests.push({out:'profileOutput', url:`${base}/player/profile/${playerId}`});
+    if (kind === 'career' || kind === 'both') requests.push({out:'careerOutput', url:`${base}/player/${playerId}`});
+    const results = await Promise.allSettled(requests.map(r => requestJson(r.url, proxyKey)));
+    let errors = 0;
+    results.forEach((result,i) => {
+      const target = $(requests[i].out);
+      if (result.status === 'fulfilled') target.textContent = JSON.stringify(result.value, null, 2);
+      else { errors++; target.textContent = `ERROR: ${result.reason.message}`; }
+    });
+    status(errors ? `${errors} of ${requests.length} request(s) failed. Check output panels.` : `${requests.length} request(s) succeeded.`, errors ? 'error' : 'ok');
+  } catch(e) { status(e.message, 'error'); }
+  finally { setBusy(false); }
+}
+$('profile').addEventListener('click', () => run('profile'));
+$('career').addEventListener('click', () => run('career'));
+$('both').addEventListener('click', () => run('both'));
+</script>
+</body></html>
