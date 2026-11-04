@@ -1,71 +1,20 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CricBay Player API Tester</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CricBay - Four API Tester</title>
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:dark;background:#0b1220;color:#eaf0fa}*{box-sizing:border-box}body{margin:0;padding:32px 16px}.wrap{max-width:900px;margin:auto}h1{margin:0 0 8px;font-size:28px}p{color:#9facbf;line-height:1.5}.panel{background:#172235;border:1px solid #2c3b52;border-radius:14px;padding:22px;margin:20px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:650px){.grid{grid-template-columns:1fr}}label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}input{width:100%;padding:12px;border:1px solid #43516b;background:#0c1729;color:#fff;border-radius:8px;font-size:14px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{border:0;background:#3989f5;color:white;padding:12px 17px;border-radius:8px;font-weight:700;cursor:pointer}button.secondary{background:#34445f}button:disabled{opacity:.55;cursor:wait}.status{margin:14px 0;color:#9facbf;min-height:24px}.status.error{color:#ff9797}.status.ok{color:#9ce0bc}pre{background:#08101e;border:1px solid #2c3b52;border-radius:10px;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;min-height:110px;max-height:520px;overflow:auto;font-size:13px}.hint{font-size:13px}
+:root{font-family:system-ui,Segoe UI,Arial,sans-serif;color-scheme:dark}body{margin:0;background:#101827;color:#e8eef8}.wrap{max-width:1080px;margin:auto;padding:30px 18px}h1{margin:0 0 7px}p{color:#aab9cf}.panel{background:#1b293b;border:1px solid #324358;border-radius:14px;padding:18px;margin:16px 0}.fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{font-size:13px;color:#bdcce0;display:block;margin-bottom:6px}input{width:100%;box-sizing:border-box;border:1px solid #516179;border-radius:8px;padding:11px;background:#101b2b;color:white}button{border:0;border-radius:8px;background:#3c82f6;color:white;padding:11px 15px;cursor:pointer;font-weight:600}button:disabled{opacity:.55;cursor:wait}.actions{display:flex;flex-wrap:wrap;gap:10px}.secondary{background:#33485f}.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.status{font-size:13px;color:#aab9cf}pre{background:#0b1422;border-radius:8px;padding:15px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto;font-size:13px;line-height:1.5}.hint{font-size:12px;color:#9caec7}.ok{color:#66d7a3}.err{color:#ff8f9d}@media(max-width:700px){.fields{grid-template-columns:1fr}.wrap{padding:18px 12px}}
 </style>
 </head>
-<body><main class="wrap">
-<h1>CricBay Player API Tester</h1>
-<p>Call your Cloudflare Worker to fetch and display decrypted player profile and career statistics JSON.</p>
-<section class="panel">
-<div class="grid">
-<div><label for="worker">Cloudflare Worker URL</label><input id="worker" placeholder="https://your-worker.workers.dev" autocomplete="url"></div>
-<div><label for="player">Player ID</label><input id="player" type="text" inputmode="numeric" value="14254"></div>
-<div style="grid-column:1/-1"><label for="proxy">Player Proxy Key (for private testing only)</label><input id="proxy" type="password" placeholder="Enter PLAYER_PROXY_KEY at runtime" autocomplete="off"></div>
-</div>
-<div class="buttons"><button id="profile">Get Player Profile</button><button id="career">Get Career Statistics</button><button id="both" class="secondary">Get Both APIs</button></div>
-<div id="status" class="status" role="status" aria-live="polite">Ready</div>
-<p class="hint">The proxy key is never stored by this page. Do not publish a real key in HTML or use this page publicly with a shared secret. Your Worker must allow your page's Origin through CORS.</p>
-</section>
-<section class="panel"><h2>Player Profile</h2><pre id="profileOutput">Click “Get Player Profile” to load.</pre></section>
-<section class="panel"><h2>Career Statistics</h2><pre id="careerOutput">Click “Get Career Statistics” to load.</pre></section>
-</main>
+<body><main class="wrap"><h1>CricBay API Tester</h1><p>Test all four authenticated APIs through your Cloudflare Worker. Responses are displayed as formatted JSON.</p>
+<section class="panel"><div class="fields"><div><label for="worker">Worker URL</label><input id="worker" value="https://cricbay-api.y-aditya369.workers.dev" spellcheck="false"></div><div><label for="player">Player ID</label><input id="player" value="14254" inputmode="numeric"></div><div><label for="page">Statistics page</label><input id="page" type="number" value="1" min="1" max="10000"></div></div><div style="margin-top:12px"><label for="key">Player proxy key (if required by your Worker)</label><input id="key" type="password" placeholder="Optional — only for private testing" autocomplete="off"></div><p class="hint">Do not publish a proxy key in GitHub Pages source. The key is kept only in this page's memory and sent as X-Proxy-Key when entered. Use this tester privately.</p><div class="actions"><button data-api="profile">Get Player Profile</button><button data-api="career">Get Career Statistics</button><button data-api="tournaments">Get Tournament List</button><button data-api="tournamentStats">Get Tournament Statistics</button><button id="all" class="secondary">Run All 4</button><button id="clear" class="secondary">Clear Results</button></div></section>
+<div id="results"></div></main>
 <script>
-const $ = id => document.getElementById(id);
-const controls = ['profile','career','both'];
-function setBusy(busy) { controls.forEach(id => $(id).disabled = busy); }
-function status(message, type = '') { $('status').textContent = message; $('status').className = `status ${type}`; }
-function settings() {
-  const base = $('worker').value.trim().replace(/\/+$/, '');
-  const playerId = $('player').value.trim();
-  const proxyKey = $('proxy').value;
-  if (!/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(base)) throw Error('Enter a valid HTTPS Worker origin, without a path.');
-  if (!/^\d+$/.test(playerId)) throw Error('Player ID must contain digits only.');
-  if (!proxyKey) throw Error('Enter your PLAYER_PROXY_KEY.');
-  return {base, playerId, proxyKey};
-}
-async function requestJson(url, proxyKey) {
-  const response = await fetch(url, {method:'GET', headers:{'X-Proxy-Key':proxyKey, 'Accept':'application/json'}, cache:'no-store'});
-  const text = await response.text();
-  let body;
-  try { body = JSON.parse(text); } catch { throw Error(`HTTP ${response.status}: Response was not JSON (${text.slice(0,150)})`); }
-  if (!response.ok) throw Error(`HTTP ${response.status}: ${body.error || body.message || JSON.stringify(body)}`);
-  return body;
-}
-async function run(kind) {
-  setBusy(true);
-  status('Calling CricBay through Cloudflare Worker…');
-  try {
-    const {base,playerId,proxyKey} = settings();
-    const requests = [];
-    if (kind === 'profile' || kind === 'both') requests.push({out:'profileOutput', url:`${base}/player/profile/${playerId}`});
-    if (kind === 'career' || kind === 'both') requests.push({out:'careerOutput', url:`${base}/player/${playerId}`});
-    const results = await Promise.allSettled(requests.map(r => requestJson(r.url, proxyKey)));
-    let errors = 0;
-    results.forEach((result,i) => {
-      const target = $(requests[i].out);
-      if (result.status === 'fulfilled') target.textContent = JSON.stringify(result.value, null, 2);
-      else { errors++; target.textContent = `ERROR: ${result.reason.message}`; }
-    });
-    status(errors ? `${errors} of ${requests.length} request(s) failed. Check output panels.` : `${requests.length} request(s) succeeded.`, errors ? 'error' : 'ok');
-  } catch(e) { status(e.message, 'error'); }
-  finally { setBusy(false); }
-}
-$('profile').addEventListener('click', () => run('profile'));
-$('career').addEventListener('click', () => run('career'));
-$('both').addEventListener('click', () => run('both'));
-</script>
-</body></html>
+const apis={profile:{name:'Player Profile',path:(id,page)=>`/player/profile/${id}`},career:{name:'Player Career Statistics',path:(id,page)=>`/player/${id}`},tournaments:{name:'Tournament List',path:()=>'/tournament/list'},tournamentStats:{name:'Player Tournament Statistics',path:(id,page)=>`/player/tournament/statistics?page=${page}`}};
+const $=id=>document.getElementById(id);
+function safeText(node,text){node.textContent=text;}
+function resultBox(key){let root=$('result-'+key);if(root)return root;root=document.createElement('section');root.className='panel';root.id='result-'+key;const head=document.createElement('div');head.className='result-head';const title=document.createElement('strong');title.textContent=apis[key].name;const status=document.createElement('span');status.className='status';status.id='status-'+key;head.append(title,status);const path=document.createElement('p');path.className='hint';path.id='path-'+key;const pre=document.createElement('pre');pre.id='json-'+key;pre.textContent='Waiting...';root.append(head,path,pre);$('results').append(root);return root;}
+async function run(key){const id=$('player').value.trim(),page=Number($('page').value);if(!/^\d+$/.test(id)){alert('Player ID must be numeric');return;}if(!Number.isSafeInteger(page)||page<1||page>10000){alert('Page must be between 1 and 10000');return;}const base=$('worker').value.trim().replace(/\/+$/,'');let parsed;try{parsed=new URL(base);if(parsed.protocol!=='https:')throw Error();}catch{alert('Enter a valid HTTPS Worker URL');return;}const path=apis[key].path(id,page);const url=base+path;resultBox(key);safeText($('path-'+key),url);const status=$('status-'+key),pre=$('json-'+key);status.className='status';status.textContent='Loading...';pre.textContent='Request in progress...';const headers={};if($('key').value)headers['X-Proxy-Key']=$('key').value;const start=performance.now();try{const response=await fetch(url,{method:'GET',headers,cache:'no-store'});const text=await response.text();let data;try{data=JSON.parse(text)}catch{data=text}const elapsed=Math.round(performance.now()-start);status.textContent=`HTTP ${response.status} · ${elapsed} ms`;status.className='status '+(response.ok?'ok':'err');pre.textContent=typeof data==='string'?data:JSON.stringify(data,null,2);}catch(e){status.textContent='Request failed';status.className='status err';pre.textContent=`${e.message}\n\nIf this is a CORS error, host the HTML on your allowed GitHub Pages origin or update the Worker's CORS allowlist.`;}}
+document.querySelectorAll('[data-api]').forEach(b=>b.addEventListener('click',()=>run(b.dataset.api)));$('all').addEventListener('click',()=>Promise.all(Object.keys(apis).map(run)));$('clear').addEventListener('click',()=>{$('results').replaceChildren()});
+</script></body></html>
