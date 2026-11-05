@@ -1085,6 +1085,9 @@ const matchId=(q.get('matchId')||'31584').trim();
 const workerPrimary=(q.get('worker')||'https://cricbay-api.aditya-yeddula09.workers.dev').replace(/\/$/,'');
 const workerBackup=(q.get('backupWorker')||'https://cricbay-api.y-aditya369.workers.dev').replace(/\/$/,'');
 const workerPool=[...new Set([workerPrimary,workerBackup])];
+const proxyHeaders={'X-Proxy-Key':'kingadi369'};
+// Dedicated Worker for the four player/tournament APIs; independent of scorecard failover.
+const playerApiWorker='https://cricbay-api.y-aditya369.workers.dev';
 let activeWorkerIndex=0;
 // Each request has a finite timeout, so a stalled Worker cannot block the overlay forever.
 async function fetchWorkerJSON(path,validate,timeoutMs=8000){
@@ -1152,19 +1155,18 @@ const profileQueue=[];
 const safePath=path=>/^\/[\w/{}?=&.-]+$/.test(path)&&!path.startsWith('//');
 async function playerWorkerRequest(path,method='GET',payload=null){
  if(!safePath(path))throw Error('Invalid player API path');
- let error;
- for(let n=0;n<workerPool.length;n++){
-  const index=(activeWorkerIndex+n)%workerPool.length;
-  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),6500);
-  try{
-   const response=await fetch(workerPool[index]+path,{method,headers:payload?{'Content-Type':'application/json'}:undefined,body:payload?JSON.stringify(payload):undefined,signal:ctrl.signal,cache:'no-store'});
-   if(!response.ok)throw Error('HTTP '+response.status+' '+path);
-   const json=await response.json();
-   if(index!==activeWorkerIndex)activeWorkerIndex=index;
-   return json;
-  }catch(e){error=e;}finally{clearTimeout(timer);}
- }
- throw error||Error('Player API unavailable');
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),6500);
+ try{
+  const response=await fetch(playerApiWorker+path,{
+   method,
+   headers:payload?{...proxyHeaders,'Content-Type':'application/json'}:proxyHeaders,
+   body:payload?JSON.stringify(payload):undefined,
+   signal:ctrl.signal,
+   cache:'no-store'
+  });
+  if(!response.ok)throw Error('HTTP '+response.status+' '+path);
+  return await response.json();
+ }finally{clearTimeout(timer);}
 }
 function unwrapPlayerResult(response){
  let value=response;
