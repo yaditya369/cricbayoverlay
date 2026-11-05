@@ -1100,6 +1100,24 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro .profile-awards-list{padding-left:9%;font-size:clamp(7px,1.1vw,12px);line-height:1.35;overflow:hidden}
 #playerIntro .profile-awards-list div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #playerIntro .profile-awards-list div:before{content:'▪';color:#ffba35;margin-right:9px}
+/* Compact player introduction: retain reference palette without obscuring the field. */
+#playerIntro{width:min(78vw,650px);max-width:650px;top:42%}
+#playerIntro .profile-shell{aspect-ratio:auto;height:270px;padding:30px 18px 12px;display:flex;flex-direction:column}
+#playerIntro .profile-kicker{font-size:clamp(9px,1.35vw,13px);height:23px;line-height:15px;padding:3px 17px}
+#playerIntro .profile-name{font-size:clamp(17px,2.25vw,25px);margin-left:12px;line-height:1.05;flex-shrink:0}
+#playerIntro .profile-team{font-size:clamp(9px,1.1vw,12px);margin:2px 0 0 12px;flex-shrink:0}
+#playerIntro .profile-stats{height:auto;min-height:0;flex:1;gap:5px;margin-top:9px;justify-content:stretch}
+#playerIntro .profile-stat-group{flex:1 1 0;min-height:0}
+#playerIntro .profile-stat-group.awards{flex:1 1 0}
+#playerIntro .profile-stat-heading{height:29%;font-size:clamp(8px,1.15vw,11px);padding:2px 14px}
+#playerIntro .profile-stat-row{height:70%}
+#playerIntro .profile-stat strong{font-size:clamp(13px,2vw,19px)}
+#playerIntro .profile-stat small{font-size:clamp(7px,.95vw,10px)}
+#playerIntro .profile-pom strong{font-size:clamp(11px,1.5vw,16px)}
+#playerIntro .profile-awards-list{font-size:clamp(7px,.9vw,10px)}
+#playerIntro .profile-shell.no-awards{height:208px}
+#playerIntro .profile-shell.no-awards .profile-stats{gap:6px}
+@media(max-height:450px){#playerIntro{width:min(72vw,610px);top:42%}#playerIntro .profile-shell{height:min(245px,66vh);padding:26px 16px 10px}#playerIntro .profile-shell.no-awards{height:min(188px,54vh)}#playerIntro .profile-stats{margin-top:6px}}
 body.player-profile-preview #playerIntro .profile-shell{outline:none}
 @media(max-height:450px){#playerIntro{top:42%;width:min(82vw,850px)}#playerIntro .profile-shell{padding:4.2% 2.9% 2.1%}#playerIntro .profile-stats{margin-top:2%}}
 </style>
@@ -1426,8 +1444,16 @@ function renderProfile(item,data){
  const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent='ACHIEVEMENTS & AWARDS';award.append(heading);
  const row=document.createElement('div');row.className='profile-awards-row';const pom=document.createElement('div');pom.className='profile-pom';const count=document.createElement('strong');count.textContent=pick(p,['pom_count','player_of_match_count','total_pom','pom']);const caption=document.createElement('span');caption.textContent='CAREER POMs';pom.append(count,caption);row.append(pom);
  const list=document.createElement('div');list.className='profile-awards-list';const rawAwards=p?.awards??p?.achievements??data?.profile?.awards??[];const awards=Array.isArray(rawAwards)?rawAwards.slice(0,3):[];
- if(awards.length){awards.forEach(a=>{const el=document.createElement('div');el.textContent=typeof a==='string'?a:(a?.title||a?.name||a?.award||'—');list.append(el);});}else{const el=document.createElement('div');el.textContent='No award details available';list.append(el);}
- row.append(list);award.append(row);root.append(award);
+ if(awards.length){awards.forEach(a=>{const el=document.createElement('div');el.textContent=typeof a==='string'?a:(a?.title||a?.name||a?.award||'');list.append(el);});}
+ const pomValue=Number(count.textContent);
+ const hasPom=Number.isFinite(pomValue)&&pomValue>0;
+ const hasAwards=awards.some(a=>typeof a==='string'?a.trim():Boolean(a?.title||a?.name||a?.award));
+ const shell=panel.querySelector('.profile-shell');
+ if(shell)shell.classList.toggle('no-awards',!hasPom&&!hasAwards);
+ if(hasPom||hasAwards){
+  if(!hasPom)pom.style.visibility='hidden';
+  row.append(list);award.append(row);root.append(award);
+ }
 }
 function drainProfiles(){
  if(profileActive||celebrationActive||milestoneQueue.length||document.body.classList.contains('cricbay-score-offline')||!profileQueue.length)return;
