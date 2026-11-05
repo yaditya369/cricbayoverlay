@@ -1033,6 +1033,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 }
 </style>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
+<section id="playerIntro" aria-live="polite"><div class="profile-shell"><div class="profile-kicker" id="profileKicker"></div><div class="profile-name" id="profileName"></div><div class="profile-team" id="profileTeam"></div><div class="profile-stats" id="profileStats"></div></div></section>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
 <linearGradient id="v9gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b5"/><stop offset=".18" stop-color="#eec87c"/><stop offset=".48" stop-color="#a76529"/><stop offset=".75" stop-color="#f8d88a"/><stop offset="1" stop-color="#b46a31"/></linearGradient>
@@ -1051,6 +1052,29 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 
 <path d="M 60 3 L 185 3 M 1015 3 L 1140 3 M 60 267 L 185 267 M 1015 267 L 1140 267" stroke="#ffe5a2" stroke-width="2.5" opacity=".8"/>
 </svg><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center" aria-hidden="true"><div class="broadcast-final" id="broadcastFinal">FINAL</div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
+<style>
+/* Player introductions are independent of the compact footer. */
+#playerIntro{display:none;position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);z-index:1600;width:min(600px,88vw);pointer-events:none;color:#fff;font-family:Arial,sans-serif}
+#playerIntro.visible{display:block;animation:profile-in .4s ease-out both}
+#playerIntro .profile-shell{background:linear-gradient(125deg,#202b3b,#101620);border:2px solid #a4bedb;border-radius:12px;padding:18px 24px;box-shadow:0 14px 45px #000b;overflow:hidden}
+#playerIntro.theme-marvel .profile-shell{background:linear-gradient(125deg,#9c101e,#220509);border-color:#ffe66b}
+#playerIntro.theme-blue .profile-shell{background:linear-gradient(125deg,#0865ba,#071d38);border-color:#80d8ff}
+#playerIntro.theme-red .profile-shell{background:linear-gradient(125deg,#a3192e,#29070e);border-color:#ffc2c7}
+#playerIntro.theme-stadium .profile-shell{background:linear-gradient(125deg,#12614c,#071e19);border-color:#eacb72}
+#playerIntro .profile-kicker{font-size:12px;letter-spacing:2px;font-weight:900;opacity:.85}
+#playerIntro .profile-name{font-size:clamp(22px,3vw,39px);font-weight:950;margin:7px 0 5px;overflow-wrap:anywhere}
+#playerIntro .profile-team{font-size:14px;font-weight:700;opacity:.85}
+#playerIntro .profile-stats{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+#playerIntro .profile-stat-group{width:100%}
+#playerIntro .profile-stat-heading{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#ffe5a2;margin-bottom:5px}
+#playerIntro .profile-stat-row{display:flex;flex-wrap:wrap;gap:8px}
+#playerIntro .profile-stat{min-width:80px;padding:8px 12px;background:#ffffff20;border:1px solid #ffffff50;border-radius:6px;text-align:center}
+#playerIntro .profile-stat strong{display:block;font-size:20px}
+#playerIntro .profile-stat small{font-size:10px;letter-spacing:.6px}
+@keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
+@media(max-height:450px){#playerIntro{top:40%;width:min(570px,85vw)}#playerIntro .profile-shell{padding:10px 17px}#playerIntro .profile-stats{margin-top:8px}}
+</style>
 <script>
 (() => {
 'use strict';
@@ -1109,22 +1133,222 @@ let milestoneBaseline=null;
 const milestoneShown=new Set();
 const milestoneThresholds=[25,50,75,100,150,200,250,300];
 const milestoneQueue=[];
+// Player introductions: three player APIs; tournament-list lookup disabled.
+const showPlayerProfile=q.get('showPlayerProfile')==='1';
+const profileDuration=Math.max(1000,Math.min(15000,Number(q.get('profileDuration'))||5000));
+const profilePath=q.get('profilePath')||'/player/profile/{id}';
+const careerPath=q.get('careerPath')||'/player/{id}';
+const profileStatsPath=q.get('profileStatsPath')||'/player/tournament/statistics?page=1';
+const profileSeen=new Set(),profileCache=new Map();
+const preloadPlayers=new Map();
+let preloadRunning=false,preloadMatchId=null;
+let profileBaseline=false,profileActive=false,profileTimer=null,profileToken=0;
+const profileQueue=[];
+const safePath=path=>/^\/[\w/{}?=&.-]+$/.test(path)&&!path.startsWith('//');
+async function playerWorkerRequest(path,method='GET',payload=null){
+ if(!safePath(path))throw Error('Invalid player API path');
+ let error;
+ for(let n=0;n<workerPool.length;n++){
+  const index=(activeWorkerIndex+n)%workerPool.length;
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),6500);
+  try{
+   const response=await fetch(workerPool[index]+path,{method,headers:payload?{'Content-Type':'application/json'}:undefined,body:payload?JSON.stringify(payload):undefined,signal:ctrl.signal,cache:'no-store'});
+   if(!response.ok)throw Error('HTTP '+response.status+' '+path);
+   const json=await response.json();
+   if(index!==activeWorkerIndex)activeWorkerIndex=index;
+   return json;
+  }catch(e){error=e;}finally{clearTimeout(timer);}
+ }
+ throw error||Error('Player API unavailable');
+}
+function unwrapPlayerResult(response){
+ let value=response;
+ for(let i=0;i<3;i++){
+  if(!value||typeof value!=='object'||Array.isArray(value))break;
+  const next=value.data??value.result??value.response;
+  if(next==null||next===value)break;
+  value=next;
+ }
+ return value;
+}
+function profileStatObject(response,role){
+ const root=unwrapPlayerResult(response);
+ const item=Array.isArray(root)?root[0]:root;
+ if(!item||typeof item!=='object')return {};
+ const aliases=role==='batting'?['batting_statistics','batting_stats','batting','battingStatistics']:['bowling_statistics','bowling_stats','bowling','bowlingStatistics'];
+ for(const name of aliases){if(item[name]&&typeof item[name]==='object')return item[name];}
+ return item;
+}
+function statValue(obj,keys){
+ if(!obj||typeof obj!=='object')return null;
+ for(const key of keys){const v=obj[key];if(v!==undefined&&v!==null&&v!==''&&typeof v!=='object')return String(v);}
+ return null;
+}
+function profileFields(obj,role){
+ const defs=role==='batting'?
+  [['MATCHES',['matches','matches_played','total_matches','games_played']],['RUNS',['runs','total_runs','runs_scored']],['AVERAGE',['average','batting_average','avg']],['STRIKE RATE',['strike_rate','batting_strike_rate','sr']],['50s',['fifties','fifty','half_centuries']],['100s',['hundreds','centuries']]]:
+  [['MATCHES',['matches','matches_played','total_matches','games_played']],['WICKETS',['wickets','total_wickets','wickets_taken']],['ECONOMY',['economy','economy_rate','eco']],['AVERAGE',['average','bowling_average','avg']],['BEST',['best_bowling','best_figures','best']]];
+ return defs.map(([label,keys])=>[label,statValue(obj,keys)]).filter(([,v])=>v!==null).slice(0,4);
+}
+async function resolveTournamentId(item){
+ // Only use a numeric tournament ID supplied by match data or query parameter.
+ if(/^\d+$/.test(String(item.tournament)))return Number(item.tournament);
+ if(/^\d+$/.test(String(q.get('tournamentId')||'')))return Number(q.get('tournamentId'));
+ return 88;
+}
+function tournamentStatsObject(response,role,tournamentId){
+ const root=unwrapPlayerResult(response);
+ const rows=Array.isArray(root)?root:(Array.isArray(root?.tournaments)?root.tournaments:Array.isArray(root?.results)?root.results:Array.isArray(root?.statistics)?root.statistics:[root]);
+ const selected=rows.find(row=>String(row?.tournament_id??row?.id??'')===String(tournamentId))||rows[0];
+ const item=selected?.statistics??selected?.season_statistics??selected;
+ return profileStatObject(item,role);
+}
+async function loadProfileStats(item){
+ const tournamentId=await resolveTournamentId(item);
+ const key=String(item.id)+':'+String(tournamentId);
+ if(profileCache.has(key))return profileCache.get(key);
+ const promise=(async()=>{
+  const id=encodeURIComponent(String(item.id));
+  const requests=[
+   playerWorkerRequest(profilePath.replaceAll('{id}',id)),
+   playerWorkerRequest(careerPath.replaceAll('{id}',id)),
+   playerWorkerRequest(profileStatsPath,'POST',{player_id:Number(item.id),tournaments:[tournamentId]})
+  ];
+  // All three requests run concurrently for this player. A failure in one does not block the others.
+  const [profileResult,careerResult,seasonResult]=await Promise.allSettled(requests);
+  for(const [label,result] of [['profile',profileResult],['career',careerResult],['tournament',seasonResult]]){
+   if(result.status==='rejected')console.warn('CricBay '+label+' API unavailable for player '+item.id,result.reason);
+  }
+  const profile=profileResult.status==='fulfilled'?profileResult.value:null;
+  const career=careerResult.status==='fulfilled'?careerResult.value:null;
+  const season=seasonResult.status==='fulfilled'?seasonResult.value:null;
+  return {profile:unwrapPlayerResult(profile),career:profileStatObject(career,item.role),season:season?tournamentStatsObject(season,item.role,tournamentId):null,tournamentId,
+   raw:{profile,career,tournament:season},status:{profile:profileResult.status,career:careerResult.status,tournament:seasonResult.status}};
+ })();
+ profileCache.set(key,promise);
+ return promise;
+}
+// Preload is intentionally one player at a time, with three parallel API calls per player.
+// Snapshot schemas vary by match; only confirmed IDs in playing-XI collections are accepted.
+function extractPlayingXI(data){
+ const m=data.match||{},teams=[m.team1,m.team2].filter(Boolean);
+ const result=new Map();
+ const rosterKeys=['playing_xi','playingXI','playing11','playing_eleven','playingEleven','playing_11','playing_players','playingPlayers','players','lineup','team_players','teamPlayers'];
+ const idOf=p=>p?.player_id??p?.playerId??p?.player?.player_id??p?.player?.id??null;
+ const add=(p,team)=>{
+  if(!p||typeof p!=='object')return;
+  const id=idOf(p);if(id==null||!/^[0-9]+$/.test(String(id)))return;
+  const selected=p.is_playing??p.isPlaying??p.in_playing_xi??p.inPlayingXI;
+  if(selected===false||selected===0||selected==='0')return;
+  const key=String(id);
+  if(!result.has(key))result.set(key,{id:key,role:'batting',name:fullName(p)||p.player?.player_name||p.player?.name||'',snapshot:p,team:team?.team_name||team?.short_name||'',tournament:88});
+ };
+ const scan=(obj,team)=>{
+  if(!obj||typeof obj!=='object')return;
+  for(const key of rosterKeys){
+   const list=obj[key];
+   if(Array.isArray(list))list.forEach(p=>add(p,team));
+   else if(list&&typeof list==='object'){
+    const nested=list.players??list.playing_xi??list.playingXI;
+    if(Array.isArray(nested))nested.forEach(p=>add(p,team));
+   }
+  }
+ };
+ teams.forEach(t=>scan(t,t));
+ for(const [i,team] of teams.entries()){
+  const side=data.teams?.[i]??data.teams?.[String(team.team_id)]??null;
+  scan(side,team);
+ }
+ scan(data, null);
+ return result;
+}
+function tossIsComplete(data){
+ const m=data.match||{};
+ return Boolean(m.toss_won_by_team_name||m.toss_won_by||m.toss_decision||m.toss_elected_to||m.batting_first_team_name||hasStartedInnings(data));
+}
+function preloadAllPlayers(data){
+ if(!showPlayerProfile||!tossIsComplete(data))return;
+ const matchKey=String(data.match?.match_id??matchId);
+ if(preloadMatchId!==matchKey){preloadMatchId=matchKey;preloadPlayers.clear();}
+ const found=extractPlayingXI(data);
+ for(const [id,item] of found){if(!preloadPlayers.has(id))preloadPlayers.set(id,item);}
+ if(!preloadRunning&&preloadPlayers.size){void drainPlayerPreload();}
+}
+const preloadCompleted=new Set();
+async function drainPlayerPreload(){
+ if(preloadRunning)return;
+ preloadRunning=true;
+ try{
+  // Newly discovered players are added to the same sequential work queue.
+  for(const [id,item] of preloadPlayers){
+   if(preloadCompleted.has(id))continue;
+   preloadCompleted.add(id);
+   await loadProfileStats(item);
+  }
+ }finally{preloadRunning=false;}
+}
+function profileNameFromApi(profile,fallback){
+ const p=Array.isArray(profile)?profile[0]:profile;
+ return [p?.player_name,p?.full_name,p?.name,[p?.first_name,p?.last_name].filter(Boolean).join(' ')].find(v=>typeof v==='string'&&v.trim())||fallback;
+}
+function renderProfile(item,data){
+ const panel=$('playerIntro');panel.className='visible theme-'+theme;
+ $('profileKicker').textContent=item.role==='batting'?'BATTER INTRODUCTION':'BOWLER INTRODUCTION';
+ $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
+ $('profileTeam').textContent=item.team||'';
+ const season=profileFields(data?.season,item.role);
+ const career=profileFields(data?.career,item.role);
+ const fallback=profileFields(item.snapshot,item.role);
+ const root=$('profileStats');root.replaceChildren();
+ const addGroup=(title,fields)=>{
+  if(!fields.length)return;
+  const group=document.createElement('div');group.className='profile-stat-group';
+  const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent=title;group.append(heading);
+  const row=document.createElement('div');row.className='profile-stat-row';
+  for(const [label,value] of fields){const div=document.createElement('div');div.className='profile-stat';const strong=document.createElement('strong');strong.textContent=value;const small=document.createElement('small');small.textContent=label;div.append(strong,small);row.append(div);}
+  group.append(row);root.append(group);
+ };
+ addGroup('CURRENT TOURNAMENT',season);
+ addGroup('CAREER',career);
+ if(!season.length&&!career.length)addGroup('CURRENT MATCH',fallback);
+}
+function drainProfiles(){
+ if(profileActive||celebrationActive||milestoneQueue.length||document.body.classList.contains('cricbay-score-offline')||!profileQueue.length)return;
+ if(document.body.classList.contains('broadcast-match-visible')){profileQueue.length=0;return;}
+ profileActive=true;const item=profileQueue.shift(),token=++profileToken;
+ renderProfile(item,null);
+ void loadProfileStats(item).then(stats=>{if(profileActive&&profileToken===token&&stats)renderProfile(item,stats);});
+ profileTimer=setTimeout(()=>{$('playerIntro').classList.remove('visible');profileActive=false;setTimeout(drainProfiles,200);},profileDuration);
+}
+function trackProfiles(data){
+ if(!showPlayerProfile||superOverPhase(data)||getMatchPhase(data)==='match')return;
+ const c=data.current||{},inning=String(data.match?.current_inning_id??'');
+ if(!inning)return;
+ const candidates=[['batting',c.batter1],['batting',c.batter2],['bowling',c.current_bowler]];
+ const items=candidates.filter(([,p])=>p&&p.player_id!=null).map(([role,p])=>({role,id:String(p.player_id),name:fullName(p),snapshot:p,inning,team:role==='batting'?$('batTeam').textContent:$('bowlTeam').textContent,tournament:data.match?.tournament_id??data.match?.tournament?.id??q.get('tournamentId')??'',tournamentName:data.match?.tournament_name??data.match?.tournament??''}));
+ // Warm the player cache even for initial players, without showing a card on initial load.
+ if(!profileBaseline){items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);if(!preloadPlayers.has(item.id))void loadProfileStats(item);});profileBaseline=true;return;}
+ for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;profileSeen.add(key);profileQueue.push(item);if(!preloadPlayers.has(item.id))void loadProfileStats(item);}
+ drainProfiles();
+}
+
 let celebrationTimer=null,celebrationActive=false;
 function hideForScoreFailure(){
  document.body.classList.add('cricbay-score-offline');
  $('scoreEvent').classList.remove('active');
  clearTimeout(eventTimer);clearTimeout(celebrationTimer);
  celebrationActive=false;
+ clearTimeout(profileTimer);profileToken++;profileActive=false;profileQueue.length=0;$('playerIntro').classList.remove('visible');
 }
 function restoreAfterScoreSuccess(){
  failedScoreFetches=0;
  document.body.classList.remove('cricbay-score-offline');
- drainCelebrations();
+ drainCelebrations();drainProfiles();
 }
 function enqueueCelebration(e){
  if(e.key&&milestoneShown.has(e.key))return;
  if(e.key)milestoneShown.add(e.key);
- milestoneQueue.push(e);drainCelebrations();
+ milestoneQueue.push(e);if(profileActive){clearTimeout(profileTimer);profileToken++;profileActive=false;$('playerIntro').classList.remove('visible');}drainCelebrations();
 }
 function drainCelebrations(){
  if(celebrationActive||document.body.classList.contains('cricbay-score-offline')||!milestoneQueue.length)return;
@@ -1141,7 +1365,7 @@ function drainCelebrations(){
  if(e.kind==='four'||e.kind==='six'){if(soundEnabled)playBoundaryAudio();}
  celebrationTimer=setTimeout(()=>{
   el.classList.remove('active');celebrationActive=false;
-  celebrationTimer=setTimeout(drainCelebrations,220);
+  celebrationTimer=setTimeout(()=>{drainCelebrations();drainProfiles();},220);
  },e.duration||2800);
 }
 function inningSnapshot(data){
@@ -1960,7 +2184,7 @@ async function refresh(){if(busy)return;busy=true;try{
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
  restoreAfterScoreSuccess();
- latestSnapshot=data;render(data);lastVersion=data.version;
+ latestSnapshot=data;render(data);preloadAllPlayers(data);trackProfiles(data);lastVersion=data.version;
  updateSummary(data);
  checkLifecycle(data);
  }catch(e){
