@@ -1133,13 +1133,18 @@ let milestoneBaseline=null;
 const milestoneShown=new Set();
 const milestoneThresholds=[25,50,75,100,150,200,250,300];
 const milestoneQueue=[];
-// Player introductions: three player APIs; tournament-list lookup disabled.
+// Player introductions: tournament list resolved once per page load, shared by all players.
 const showPlayerProfile=q.get('showPlayerProfile')==='1';
 const profileDuration=Math.max(1000,Math.min(15000,Number(q.get('profileDuration'))||5000));
 const profilePath=q.get('profilePath')||'/player/profile/{id}';
 const careerPath=q.get('careerPath')||'/player/{id}';
 const profileStatsPath=q.get('profileStatsPath')||'/player/tournament/statistics?page=1';
+const tournamentListPath=q.get('tournamentListPath')||'/tournament/list';
+let tournamentListPromise=null;
+let tournamentMatchContext=null;
 const profileSeen=new Set(),profileCache=new Map();
+const profileRetryPending=new Set();
+const profileApiInFlight=new Map();
 const preloadPlayers=new Map();
 let preloadRunning=false,preloadMatchId=null;
 let profileBaseline=false,profileActive=false,profileTimer=null,profileToken=0;
@@ -1190,12 +1195,62 @@ function profileFields(obj,role){
   [['MATCHES',['matches','matches_played','total_matches','games_played']],['WICKETS',['wickets','total_wickets','wickets_taken']],['ECONOMY',['economy','economy_rate','eco']],['AVERAGE',['average','bowling_average','avg']],['BEST',['best_bowling','best_figures','best']]];
  return defs.map(([label,keys])=>[label,statValue(obj,keys)]).filter(([,v])=>v!==null).slice(0,4);
 }
-async function resolveTournamentId(item){
- // Only use a numeric tournament ID supplied by match data or query parameter.
- if(/^\d+$/.test(String(item.tournament)))return Number(item.tournament);
- if(/^\d+$/.test(String(q.get('tournamentId')||'')))return Number(q.get('tournamentId'));
- return 88;
+// Resolve once per HTML load, including when the match snapshot is not ready yet.
+function parseTournamentDay(value){
+ if(value==null)return null;
+ const s=String(value).trim();
+ let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+ if(m)return Number(m[1])*10000+Number(m[2])*100+Number(m[3]);
+ m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+ if(m)return Number(m[3])*10000+Number(m[1])*100+Number(m[2]);
+ return null;
 }
+function tournamentRows(response){
+ const root=unwrapPlayerResult(response);
+ if(Array.isArray(root))return root;
+ for(const field of ['tournaments','results','items','list','records']){
+  if(Array.isArray(root?.[field]))return root[field];
+  if(Array.isArray(root?.data?.[field]))return root.data[field];
+ }
+ return [];
+}
+function loadTournamentListOnce(){
+ if(!tournamentListPromise){
+  tournamentListPromise=playerWorkerRequest(tournamentListPath).then(tournamentRows).catch(e=>{
+   console.warn('CricBay tournament list unavailable:',e);
+   return [];
+  });
+ }
+ return tournamentListPromise;
+}
+function chooseCurrentTournament(rows){
+ const now=new Date();
+ const today=now.getFullYear()*10000+(now.getMonth()+1)*100+now.getDate();
+ const active=rows.filter(t=>{
+  const start=parseTournamentDay(t.start_date??t.startDate);
+  const end=parseTournamentDay(t.end_date??t.endDate);
+  return start!==null&&end!==null&&start<=today&&today<=end;
+ });
+ if(!active.length)return null;
+ const match=tournamentMatchContext||{};
+ const matchId=String(match.tournament_id??match.tournament?.id??'');
+ const exact=active.find(t=>String(t.tournament_id??t.id)===matchId);
+ if(exact)return exact;
+ if(active.length===1)return active[0];
+ const matchName=String(match.tournament_name??'').trim().toLowerCase();
+ const byName=matchName?active.find(t=>String(t.tournament_name??t.name??'').trim().toLowerCase()===matchName):null;
+ if(byName)return byName;
+ console.warn('Multiple active CricBay tournaments; unable to choose unambiguously');
+ return null;
+}
+async function resolveTournamentId(){
+ const rows=await loadTournamentListOnce();
+ const selected=chooseCurrentTournament(rows);
+ const id=selected?.tournament_id??selected?.id;
+ return /^\d+$/.test(String(id??''))?Number(id):null;
+}
+// Fire the single tournament-list call on page load, independently of player preloading.
+void loadTournamentListOnce();
 function tournamentStatsObject(response,role,tournamentId){
  const root=unwrapPlayerResult(response);
  const rows=Array.isArray(root)?root:(Array.isArray(root?.tournaments)?root.tournaments:Array.isArray(root?.results)?root.results:Array.isArray(root?.statistics)?root.statistics:[root]);
@@ -1203,31 +1258,50 @@ function tournamentStatsObject(response,role,tournamentId){
  const item=selected?.statistics??selected?.season_statistics??selected;
  return profileStatObject(item,role);
 }
+// One cache and one in-flight registry shared by preload and active-player fallback.
 async function loadProfileStats(item){
- const tournamentId=await resolveTournamentId(item);
+ const tournamentId=await resolveTournamentId();
  const key=String(item.id)+':'+String(tournamentId);
- if(profileCache.has(key))return profileCache.get(key);
- const promise=(async()=>{
-  const id=encodeURIComponent(String(item.id));
-  const requests=[
-   playerWorkerRequest(profilePath.replaceAll('{id}',id)),
-   playerWorkerRequest(careerPath.replaceAll('{id}',id)),
-   playerWorkerRequest(profileStatsPath,'POST',{player_id:Number(item.id),tournaments:[tournamentId]})
-  ];
-  // All three requests run concurrently for this player. A failure in one does not block the others.
-  const [profileResult,careerResult,seasonResult]=await Promise.allSettled(requests);
-  for(const [label,result] of [['profile',profileResult],['career',careerResult],['tournament',seasonResult]]){
-   if(result.status==='rejected')console.warn('CricBay '+label+' API unavailable for player '+item.id,result.reason);
-  }
-  const profile=profileResult.status==='fulfilled'?profileResult.value:null;
-  const career=careerResult.status==='fulfilled'?careerResult.value:null;
-  const season=seasonResult.status==='fulfilled'?seasonResult.value:null;
-  return {profile:unwrapPlayerResult(profile),career:profileStatObject(career,item.role),season:season?tournamentStatsObject(season,item.role,tournamentId):null,tournamentId,
-   raw:{profile,career,tournament:season},status:{profile:profileResult.status,career:careerResult.status,tournament:seasonResult.status}};
- })();
- profileCache.set(key,promise);
- return promise;
+ const existing=profileCache.get(key);
+ if(existing)return existing;
+ return fetchMissingPlayerApis(item);
 }
+async function fetchMissingPlayerApis(item){
+ const tournamentId=await resolveTournamentId();
+ const key=String(item.id)+':'+String(tournamentId);
+ // An active player and the background preload must never duplicate requests.
+ if(profileApiInFlight.has(key))return profileApiInFlight.get(key);
+ const task=(async()=>{
+  const previous=profileCache.get(key)||null;
+  if(previous&&!hasIncompleteProfile(previous))return previous;
+  const id=encodeURIComponent(String(item.id));
+  const specs=[
+   ['profile',()=>playerWorkerRequest(profilePath.replaceAll('{id}',id))],
+   ['career',()=>playerWorkerRequest(careerPath.replaceAll('{id}',id))],
+   ['tournament',()=>tournamentId==null?Promise.reject(Error('No unambiguous current tournament')):playerWorkerRequest(profileStatsPath,'POST',{player_id:Number(item.id),tournaments:[tournamentId]})]
+  ];
+  const missing=specs.filter(([label])=>previous?.status?.[label]!=='fulfilled');
+  if(!missing.length)return previous;
+  const settled=await Promise.allSettled(missing.map(([,call])=>call()));
+  const raw={...previous?.raw},status={...previous?.status};
+  settled.forEach((result,index)=>{
+   const label=missing[index][0];status[label]=result.status;
+   if(result.status==='fulfilled')raw[label]=result.value;
+   else console.warn('CricBay '+label+' API unavailable for player '+item.id,result.reason);
+  });
+  const combined={profile:unwrapPlayerResult(raw.profile),career:profileStatObject(raw.career,item.role),
+   season:raw.tournament?tournamentStatsObject(raw.tournament,item.role,tournamentId):null,
+   tournamentId,raw,status};
+  profileCache.set(key,combined);
+  return combined;
+ })();
+ profileApiInFlight.set(key,task);
+ try{return await task;}finally{if(profileApiInFlight.get(key)===task)profileApiInFlight.delete(key);}
+}
+function hasIncompleteProfile(result){
+ return !result||!result.status||['profile','career','tournament'].some(k=>result.status[k]!=='fulfilled');
+}
+async function retryIncompleteProfile(item){return fetchMissingPlayerApis(item);}
 // Preload is intentionally one player at a time, with three parallel API calls per player.
 // Snapshot schemas vary by match; only confirmed IDs in playing-XI collections are accepted.
 function extractPlayingXI(data){
@@ -1241,7 +1315,7 @@ function extractPlayingXI(data){
   const selected=p.is_playing??p.isPlaying??p.in_playing_xi??p.inPlayingXI;
   if(selected===false||selected===0||selected==='0')return;
   const key=String(id);
-  if(!result.has(key))result.set(key,{id:key,role:'batting',name:fullName(p)||p.player?.player_name||p.player?.name||'',snapshot:p,team:team?.team_name||team?.short_name||'',tournament:88});
+  if(!result.has(key))result.set(key,{id:key,role:'batting',name:fullName(p)||p.player?.player_name||p.player?.name||'',snapshot:p,team:team?.team_name||team?.short_name||'',});
  };
  const scan=(obj,team)=>{
   if(!obj||typeof obj!=='object')return;
@@ -1267,9 +1341,11 @@ function tossIsComplete(data){
  return Boolean(m.toss_won_by_team_name||m.toss_won_by||m.toss_decision||m.toss_elected_to||m.batting_first_team_name||hasStartedInnings(data));
 }
 function preloadAllPlayers(data){
- if(!showPlayerProfile||!tossIsComplete(data))return;
+ // Preload as soon as the first snapshot exposes player IDs; no toss or display flag gate.
+ if(!data||!data.match)return;
+ tournamentMatchContext=data.match;
  const matchKey=String(data.match?.match_id??matchId);
- if(preloadMatchId!==matchKey){preloadMatchId=matchKey;preloadPlayers.clear();}
+ if(preloadMatchId!==matchKey){preloadMatchId=matchKey;preloadPlayers.clear();preloadCompleted.clear();profileCache.clear();profileApiInFlight.clear();}
  const found=extractPlayingXI(data);
  for(const [id,item] of found){if(!preloadPlayers.has(id))preloadPlayers.set(id,item);}
  if(!preloadRunning&&preloadPlayers.size){void drainPlayerPreload();}
@@ -1286,6 +1362,10 @@ async function drainPlayerPreload(){
    await loadProfileStats(item);
   }
  }finally{preloadRunning=false;}
+}
+function enqueuePlayerPreload(item){
+ if(!preloadPlayers.has(String(item.id)))preloadPlayers.set(String(item.id),item);
+ if(!preloadRunning)void drainPlayerPreload();
 }
 function profileNameFromApi(profile,fallback){
  const p=Array.isArray(profile)?profile[0]:profile;
@@ -1317,19 +1397,23 @@ function drainProfiles(){
  if(document.body.classList.contains('broadcast-match-visible')){profileQueue.length=0;return;}
  profileActive=true;const item=profileQueue.shift(),token=++profileToken;
  renderProfile(item,null);
- void loadProfileStats(item).then(stats=>{if(profileActive&&profileToken===token&&stats)renderProfile(item,stats);});
+ void fetchMissingPlayerApis(item).then(async stats=>{
+  if(profileActive&&profileToken===token&&stats)renderProfile(item,stats);
+
+ }).catch(error=>console.warn('Player profile fallback failed',error));
  profileTimer=setTimeout(()=>{$('playerIntro').classList.remove('visible');profileActive=false;setTimeout(drainProfiles,200);},profileDuration);
 }
 function trackProfiles(data){
- if(!showPlayerProfile||superOverPhase(data)||getMatchPhase(data)==='match')return;
+ if(superOverPhase(data)||getMatchPhase(data)==='match')return;
  const c=data.current||{},inning=String(data.match?.current_inning_id??'');
  if(!inning)return;
  const candidates=[['batting',c.batter1],['batting',c.batter2],['bowling',c.current_bowler]];
  const items=candidates.filter(([,p])=>p&&p.player_id!=null).map(([role,p])=>({role,id:String(p.player_id),name:fullName(p),snapshot:p,inning,team:role==='batting'?$('batTeam').textContent:$('bowlTeam').textContent,tournament:data.match?.tournament_id??data.match?.tournament?.id??q.get('tournamentId')??'',tournamentName:data.match?.tournament_name??data.match?.tournament??''}));
  // Warm the player cache even for initial players, without showing a card on initial load.
- if(!profileBaseline){items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);if(!preloadPlayers.has(item.id))void loadProfileStats(item);});profileBaseline=true;return;}
- for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;profileSeen.add(key);profileQueue.push(item);if(!preloadPlayers.has(item.id))void loadProfileStats(item);}
- drainProfiles();
+ if(!profileBaseline){items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;}
+ for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;profileSeen.add(key);if(showPlayerProfile)profileQueue.push(item);
+  void fetchMissingPlayerApis(item).catch(console.warn);}
+ if(showPlayerProfile)drainProfiles();
 }
 
 let celebrationTimer=null,celebrationActive=false;
@@ -2173,13 +2257,22 @@ function updateSummary(data){
    if(footer)set('message',footer);
    if(summaryEnabled||summaryPreview)renderSummary(currentData,summaryPreview||getMatchPhase(currentData));
    checkLifecycle(currentData);
+   stopPollingWhenPomSelected(currentData);
   });
  }
  if(!summaryEnabled&&!summaryPreview){$('summaryPanel').classList.remove('visible','broadcast-active');document.body.classList.remove('broadcast-match-visible');return;}
  renderSummary(data,previewPhase==='match'?'match':'');
 }
 
-async function refresh(){if(busy)return;busy=true;try{
+let refreshTimer=null;
+let pollingStoppedForPom=false;
+function stopPollingWhenPomSelected(data){
+ if(pollingStoppedForPom||!currentPom(data))return;
+ pollingStoppedForPom=true;
+ if(refreshTimer!==null){clearInterval(refreshTimer);refreshTimer=null;}
+ console.info("CricBay: Player of the Match selected; snapshot polling stopped.");
+}
+async function refresh(){if(busy||pollingStoppedForPom)return;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
@@ -2187,6 +2280,7 @@ async function refresh(){if(busy)return;busy=true;try{
  latestSnapshot=data;render(data);preloadAllPlayers(data);trackProfiles(data);lastVersion=data.version;
  updateSummary(data);
  checkLifecycle(data);
+ stopPollingWhenPomSelected(data);
  }catch(e){
  console.error('CricBay overlay:',e);
  failedScoreFetches++;
@@ -2210,6 +2304,6 @@ if(soundEnabled){
  document.addEventListener('touchend',unlockAudio,{once:true});
 }
 const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
-refresh();setInterval(refresh,interval);
+refresh();if(!pollingStoppedForPom)refreshTimer=setInterval(refresh,interval);
 })();
 </script></body></html>
