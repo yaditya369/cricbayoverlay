@@ -1035,7 +1035,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 }
 </style>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
-<section id="playerIntro" aria-live="polite"><div class="profile-shell"><div class="profile-kicker" id="profileKicker"></div><div class="profile-name" id="profileName"></div><div class="profile-team" id="profileTeam"></div><div class="profile-stats" id="profileStats"></div></div></section>
+<section id="playerIntro" aria-live="polite"><div class="profile-shell"><div class="profile-kicker" id="profileKicker">INCOMING BATSMAN</div><div class="profile-name" id="profileName"></div><div class="profile-team" id="profileTeam"></div><div class="profile-stats" id="profileStats"></div></div></section>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
 <linearGradient id="v9gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b5"/><stop offset=".18" stop-color="#eec87c"/><stop offset=".48" stop-color="#a76529"/><stop offset=".75" stop-color="#f8d88a"/><stop offset="1" stop-color="#b46a31"/></linearGradient>
@@ -1076,6 +1076,32 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @media(max-height:450px){#playerIntro{top:40%;width:min(570px,85vw)}#playerIntro .profile-shell{padding:10px 17px}#playerIntro .profile-stats{margin-top:8px}}
+
+/* Broadcast player introduction: geometry and palette matched to reference 92481.png */
+#playerIntro{position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);width:min(96vw,960px);max-width:calc((100vh - 35px)*1.94);font-family:Arial,Helvetica,sans-serif;color:#fff;pointer-events:none;z-index:1600}
+#playerIntro .profile-shell{position:relative;box-sizing:border-box;width:100%;aspect-ratio:644 / 326;padding:4.2% 2.9% 2.1%;border:0;border-radius:0;overflow:hidden;background:linear-gradient(135deg,#ff9eab 0%,#78000b 1.2%,#2e0005 2.2%,#4b0009 97%,#ff8a9b 99%,#7c0009 100%);box-shadow:0 6px 0 #180409,0 0 0 1px #ffd4d8,0 14px 35px #000a;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%)}
+#playerIntro .profile-shell:before{content:'';position:absolute;inset:1.1%;border:2px solid #e5485a;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%);pointer-events:none;box-shadow:inset 0 0 7px #ff9aa0}
+#playerIntro .profile-kicker{position:absolute;left:2.4%;top:0.4%;width:33%;height:7.1%;box-sizing:border-box;padding:0.8% 3.1%;background:linear-gradient(#ff5b6a 0%,#c51325 20%,#780009 67%,#4d0008 100%);border:1px solid #ffb1b8;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);font-weight:950;font-style:italic;letter-spacing:0;font-size:clamp(9px,1.85vw,21px);white-space:nowrap;text-shadow:1px 2px 1px #220006;opacity:1;z-index:2}
+#playerIntro .profile-name{position:relative;margin:0 0 0 2.5%;font-size:clamp(18px,3.8vw,39px);font-style:italic;font-weight:950;line-height:1.04;letter-spacing:-.6px;text-transform:uppercase;text-shadow:1px 2px 1px #270005;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-top:0}
+#playerIntro .profile-team{margin:0.5% 0 0 2.5%;font-size:clamp(9px,1.65vw,17px);font-weight:700;font-style:italic;line-height:1.15;opacity:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#playerIntro .profile-stats{display:flex;flex-direction:column;gap:1.5%;margin-top:2%;height:74%;justify-content:space-between}
+#playerIntro .profile-stat-group{position:relative;flex:0 0 29%;width:100%;box-sizing:border-box;overflow:hidden;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);border:1px solid #77b9f5;background:linear-gradient(180deg,#0060b4 0%,#074981 27%,#001f38 45%,#001e33 100%);box-shadow:inset 0 0 0 1px #59a9e2}
+#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,#009d62 0%,#006b45 26%,#003b2a 47%,#002f23 100%);box-shadow:inset 0 0 0 1px #26b77b}
+#playerIntro .profile-stat-group.awards{flex-basis:31%;border-color:#ffb45b;background:linear-gradient(180deg,#bd6d0e 0%,#894209 30%,#2b1402 35%,#251203 100%);box-shadow:inset 0 0 0 1px #da9a4e}
+#playerIntro .profile-stat-heading{box-sizing:border-box;height:32%;padding:0.35% 2.8%;font-size:clamp(8px,1.5vw,15px);font-weight:950;font-style:italic;letter-spacing:0;color:white;text-shadow:1px 1px 1px #111;margin:0;white-space:nowrap}
+#playerIntro .profile-stat-row{height:65%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:center}
+#playerIntro .profile-stat{min-width:0;padding:0 1%;background:transparent;border:0;border-radius:0;text-align:center;box-sizing:border-box;border-right:1px solid #b4c6d7a6}
+#playerIntro .profile-stat:last-child{border-right:0}
+#playerIntro .profile-stat strong{font-size:clamp(13px,2.8vw,29px);font-weight:950;line-height:1.05;white-space:nowrap}
+#playerIntro .profile-stat small{display:block;font-size:clamp(8px,1.45vw,14px);font-weight:800;line-height:1.1;letter-spacing:0}
+#playerIntro .profile-awards-row{height:67%;display:grid;grid-template-columns:36% 64%;align-items:center}
+#playerIntro .profile-pom{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #b5a58b;font-size:clamp(7px,1.1vw,11px)}
+#playerIntro .profile-pom strong{font-size:clamp(11px,1.8vw,19px);color:#ffb442}
+#playerIntro .profile-awards-list{padding-left:9%;font-size:clamp(7px,1.1vw,12px);line-height:1.35;overflow:hidden}
+#playerIntro .profile-awards-list div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#playerIntro .profile-awards-list div:before{content:'▪';color:#ffba35;margin-right:9px}
+body.player-profile-preview #playerIntro .profile-shell{outline:none}
+@media(max-height:450px){#playerIntro{top:42%;width:min(82vw,850px)}#playerIntro .profile-shell{padding:4.2% 2.9% 2.1%}#playerIntro .profile-stats{margin-top:2%}}
 </style>
 <script>
 (() => {
@@ -1383,24 +1409,25 @@ function profileNameFromApi(profile,fallback){
 }
 function renderProfile(item,data){
  const panel=$('playerIntro');panel.className='visible theme-'+theme;
- $('profileKicker').textContent=item.role==='batting'?'BATTER INTRODUCTION':'BOWLER INTRODUCTION';
+ $('profileKicker').textContent=item.role==='bowling'?'INCOMING BOWLER':'INCOMING BATSMAN';
  $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
- $('profileTeam').textContent=item.team||'';
- const season=profileFields(data?.season,item.role);
- const career=profileFields(data?.career,item.role);
- const fallback=profileFields(item.snapshot,item.role);
+ const p=Array.isArray(data?.profile)?data.profile[0]:(data?.profile||{});
+ const detail=[p?.batting_style,p?.batting_hand,p?.player_role,p?.role,p?.bowling_style,item.team].filter(v=>typeof v==='string'&&v.trim());
+ $('profileTeam').textContent=detail[0]||item.team||'PLAYER PROFILE';
  const root=$('profileStats');root.replaceChildren();
- const addGroup=(title,fields)=>{
-  if(!fields.length)return;
-  const group=document.createElement('div');group.className='profile-stat-group';
-  const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent=title;group.append(heading);
-  const row=document.createElement('div');row.className='profile-stat-row';
-  for(const [label,value] of fields){const div=document.createElement('div');div.className='profile-stat';const strong=document.createElement('strong');strong.textContent=value;const small=document.createElement('small');small.textContent=label;div.append(strong,small);row.append(div);}
-  group.append(row);root.append(group);
- };
- addGroup('CURRENT TOURNAMENT',season);
- addGroup('CAREER',career);
- if(!season.length&&!career.length)addGroup('CURRENT MATCH',fallback);
+ const format=v=>(v===null||v===undefined||v==='')?'—':String(v);
+ const pick=(obj,keys)=>{if(!obj||typeof obj!=='object')return '—';for(const key of keys){const val=obj[key];if(val!==undefined&&val!==null&&val!==''&&typeof val!=='object')return format(val);}return '—';};
+ const stats=(obj,role)=>role==='bowling'?[['MATCHES',['matches','matches_played','total_matches','games_played']],['WICKETS',['wickets','total_wickets','wickets_taken']],['AVG',['bowling_average','average','avg']],['ECON',['economy','economy_rate','eco']],['BEST',['best_bowling','best_figures','best']],['5 WKT',['five_wickets','five_wicket_hauls','five_fors']]]:[['MATCHES',['matches','matches_played','total_matches','games_played']],['RUNS',['runs','total_runs','runs_scored']],['AVG',['batting_average','average','avg']],['SR',['strike_rate','batting_strike_rate','sr']],['HS',['highest_score','high_score','hs']],['25s',['twenty_fives','twentyfive','twenty_fives_count','fifties','half_centuries']]].map(([label,keys])=>[label,pick(obj,keys)]);
+ const makeGroup=(title,cls,fields)=>{const group=document.createElement('div');group.className='profile-stat-group '+cls;const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent=title;group.append(heading);const row=document.createElement('div');row.className='profile-stat-row';for(const [label,value] of fields){const cell=document.createElement('div');cell.className='profile-stat';const num=document.createElement('strong');num.textContent=format(value);const lbl=document.createElement('small');lbl.textContent=label;cell.append(num,lbl);row.append(cell);}group.append(row);root.append(group);};
+ const tournamentTitle='CURRENT TOURNAMENT'+(p?.tournament_name?' · '+p.tournament_name:'');
+ makeGroup(tournamentTitle,'tournament',stats(data?.season,item.role));
+ makeGroup('CAREER STATISTICS','career',stats(data?.career,item.role));
+ const award=document.createElement('div');award.className='profile-stat-group awards';
+ const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent='ACHIEVEMENTS & AWARDS';award.append(heading);
+ const row=document.createElement('div');row.className='profile-awards-row';const pom=document.createElement('div');pom.className='profile-pom';const count=document.createElement('strong');count.textContent=pick(p,['pom_count','player_of_match_count','total_pom','pom']);const caption=document.createElement('span');caption.textContent='CAREER POMs';pom.append(count,caption);row.append(pom);
+ const list=document.createElement('div');list.className='profile-awards-list';const rawAwards=p?.awards??p?.achievements??data?.profile?.awards??[];const awards=Array.isArray(rawAwards)?rawAwards.slice(0,3):[];
+ if(awards.length){awards.forEach(a=>{const el=document.createElement('div');el.textContent=typeof a==='string'?a:(a?.title||a?.name||a?.award||'—');list.append(el);});}else{const el=document.createElement('div');el.textContent='No award details available';list.append(el);}
+ row.append(list);award.append(row);root.append(award);
 }
 function drainProfiles(){
  if(profileActive||celebrationActive||milestoneQueue.length||document.body.classList.contains('cricbay-score-offline')||!profileQueue.length)return;
