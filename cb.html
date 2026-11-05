@@ -1444,7 +1444,7 @@ function renderProfile(item,data){
  const stats=(obj,role,scope)=>{
   const bat=battingFor(scope);
   const fields=role==='bowling'?
-   [['MATCHES',pick(bat,['matches'])],['WICKETS',pick(obj,['wickets','total_wickets','wickets_taken'])],['AVG',pick(obj,['bowling_average','average','avg'])],['ECON',pick(obj,['economy','economy_rate','eco'])],['BEST',pick(obj,['best_bowling','best_figures','best'])],['5 WKT',pick(obj,['five_wickets','five_wicket_hauls','five_fors'])]]:
+   [['MATCHES',pick(bat,['matches'])],['WICKETS',pick(obj,['wickets','total_wickets','wickets_taken'])],['AVG',pick(obj,['bowling_average','average','avg'])],['ECON',pick(obj,['economy','economy_rate','eco'])],['BEST',pick(obj,['best'])],['3 WKT',pick(obj,['3wi'])],['5 WKT',pick(obj,['5wi'])]]:
    [['MATCHES',pick(bat,['matches'])],['RUNS',pick(obj,['runs','total_runs','runs_scored'])],['AVG',pick(obj,['batting_average','average','avg'])],['SR',pick(obj,['strike_rate','batting_strike_rate','sr'])],['HS',pick(bat,['highest'])],['25s',pick(bat,['25s'])]];
   if(role==='batting'){
    for(const label of ['50s','100s']){
