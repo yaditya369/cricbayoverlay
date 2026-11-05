@@ -1111,15 +1111,15 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro .profile-stat-group.awards{flex:1 1 0}
 #playerIntro .profile-stat-heading{height:29%;font-size:clamp(8px,1.15vw,11px);padding:2px 14px}
 #playerIntro .profile-stat-row{height:70%}
-#playerIntro .profile-stat strong{font-size:clamp(13px,2vw,19px)}
-#playerIntro .profile-stat small{font-size:clamp(7px,.95vw,10px)}
+#playerIntro .profile-stat strong{display:block;font-size:clamp(13px,2vw,19px);overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#playerIntro .profile-stat small{display:block;font-size:clamp(7px,.95vw,10px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #playerIntro .profile-pom strong{font-size:clamp(11px,1.5vw,16px)}
 #playerIntro .profile-awards-list{font-size:clamp(7px,.9vw,10px)}
 #playerIntro .profile-shell.no-awards{height:208px}
 #playerIntro .profile-shell.no-awards .profile-stats{gap:6px}
 @media(max-height:450px){#playerIntro{width:min(72vw,610px);top:42%}#playerIntro .profile-shell{height:min(245px,66vh);padding:26px 16px 10px}#playerIntro .profile-shell.no-awards{height:min(188px,54vh)}#playerIntro .profile-stats{margin-top:6px}}
 body.player-profile-preview #playerIntro .profile-shell{outline:none}
-@media(max-height:450px){#playerIntro{top:42%;width:min(82vw,850px)}#playerIntro .profile-shell{padding:4.2% 2.9% 2.1%}#playerIntro .profile-stats{margin-top:2%}}
+@media(max-height:450px){#playerIntro{top:42%;width:min(72vw,610px)}#playerIntro .profile-shell{padding:26px 16px 10px}#playerIntro .profile-stats{margin-top:6px}}
 </style>
 <script>
 (() => {
@@ -1430,12 +1430,12 @@ function renderProfile(item,data){
  $('profileKicker').textContent=item.role==='bowling'?'INCOMING BOWLER':'INCOMING BATSMAN';
  $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
  const p=Array.isArray(data?.profile)?data.profile[0]:(data?.profile||{});
- const detail=[p?.batting_style,p?.batting_hand,p?.player_role,p?.role,p?.bowling_style,item.team].filter(v=>typeof v==='string'&&v.trim());
+ const detail=item.role==='bowling'?[p?.bowling_style,p?.player_role,p?.role,p?.batting_style,item.team]:[p?.batting_style,p?.batting_hand,p?.player_role,p?.role,p?.bowling_style,item.team].filter(v=>typeof v==='string'&&v.trim());
  $('profileTeam').textContent=detail[0]||item.team||'PLAYER PROFILE';
  const root=$('profileStats');root.replaceChildren();
  const format=v=>(v===null||v===undefined||v==='')?'—':String(v);
  const pick=(obj,keys)=>{if(!obj||typeof obj!=='object')return '—';for(const key of keys){const val=obj[key];if(val!==undefined&&val!==null&&val!==''&&typeof val!=='object')return format(val);}return '—';};
- const stats=(obj,role)=>role==='bowling'?[['MATCHES',['matches','matches_played','total_matches','games_played']],['WICKETS',['wickets','total_wickets','wickets_taken']],['AVG',['bowling_average','average','avg']],['ECON',['economy','economy_rate','eco']],['BEST',['best_bowling','best_figures','best']],['5 WKT',['five_wickets','five_wicket_hauls','five_fors']]]:[['MATCHES',['matches','matches_played','total_matches','games_played']],['RUNS',['runs','total_runs','runs_scored']],['AVG',['batting_average','average','avg']],['SR',['strike_rate','batting_strike_rate','sr']],['HS',['highest_score','high_score','hs']],['25s',['twenty_fives','twentyfive','twenty_fives_count','fifties','half_centuries']]].map(([label,keys])=>[label,pick(obj,keys)]);
+ const stats=(obj,role)=>(role==='bowling'?[['MATCHES',['matches','matches_played','total_matches','games_played']],['WICKETS',['wickets','total_wickets','wickets_taken']],['AVG',['bowling_average','average','avg']],['ECON',['economy','economy_rate','eco']],['BEST',['best_bowling','best_figures','best']],['5 WKT',['five_wickets','five_wicket_hauls','five_fors']]]:[['MATCHES',['matches','matches_played','total_matches','games_played']],['RUNS',['runs','total_runs','runs_scored']],['AVG',['batting_average','average','avg']],['SR',['strike_rate','batting_strike_rate','sr']],['HS',['highest_score','high_score','hs']],['25s',['twenty_fives','twentyfive','twenty_fives_count','fifties','half_centuries']]]).map(([label,keys])=>[label,pick(obj,keys)]);
  const makeGroup=(title,cls,fields)=>{const group=document.createElement('div');group.className='profile-stat-group '+cls;const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent=title;group.append(heading);const row=document.createElement('div');row.className='profile-stat-row';for(const [label,value] of fields){const cell=document.createElement('div');cell.className='profile-stat';const num=document.createElement('strong');num.textContent=format(value);const lbl=document.createElement('small');lbl.textContent=label;cell.append(num,lbl);row.append(cell);}group.append(row);root.append(group);};
  const tournamentTitle='CURRENT TOURNAMENT'+(p?.tournament_name?' · '+p.tournament_name:'');
  makeGroup(tournamentTitle,'tournament',stats(data?.season,item.role));
