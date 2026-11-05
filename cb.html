@@ -272,6 +272,8 @@ body.cricbay-score-offline #scoreEvent {display:none!important;visibility:hidden
 /* V46: black upper bar and deeper-black lower footer; preserve other theme details. */
 .overlay.theme-red .top,.overlay.theme-marvel .top{background:rgba(18,18,18,var(--alpha))!important}
 .overlay.theme-red .bottom,.overlay.theme-marvel .bottom,.overlay.layout-3.theme-red .bottom,.overlay.layout-3.theme-marvel .bottom{background:rgba(3,3,3,var(--alpha))!important}
+body.player-profile-preview #playerIntro{display:block!important;z-index:9999!important}
+body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #ffffff40}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1138,6 +1140,9 @@ const milestoneThresholds=[25,50,75,100,150,200,250,300];
 const milestoneQueue=[];
 // Player introductions: tournament list resolved once per page load, shared by all players.
 const showPlayerProfile=q.get('showPlayerProfile')==='1';
+const previewPlayerId=(q.get('playerId')||'').trim();
+const previewRole=(q.get('profileRole')||'batting').toLowerCase();
+const playerPreviewMode=/^\d+$/.test(previewPlayerId)&&['batting','bowling'].includes(previewRole);
 const profileDuration=Math.max(1000,Math.min(15000,Number(q.get('profileDuration'))||5000));
 const profilePath=q.get('profilePath')||'/player/profile/{id}';
 const careerPath=q.get('careerPath')||'/player/{id}';
@@ -1247,6 +1252,8 @@ function chooseCurrentTournament(rows){
  return null;
 }
 async function resolveTournamentId(){
+ // An explicit tournament override is supported for preview/testing only.
+ if(playerPreviewMode && /^\d+$/.test(q.get('tournamentId')||''))return Number(q.get('tournamentId'));
  const rows=await loadTournamentListOnce();
  const selected=chooseCurrentTournament(rows);
  const id=selected?.tournament_id??selected?.id;
@@ -1407,6 +1414,7 @@ function drainProfiles(){
  profileTimer=setTimeout(()=>{$('playerIntro').classList.remove('visible');profileActive=false;setTimeout(drainProfiles,200);},profileDuration);
 }
 function trackProfiles(data){
+ if(playerPreviewMode)return;
  if(superOverPhase(data)||getMatchPhase(data)==='match')return;
  const c=data.current||{},inning=String(data.match?.current_inning_id??'');
  if(!inning)return;
@@ -1421,6 +1429,7 @@ function trackProfiles(data){
 
 let celebrationTimer=null,celebrationActive=false;
 function hideForScoreFailure(){
+ if(playerPreviewMode)return;
  document.body.classList.add('cricbay-score-offline');
  $('scoreEvent').classList.remove('active');
  clearTimeout(eventTimer);clearTimeout(celebrationTimer);
@@ -2296,6 +2305,22 @@ async function refresh(){if(busy||pollingStoppedForPom)return;busy=true;try{
  if(failedScoreFetches>=3)hideForScoreFailure();
  else set('message','Score unavailable · Retrying in '+Math.round(interval/1000)+'s');
 }finally{busy=false;}}
+// Explicit player-profile preview: no wait for a wicket, over, toss or player change.
+// Uses the same worker, shared cache and three API calls as live player introductions.
+async function startPlayerProfilePreview(){
+ if(!playerPreviewMode)return;
+ document.body.classList.add('player-profile-preview');
+ const item={id:previewPlayerId,role:previewRole,name:'Player '+previewPlayerId,
+   snapshot:{},team:'',inning:'preview'};
+ renderProfile(item,null);
+ console.info('CricBay profile preview: fetching',previewPlayerId,previewRole);
+ try{
+  const data=await fetchMissingPlayerApis(item);
+  if(data)renderProfile(item,data);
+  console.info('CricBay profile preview API status:',data?.status);
+ }catch(error){console.error('CricBay profile preview failed:',error);}
+}
+void startPlayerProfilePreview();
 window.showCricBayEvent=showEvent;
 // Browser/WebView audio policies require a genuine gesture before sound playback.
 // Do not attempt a muted play/pause: that does not reliably unlock unmuted audio.
