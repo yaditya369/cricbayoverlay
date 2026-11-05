@@ -1215,6 +1215,7 @@ function tournamentRows(response){
  return [];
 }
 function loadTournamentListOnce(){
+ // One shared promise for this page lifetime; successful results are never refetched.
  if(!tournamentListPromise){
   tournamentListPromise=playerWorkerRequest(tournamentListPath).then(tournamentRows).catch(e=>{
    console.warn('CricBay tournament list unavailable:',e);
@@ -2066,6 +2067,7 @@ function matchFooter(data){return getMatchResult(data);}
 let summaryScorecard=null, scorecardLastAttempt=0, scorecardPending=null, latestSnapshot=null;
 // Scorecard requests are deduplicated and never hold up live-score polling.
 async function fetchScorecardOnce(){
+ if(pollingStoppedForPom)return;
  if(scorecardPending)return scorecardPending;
  scorecardLastAttempt=Date.now();
  scorecardPending=(async()=>{
@@ -2191,9 +2193,14 @@ const lifecycleEmitted=new Set();
 let lifecyclePrevious=null;
 function currentPom(data){
  const m=data?.match||{},sc=summaryScorecard||{};
- const raw=sc.pom_name??sc.player_of_match?.name??sc.player_of_match??m.pom_name??m.player_of_match?.name??m.player_of_match;
- const name=typeof raw==='string'?raw.trim():'';
- return name&&name!=='[object Object]'?name:'';
+ // Empty values must not mask a valid POM from the other response.
+ const candidates=[sc.pom_name,sc.player_of_match?.name,sc.player_of_match,
+   m.pom_name,m.player_of_match?.name,m.player_of_match];
+ for(const candidate of candidates){
+  const name=typeof candidate==='string'?candidate.trim():'';
+  if(name&&name!=='[object Object]'&&name.toLowerCase()!=='null')return name;
+ }
+ return '';
 }
 function emitLifecycle(type,data,extra={}){
  if(lifecycleEmitted.has(type))return;
@@ -2248,7 +2255,7 @@ function updateSummary(data){
  const actualPhase=getMatchPhase(data);
  const previewPhase=summaryPreview||actualPhase;
  // Only fetch once the match is actually complete; preview is visual only.
- if(actualPhase==='match'&&Date.now()-scorecardLastAttempt>=60000&&
+ if(!pollingStoppedForPom&&!currentPom(data)&&actualPhase==='match'&&Date.now()-scorecardLastAttempt>=60000&&
     (!officialResult(data)||((summaryEnabled||summaryPreview)&&(!summaryScorecard||!String(summaryScorecard.pom_name||summaryScorecard.player_of_match?.name||summaryScorecard.player_of_match||data.match?.pom_name||'').trim())))){
   void fetchScorecardOnce().then(()=>{
    // Apply asynchronous results to the newest snapshot, never a stale poll.
