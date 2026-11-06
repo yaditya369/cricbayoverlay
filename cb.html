@@ -1098,7 +1098,10 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro .profile-pom{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #b5a58b;font-size:clamp(7px,1.1vw,11px)}
 #playerIntro .profile-pom strong{font-size:clamp(11px,1.8vw,19px);color:#ffb442}
 #playerIntro .profile-awards-list{padding-left:9%;font-size:clamp(7px,1.1vw,12px);line-height:1.35;overflow:hidden}
-#playerIntro .profile-awards-list div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#playerIntro .profile-awards-list{max-height:100%;overflow-y:auto;scrollbar-width:none;padding-right:8px}
+#playerIntro .profile-awards-list::-webkit-scrollbar{display:none}
+#playerIntro .profile-awards-list .profile-achievement-entry{white-space:normal;overflow-wrap:anywhere;margin:2px 0;line-height:1.25}
+#playerIntro .profile-achievement-group{font-weight:800;color:#ffd27d}
 #playerIntro .profile-awards-list div:before{content:'▪';color:#ffba35;margin-right:9px}
 /* Compact player introduction: retain reference palette without obscuring the field. */
 #playerIntro{width:min(78vw,650px);max-width:650px;top:42%}
@@ -1486,7 +1489,7 @@ function renderProfile(item,data){
  const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent='ACHIEVEMENTS & AWARDS';award.append(heading);
  const row=document.createElement('div');row.className='profile-awards-row';
  // These are the actual CricBay player-profile fields, not generic awards aliases.
- const pomRaw=p?.player_of_the_match_awards;
+ const pomRaw=p?.pom_count;
  const achievementsRaw=p?.notable_achievements;
  const pomNumber=(value)=>{
   if(typeof value==='number'||typeof value==='string'){
@@ -1506,21 +1509,21 @@ function renderProfile(item,data){
  const count=document.createElement('strong');count.textContent=String(pomCount);
  const caption=document.createElement('span');caption.textContent='CAREER POMs';pom.append(count,caption);
  const achievementEntries=(value)=>{
-  if(Array.isArray(value))return value;
-  if(typeof value==='string')return value.trim()?[value]:[];
-  if(value&&typeof value==='object'){
-   for(const key of ['achievements','items','records','awards'])if(Array.isArray(value[key]))return value[key];
-  }
-  return [];
+  if(!Array.isArray(value))return [];
+  return value.filter(entry=>entry&&typeof entry==='object')
+   .map(entry=>({
+    tournament:String(entry.tournament_name??'').trim(),
+    award:String(entry.award_name??'').trim()
+   }))
+   .filter(entry=>entry.tournament||entry.award);
  };
- const awardText=a=>{
-  if(typeof a==='string')return a.trim();
-  if(!a||typeof a!=='object')return '';
-  return String(a.description??a.title??a.name??a.achievement??a.award??'').trim();
- };
- const awards=achievementEntries(achievementsRaw).map(awardText).filter(Boolean).slice(0,3);
+ const awards=achievementEntries(achievementsRaw);
  const list=document.createElement('div');list.className='profile-awards-list';
- for(const value of awards){const el=document.createElement('div');el.textContent=value;list.append(el);}
+ for(const entry of awards){
+  const el=document.createElement('div');el.className='profile-achievement-entry';
+  el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
+  list.append(el);
+ }
  const shell=panel.querySelector('.profile-shell');
  if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
  if(pomCount>0||awards.length){
