@@ -1279,8 +1279,7 @@ body.player-profile-preview #playerIntro .profile-shell{outline:none}
 (() => {
 'use strict';
 const q=new URLSearchParams(location.search);
-// Controls the one-time snapshot, tournament lookup, and player-stat preload.
-// Defaults to enabled; ?preloadPlayerStats=false disables the entire 68-call initialization.
+// Controls only bulk player-stat preloading; scorecard loading is always independent.
 const preloadPlayerStatsEnabled=!['false','0','no','off'].includes((q.get('preloadPlayerStats')||'true').trim().toLowerCase());
 const $=id=>document.getElementById(id);
 const matchId=(q.get('matchId')||'31584').trim();
@@ -1357,6 +1356,7 @@ const profileRetryPending=new Set();
 const profileApiInFlight=new Map();
 const preloadPlayers=new Map();
 let preloadRunning=false,preloadMatchId=null;
+const preloadRosterInitialized=new Set();
 let profileBaseline=false,profileActive=false,profileTimer=null,profileToken=0;
 const profileQueue=[];
 const safePath=path=>/^\/[\w/{}?=&.-]+$/.test(path)&&!path.startsWith('//');
@@ -1569,11 +1569,14 @@ function preloadAllPlayers(data){
  tournamentMatchContext=data.match;
  const matchKey=String(data.match?.match_id??matchId);
  if(preloadMatchId!==matchKey){preloadMatchId=matchKey;preloadPlayers.clear();preloadCompleted.clear();profileCache.clear();profileApiInFlight.clear();}
+ if(preloadRosterInitialized.has(matchKey))return; // One-time playing XI extraction per match, not per poll.
  const found=extractPlayingXI(data);
- console.info('CricBay player preload: found',found.size,'unique playing XI players');
+ if(!found.size){console.warn('CricBay player preload: playing XI not yet available; will retry on next snapshot');return;}
+ preloadRosterInitialized.add(matchKey);
+ console.info('CricBay player preload: found',found.size,'unique playing XI players (one-time)');
  for(const [id,item] of found){if(!preloadPlayers.has(id))preloadPlayers.set(id,item);}
  if(!preloadRunning&&preloadPlayers.size){void drainPlayerPreload();}
- else if(!preloadPlayers.size)console.warn('CricBay player preload: no playing XI IDs in snapshot innings');
+ 
 }
 const preloadCompleted=new Set();
 async function drainPlayerPreload(){
@@ -2591,7 +2594,6 @@ function updateSummary(data){
 }
 
 let refreshTimer=null;
-let snapshotRequested=false;
 let pollingStoppedForPom=false;
 function stopPollingWhenPomSelected(data){
  if(pollingStoppedForPom||!currentPom(data))return;
@@ -2599,13 +2601,13 @@ function stopPollingWhenPomSelected(data){
  if(refreshTimer!==null){clearInterval(refreshTimer);refreshTimer=null;}
  console.info("CricBay: Player of the Match selected; snapshot polling stopped.");
 }
-async function refresh(){if(snapshotRequested||busy||pollingStoppedForPom)return;
- snapshotRequested=true;busy=true;try{
+async function refresh(){if(busy||pollingStoppedForPom)return;
+ busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
  restoreAfterScoreSuccess();
- latestSnapshot=data;render(data);preloadAllPlayers(data);trackProfiles(data);lastVersion=data.version;
+ latestSnapshot=data;render(data);if(preloadPlayerStatsEnabled){preloadAllPlayers(data);trackProfiles(data);}lastVersion=data.version;
  updateSummary(data);
  checkLifecycle(data);
  stopPollingWhenPomSelected(data);
@@ -2618,7 +2620,7 @@ async function refresh(){if(snapshotRequested||busy||pollingStoppedForPom)return
 // Explicit player-profile preview: no wait for a wicket, over, toss or player change.
 // Uses the same worker, shared cache and three API calls as live player introductions.
 async function startPlayerProfilePreview(){
- if(!playerPreviewMode||!preloadPlayerStatsEnabled)return;
+ if(!playerPreviewMode)return;
  document.body.classList.add('player-profile-preview');
  const item={id:previewPlayerId,role:previewRole,name:'Player '+previewPlayerId,
    snapshot:{},team:'',inning:'preview'};
@@ -2647,7 +2649,8 @@ if(soundEnabled){
  document.addEventListener('touchend',unlockAudio,{once:true});
 }
 const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
-// Initial snapshot is a one-shot discovery and render request; no interval or repeat.
-void refresh(); // Match scorecard loading is independent of player-statistics preloading.
+// Scorecard refresh is independent of optional player-statistics preloading.
+void refresh(); // Always fetch scorecard, regardless of player-statistics preload.
+refreshTimer=setInterval(()=>{void refresh();},interval);
 })();
 </script></body></html>
