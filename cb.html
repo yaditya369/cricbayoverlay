@@ -1093,6 +1093,42 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-stretch:normal!important;font-style:normal!important;font-weight:900!important;font-size:clamp(23px,2.5vw,35px)!important;letter-spacing:.35px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:96%!important;transform-origin:left center!important;text-shadow:0 2px 4px rgba(0,0,0,.85)!important;}
 #playerIntro.visible .profile-name{animation-name:profile-name-readable-in!important;}
 @keyframes profile-name-readable-in{from{opacity:0;translate:-12px 0}to{opacity:1;translate:0 0}}
+</style><style id="player-profile-typography-spacing-fix">
+/* Player intro only: readable full-width lettering and tighter awards alignment. */
+#playerIntro .profile-name{
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-stretch:normal!important;font-style:normal!important;
+ font-weight:900!important;font-size:clamp(25px,2.5vw,37px)!important;
+ letter-spacing:.25px!important;line-height:1.2!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ width:calc(100% - 26px)!important;max-width:none!important;
+ transform:none!important;scale:none!important;
+}
+#playerIntro .profile-pom strong{
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:clamp(24px,2.5vw,36px)!important;
+ font-weight:900!important;line-height:1.05!important;
+}
+#playerIntro .profile-pom span{
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:clamp(12px,1.15vw,17px)!important;
+ font-weight:900!important;letter-spacing:.15px!important;
+ line-height:1.2!important;white-space:nowrap!important;
+}
+#playerIntro .profile-awards-row{align-items:start!important;padding-top:0!important;}
+#playerIntro .profile-awards-row .profile-pom{align-self:start!important;justify-content:flex-start!important;padding-top:6px!important;height:auto!important;}
+#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list,
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
+ align-content:start!important;align-items:start!important;padding-top:3px!important;
+}
+#playerIntro .profile-awards-row .profile-achievement-column{justify-content:flex-start!important;}
+/* Keep the fourth achievement fully inside the awards panel on landscape WebView. */
+#playerIntro .profile-stat-group.awards{flex:1.25 1 0!important;}
+#playerIntro .profile-stat-group.awards .profile-stat-heading{height:26%!important;}
+#playerIntro .profile-stat-group.awards .profile-awards-row{height:74%!important;padding:0 0 5px!important;min-height:0!important;}
+#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{height:100%!important;max-height:100%!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:12px!important;align-items:start!important;overflow:hidden!important;box-sizing:border-box!important;}
+#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-column{display:flex!important;flex-direction:column!important;gap:2px!important;min-height:0!important;overflow:hidden!important;}
+#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-entry{margin:0!important;line-height:1.12!important;font-size:clamp(7px,.77vw,10px)!important;}
 </style></head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
