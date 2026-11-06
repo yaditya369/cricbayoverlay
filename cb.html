@@ -2648,7 +2648,6 @@ if(soundEnabled){
 }
 const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
 // Initial snapshot is a one-shot discovery and render request; no interval or repeat.
-if(preloadPlayerStatsEnabled)void refresh();
-else console.info("CricBay: preloadPlayerStats=false; initial snapshot, tournament list and player preload disabled.");
+void refresh(); // Match scorecard loading is independent of player-statistics preloading.
 })();
 </script></body></html>
