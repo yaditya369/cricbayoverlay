@@ -186,9 +186,9 @@ body.theme-marvel .summary-credit{color:#ffe1e2}
 .overlay.layout-3.theme-blue{--panel-accent:#22a9ff;--panel-dark:#071d38;--left-team:#0865ba;--right-team:#a20b39}
 .overlay.layout-3.theme-red{--panel-accent:#ffc2c7;--panel-dark:#29070e;--left-team:#a3192e;--right-team:#681123}
 .overlay.layout-3.theme-marvel{--panel-accent:#ffe66b;--panel-dark:#200509;--left-team:#ed1d24;--right-team:#a30915}
-.overlay.layout-3 .top{height:50px!important;grid-template-columns:minmax(82px,13%) minmax(0,1fr) clamp(115px,18%,215px) minmax(0,1fr) minmax(82px,13%)!important;align-items:stretch;background:var(--panel-dark)!important;position:relative;gap:0}
-.overlay.layout-3 .identity{height:50px;padding:3px 12px;position:relative;z-index:1;background:var(--left-team);border:1px solid var(--panel-accent);border-radius:5px 0 0 5px;clip-path:polygon(0 0,94% 0,100% 100%,0 100%)}
-.overlay.layout-3 .identity:last-child{background:var(--right-team);border-radius:0 5px 5px 0;clip-path:polygon(6% 0,100% 0,100% 100%,0 100%)}
+.overlay.layout-3 .top{height:50px!important;grid-template-columns:minmax(82px,13%) minmax(0,1fr) clamp(115px,18%,215px) minmax(0,1fr) minmax(82px,13%)!important;align-items:stretch;background:color-mix(in srgb,var(--panel-dark) calc(var(--alpha)*100%),transparent)!important;position:relative;gap:0}
+.overlay.layout-3 .identity{height:50px;padding:3px 12px;position:relative;z-index:1;background:color-mix(in srgb,var(--left-team) calc(var(--alpha)*100%),transparent);border:1px solid var(--panel-accent);border-radius:5px 0 0 5px;clip-path:polygon(0 0,94% 0,100% 100%,0 100%)}
+.overlay.layout-3 .identity:last-child{background:color-mix(in srgb,var(--right-team) calc(var(--alpha)*100%),transparent);border-radius:0 5px 5px 0;clip-path:polygon(6% 0,100% 0,100% 100%,0 100%)}
 .overlay.layout-3 .name{font-size:clamp(10px,1.15vw,16px);font-weight:900;line-height:1.1;letter-spacing:.1px;overflow-wrap:anywhere}
 .overlay.layout-3 .details{padding:1px clamp(4px,.7vw,10px);min-width:0}
 .overlay.layout-3 .player,.overlay.layout-3 .bowler-row{font-size:clamp(9px,1.1vw,15px);padding:1px 0;line-height:1.15;gap:3px}
@@ -882,11 +882,11 @@ body.broadcast-match-visible #overlay.theme-marvel .identity{
 #overlay.theme-marvel .top > .details{
   position:relative!important;
   z-index:3!important;
-  background:rgba(18,18,18,var(--alpha))!important;
+  background:transparent!important;
 }
 /* During the match summary the lower scoreboard is intentionally opaque. */
 body.broadcast-match-visible #overlay.theme-marvel .top > .details{
-  background:#121212!important;
+  background:transparent!important;
 }
 </style>
 <style id="v55-marvel-team-inner-edge-fix">
@@ -922,12 +922,12 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 /* Layout 2 has a conventional center box. */
 #overlay.layout-2.theme-marvel .scorebox,
 #overlay.theme-marvel:not(.layout-3) .scorebox{
- background:linear-gradient(110deg,#490006,#b60919,#6b000e)!important;
+ background:linear-gradient(110deg,rgba(73,0,6,var(--alpha)),rgba(182,9,25,var(--alpha)),rgba(107,0,14,var(--alpha)))!important;
  border:2px solid #ffd76b!important;
 }
 /* Layout 3 uses the hexagonal pseudo-element for the actual fill. */
 #overlay.layout-3.theme-marvel .scorebox::before{
- background:linear-gradient(110deg,#490006,#b60919,#6b000e)!important;
+ background:linear-gradient(110deg,rgba(73,0,6,var(--alpha)),rgba(182,9,25,var(--alpha)),rgba(107,0,14,var(--alpha)))!important;
 }
 #overlay.layout-3.theme-marvel .scorebox .hex-outline polygon{
  stroke:#ffd76b!important;stroke-width:2!important;
@@ -946,7 +946,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  box-shadow:inset -2px 0 0 #ffd76b,inset 0 2px 0 #ffd76b,inset 0 -2px 0 #ffd76b!important;
 }
 /* Player panels cover any interior spill, without masking the team names. */
-#overlay.layout-3.theme-marvel .top > .details{position:relative;z-index:2!important;background:#121212!important}
+#overlay.layout-3.theme-marvel .top > .details{position:relative;z-index:2!important;background:transparent!important}
 </style>
 <style id="v58-striker-star-svg-center-fix">
 /* Use an SVG instead of the font-dependent ★ glyph.  Both the name and
@@ -1028,107 +1028,13 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #overlay #balls .ball{position:relative!important;transform-origin:center center!important;z-index:1}
 #overlay #balls .ball.delivery-zoom-in{z-index:8!important}
 
-/* Player entrance: API data is rendered first, then the complete card slides in
-   from the left. Text follows with a very short stagger. */
-#playerIntro.visible{display:block;animation:profile-slide-from-left 520ms cubic-bezier(.18,.8,.22,1) both}
-#playerIntro.visible .profile-kicker,
-#playerIntro.visible .profile-name,
-#playerIntro.visible .profile-team,
-#playerIntro.visible .profile-stat-group,
-#playerIntro.visible .profile-awards-row{
- animation:profile-text-follow 370ms cubic-bezier(.2,.8,.2,1) both;
+/* One entrance animation: the entire card fades and glides together, never flashes first. */
+#playerIntro.visible{display:block;animation:profile-enter 650ms cubic-bezier(.22,1,.36,1) both}
+@keyframes profile-enter{
+  from{opacity:0;transform:translate(calc(-50% - 44px),-50%) scale(.97)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
 }
-#playerIntro.visible .profile-kicker{animation-delay:65ms}
-#playerIntro.visible .profile-name{animation-delay:85ms}
-#playerIntro.visible .profile-team{animation-delay:100ms}
-#playerIntro.visible .profile-stat-group:nth-child(1){animation-delay:110ms}
-#playerIntro.visible .profile-stat-group:nth-child(2){animation-delay:135ms}
-#playerIntro.visible .profile-stat-group:nth-child(3),
-#playerIntro.visible .profile-awards-row{animation-delay:160ms}
-@keyframes profile-slide-from-left{
- from{opacity:0;transform:translate(calc(-50% - 110px),-50%)}
- to{opacity:1;transform:translate(-50%,-50%)}
-}
-@keyframes profile-text-follow{
- from{opacity:0;transform:translateX(-22px)}
- to{opacity:1;transform:translateX(0)}
-}
-@media(prefers-reduced-motion:reduce){
- #playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}
-}
-</style>
-<style>
-/* Final override: animate the entire profile and each populated panel with left-to-right fade. */
-#playerIntro.visible{animation:profile-slide-from-left .58s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-kicker,#playerIntro.visible .profile-name,
-#playerIntro.visible .profile-stat-group{animation:profile-text-follow .43s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-kicker{animation-delay:.04s!important}
-#playerIntro.visible .profile-name{animation-delay:.07s!important}
-#playerIntro.visible .profile-stat-group:not(.career):not(.awards){animation-delay:.09s!important}
-#playerIntro.visible .profile-stat-group.career{animation-delay:.12s!important}
-#playerIntro.visible .profile-stat-group.awards{animation-delay:.15s!important}
-#playerIntro.visible .profile-stat-heading,#playerIntro.visible .profile-stat,
-#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{
- animation:profile-text-follow .36s ease-out both!important;
-}
-#playerIntro.visible .profile-stat-heading{animation-delay:.12s!important}
-#playerIntro.visible .profile-stat{animation-delay:.17s!important}
-#playerIntro.visible .career .profile-stat{animation-delay:.20s!important}
-#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{animation-delay:.23s!important}
-@keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 155px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
-@keyframes profile-text-follow{from{opacity:0;transform:translateX(-42px)}to{opacity:1;transform:translateX(0)}}
-@media(prefers-reduced-motion:reduce){#playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}}
-</style><style>
-/* Refined entrance: slightly slower, shorter text travel, no line wrapping. */
-#playerIntro.visible{animation:profile-slide-from-left .78s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-kicker,#playerIntro.visible .profile-name,#playerIntro.visible .profile-stat-group{animation:profile-text-follow .58s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-stat-heading,#playerIntro.visible .profile-stat,#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{animation:profile-text-follow .49s ease-out both!important}
-@keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 115px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
-@keyframes profile-text-follow{from{opacity:0;transform:translateX(-13px)}to{opacity:1;transform:translateX(0)}}
-#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;word-break:normal!important}
-#playerIntro .profile-awards-row .profile-achievement-column{overflow:visible;min-width:0}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{overflow:visible}
-</style><style>
-/* Readable player name: normal-width bold type, single line, no condensed scaling. */
-#playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-stretch:normal!important;font-style:normal!important;font-weight:900!important;font-size:clamp(23px,2.5vw,35px)!important;letter-spacing:.35px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:96%!important;transform-origin:left center!important;text-shadow:0 2px 4px rgba(0,0,0,.85)!important;}
-#playerIntro.visible .profile-name{animation-name:profile-name-readable-in!important;}
-@keyframes profile-name-readable-in{from{opacity:0;translate:-12px 0}to{opacity:1;translate:0 0}}
-</style><style id="player-profile-typography-spacing-fix">
-/* Player intro only: readable full-width lettering and tighter awards alignment. */
-#playerIntro .profile-name{
- font-family:Arial,Helvetica,sans-serif!important;
- font-stretch:normal!important;font-style:normal!important;
- font-weight:900!important;font-size:clamp(25px,2.5vw,37px)!important;
- letter-spacing:.25px!important;line-height:1.2!important;
- white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
- width:calc(100% - 26px)!important;max-width:none!important;
- transform:none!important;scale:none!important;
-}
-#playerIntro .profile-pom strong{
- font-family:Arial,Helvetica,sans-serif!important;
- font-size:clamp(24px,2.5vw,36px)!important;
- font-weight:900!important;line-height:1.05!important;
-}
-#playerIntro .profile-pom span{
- font-family:Arial,Helvetica,sans-serif!important;
- font-size:clamp(12px,1.15vw,17px)!important;
- font-weight:900!important;letter-spacing:.15px!important;
- line-height:1.2!important;white-space:nowrap!important;
-}
-#playerIntro .profile-awards-row{align-items:start!important;padding-top:0!important;}
-#playerIntro .profile-awards-row .profile-pom{align-self:start!important;justify-content:flex-start!important;padding-top:6px!important;height:auto!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list,
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
- align-content:start!important;align-items:start!important;padding-top:3px!important;
-}
-#playerIntro .profile-awards-row .profile-achievement-column{justify-content:flex-start!important;}
-/* Keep the fourth achievement fully inside the awards panel on landscape WebView. */
-#playerIntro .profile-stat-group.awards{flex:1.25 1 0!important;}
-#playerIntro .profile-stat-group.awards .profile-stat-heading{height:26%!important;}
-#playerIntro .profile-stat-group.awards .profile-awards-row{height:74%!important;padding:0 0 5px!important;min-height:0!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{height:100%!important;max-height:100%!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:12px!important;align-items:start!important;overflow:hidden!important;box-sizing:border-box!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-column{display:flex!important;flex-direction:column!important;gap:2px!important;min-height:0!important;overflow:hidden!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-entry{margin:0!important;line-height:1.12!important;font-size:clamp(7px,.77vw,10px)!important;}
+@media(prefers-reduced-motion:reduce){#playerIntro.visible{animation:none}}
 </style></head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1180,136 +1086,40 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 
 <path d="M 60 3 L 185 3 M 1015 3 L 1140 3 M 60 267 L 185 267 M 1015 267 L 1140 267" stroke="#ffe5a2" stroke-width="2.5" opacity=".8"/>
 </svg><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center" aria-hidden="true"><div class="broadcast-final" id="broadcastFinal">FINAL</div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
-<style>
-/* Player introductions are independent of the compact footer. */
-#playerIntro{display:none;position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);z-index:1600;width:min(600px,88vw);pointer-events:none;color:#fff;font-family:Arial,sans-serif}
-#playerIntro.visible{display:block;animation:profile-in .4s ease-out both}
-#playerIntro .profile-shell{background:linear-gradient(125deg,#202b3b,#101620);border:2px solid #a4bedb;border-radius:12px;padding:18px 24px;box-shadow:0 14px 45px #000b;overflow:hidden}
-#playerIntro.theme-marvel .profile-shell{background:linear-gradient(125deg,#9c101e,#220509);border-color:#ffe66b}
-#playerIntro.theme-blue .profile-shell{background:linear-gradient(125deg,#0865ba,#071d38);border-color:#80d8ff}
-#playerIntro.theme-red .profile-shell{background:linear-gradient(125deg,#a3192e,#29070e);border-color:#ffc2c7}
-#playerIntro.theme-stadium .profile-shell{background:linear-gradient(125deg,#12614c,#071e19);border-color:#eacb72}
-#playerIntro .profile-kicker{font-size:12px;letter-spacing:2px;font-weight:900;opacity:.85}
-#playerIntro .profile-name{font-size:clamp(22px,3vw,39px);font-weight:950;margin:7px 0 5px;overflow-wrap:anywhere}
-#playerIntro .profile-team{font-size:14px;font-weight:700;opacity:.85}
-#playerIntro .profile-stats{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-#playerIntro .profile-stat-group{width:100%}
-#playerIntro .profile-stat-heading{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#ffe5a2;margin-bottom:5px}
-#playerIntro .profile-stat-row{display:flex;flex-wrap:wrap;gap:8px}
-#playerIntro .profile-stat{min-width:80px;padding:8px 12px;background:#ffffff20;border:1px solid #ffffff50;border-radius:6px;text-align:center}
-#playerIntro .profile-stat strong{display:block;font-size:20px}
-#playerIntro .profile-stat small{font-size:10px;letter-spacing:.6px}
-@keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
-@media(max-height:450px){#playerIntro{top:40%;width:min(570px,85vw)}#playerIntro .profile-shell{padding:10px 17px}#playerIntro .profile-stats{margin-top:8px}}
-
-/* Broadcast player introduction: geometry and palette matched to reference 92481.png */
-#playerIntro{position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);width:min(96vw,960px);max-width:calc((100vh - 35px)*1.94);font-family:Arial,Helvetica,sans-serif;color:#fff;pointer-events:none;z-index:1600}
-#playerIntro .profile-shell{position:relative;box-sizing:border-box;width:100%;aspect-ratio:644 / 326;padding:4.2% 2.9% 2.1%;border:0;border-radius:0;overflow:hidden;background:linear-gradient(135deg,#ff9eab 0%,#78000b 1.2%,#2e0005 2.2%,#4b0009 97%,#ff8a9b 99%,#7c0009 100%);box-shadow:0 6px 0 #180409,0 0 0 1px #ffd4d8,0 14px 35px #000a;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%)}
-#playerIntro .profile-shell:before{content:'';position:absolute;inset:1.1%;border:2px solid #e5485a;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%);pointer-events:none;box-shadow:inset 0 0 7px #ff9aa0}
-#playerIntro .profile-kicker{position:absolute;left:2.4%;top:0.4%;width:33%;height:7.1%;box-sizing:border-box;padding:0.8% 3.1%;background:linear-gradient(#ff5b6a 0%,#c51325 20%,#780009 67%,#4d0008 100%);border:1px solid #ffb1b8;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);font-weight:950;font-style:italic;letter-spacing:0;font-size:clamp(9px,1.85vw,21px);white-space:nowrap;text-shadow:1px 2px 1px #220006;opacity:1;z-index:2}
-#playerIntro .profile-name{position:relative;margin:0 0 0 2.5%;font-size:clamp(18px,3.8vw,39px);font-style:italic;font-weight:950;line-height:1.04;letter-spacing:-.6px;text-transform:uppercase;text-shadow:1px 2px 1px #270005;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-top:0}
-#playerIntro .profile-team{margin:0.5% 0 0 2.5%;font-size:clamp(9px,1.65vw,17px);font-weight:700;font-style:italic;line-height:1.15;opacity:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#playerIntro .profile-stats{display:flex;flex-direction:column;gap:1.5%;margin-top:2%;height:74%;justify-content:space-between}
-#playerIntro .profile-stat-group{position:relative;flex:0 0 29%;width:100%;box-sizing:border-box;overflow:hidden;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);border:1px solid #77b9f5;background:linear-gradient(180deg,#0060b4 0%,#074981 27%,#001f38 45%,#001e33 100%);box-shadow:inset 0 0 0 1px #59a9e2}
-#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,#009d62 0%,#006b45 26%,#003b2a 47%,#002f23 100%);box-shadow:inset 0 0 0 1px #26b77b}
-#playerIntro .profile-stat-group.awards{flex-basis:31%;border-color:#ffb45b;background:linear-gradient(180deg,#bd6d0e 0%,#894209 30%,#2b1402 35%,#251203 100%);box-shadow:inset 0 0 0 1px #da9a4e}
-#playerIntro .profile-stat-heading{box-sizing:border-box;height:32%;padding:0.35% 2.8%;font-size:clamp(8px,1.5vw,15px);font-weight:950;font-style:italic;letter-spacing:0;color:white;text-shadow:1px 1px 1px #111;margin:0;white-space:nowrap}
-#playerIntro .profile-stat-row{height:65%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:center}
-#playerIntro .profile-stat{min-width:0;padding:0 1%;background:transparent;border:0;border-radius:0;text-align:center;box-sizing:border-box;border-right:1px solid #b4c6d7a6}
+<style id="player-profile-layout">
+/* Single authoritative player-profile layout. No additive corrective overrides. */
+#playerIntro{display:none;position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
+#playerIntro.visible{display:block;animation:profile-enter 650ms cubic-bezier(.22,1,.36,1) both}
+#playerIntro .profile-shell{position:relative;width:100%;height:min(455px,76vh);display:flex;flex-direction:column;box-sizing:border-box;padding:34px 23px 14px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-alpha,.85)),rgba(90,0,12,var(--profile-alpha,.85)) 4%,rgba(46,0,5,var(--profile-alpha,.85)) 95%,rgba(255,138,155,var(--profile-alpha,.85)));box-shadow:0 12px 35px #000a}
+#playerIntro .profile-shell:before{content:'';position:absolute;inset:6px;border:1px solid #e5485a;pointer-events:none;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%)}
+#playerIntro .profile-kicker{position:absolute;left:2.3%;top:0;width:34%;height:29px;display:flex;align-items:center;padding:0 19px;box-sizing:border-box;background:linear-gradient(#ff5b6a,#a40819 65%,#510007);border:1px solid #ffb1b8;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);font:900 clamp(13px,1.4vw,19px)/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;white-space:nowrap;text-shadow:1px 1px #220006}
+#playerIntro .profile-name{display:block;flex:0 0 auto;margin:1px 0 0 9px;padding:0;min-height:0;font:900 clamp(23px,2.6vw,37px)/1.12 Arial,Helvetica,sans-serif;letter-spacing:0;font-stretch:normal;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 2px #270005}
+#playerIntro .profile-team{display:none}
+#playerIntro .profile-stats{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;margin-top:8px;justify-content:stretch}
+#playerIntro .profile-stat-group{position:relative;display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;overflow:hidden;box-sizing:border-box;border:1px solid #77b9f5;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)),rgba(0,30,51,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)),rgba(0,47,35,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-group.awards{flex:1.25 1 0;border-color:#ffb45b;background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)),rgba(43,20,2,var(--profile-alpha,.85)) 50%,rgba(37,18,3,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-heading{display:flex;flex:0 0 26px;min-height:26px;align-items:center;box-sizing:border-box;padding:0 16px;margin:0;font:900 clamp(14px,1.5vw,19px)/1 Arial,Helvetica,sans-serif;letter-spacing:0;color:white;white-space:nowrap;text-shadow:1px 1px #111}
+#playerIntro .profile-stat-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr));align-items:stretch;padding:2px 7px 5px}
+#playerIntro .profile-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:3px;padding:0 3px;box-sizing:border-box;border:0;border-right:1px solid #b4c6d7a6;background:none;text-align:center}
 #playerIntro .profile-stat:last-child{border-right:0}
-#playerIntro .profile-stat strong{font-size:clamp(13px,2.8vw,29px);font-weight:950;line-height:1.05;white-space:nowrap}
-#playerIntro .profile-stat small{display:block;font-size:clamp(8px,1.45vw,14px);font-weight:800;line-height:1.1;letter-spacing:0}
-#playerIntro .profile-awards-row{height:67%;display:grid;grid-template-columns:36% 64%;align-items:center}
-#playerIntro .profile-pom{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #b5a58b;font-size:clamp(7px,1.1vw,11px)}
-#playerIntro .profile-pom strong{font-size:clamp(11px,1.8vw,19px);color:#ffb442}
-#playerIntro .profile-awards-list{padding-left:9%;font-size:clamp(7px,1.1vw,12px);line-height:1.35;overflow:hidden}
-#playerIntro .profile-awards-list{max-height:100%;overflow-y:auto;scrollbar-width:none;padding-right:8px}
-#playerIntro .profile-awards-list::-webkit-scrollbar{display:none}
-#playerIntro .profile-awards-list .profile-achievement-entry{white-space:normal;overflow-wrap:anywhere;margin:2px 0;line-height:1.25}
-#playerIntro .profile-achievement-group{font-weight:800;color:#ffd27d}
-#playerIntro .profile-awards-list div:before{content:'▪';color:#ffba35;margin-right:9px}
-/* Compact player introduction: retain reference palette without obscuring the field. */
-#playerIntro{width:min(78vw,650px);max-width:650px;top:42%}
-#playerIntro .profile-shell{aspect-ratio:auto;height:270px;padding:30px 18px 12px;display:flex;flex-direction:column}
-#playerIntro .profile-kicker{font-size:clamp(9px,1.35vw,13px);height:23px;line-height:15px;padding:3px 17px}
-#playerIntro .profile-name{font-size:clamp(17px,2.25vw,25px);margin-left:12px;line-height:1.05;flex-shrink:0}
-#playerIntro .profile-team{font-size:clamp(9px,1.1vw,12px);margin:2px 0 0 12px;flex-shrink:0}
-#playerIntro .profile-stats{height:auto;min-height:0;flex:1;gap:5px;margin-top:9px;justify-content:stretch}
-#playerIntro .profile-stat-group{flex:1 1 0;min-height:0}
-#playerIntro .profile-stat-group.awards{flex:1 1 0}
-#playerIntro .profile-stat-heading{height:29%;font-size:clamp(8px,1.15vw,11px);padding:2px 14px}
-#playerIntro .profile-stat-row{height:70%}
-#playerIntro .profile-stat strong{display:block;font-size:clamp(13px,2vw,19px);overflow:hidden;text-overflow:ellipsis;max-width:100%}
-#playerIntro .profile-stat small{display:block;font-size:clamp(7px,.95vw,10px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#playerIntro .profile-pom strong{font-size:clamp(11px,1.5vw,16px)}
-#playerIntro .profile-awards-list{font-size:clamp(7px,.9vw,10px)}
-#playerIntro .profile-shell.no-awards{height:208px}
-#playerIntro .profile-shell.no-awards .profile-stats{gap:6px}
-@media(max-height:450px){#playerIntro{width:min(72vw,610px);top:42%}#playerIntro .profile-shell{height:min(245px,66vh);padding:26px 16px 10px}#playerIntro .profile-shell.no-awards{height:min(188px,54vh)}#playerIntro .profile-stats{margin-top:6px}}
-body.player-profile-preview #playerIntro .profile-shell{outline:none}
-@media(max-height:450px){#playerIntro{top:42%;width:min(72vw,610px)}#playerIntro .profile-shell{padding:26px 16px 10px}#playerIntro .profile-stats{margin-top:6px}}
-/* vNext: vertical rhythm for player introductions; leave match footer untouched. */
-#playerIntro{top:41%;width:min(78vw,690px);max-width:690px}
-#playerIntro .profile-shell{height:min(355px,69vh);padding:34px 21px 17px;display:flex;flex-direction:column;gap:0}
-#playerIntro .profile-name{margin-top:3px;margin-bottom:0;line-height:1.12}
-#playerIntro .profile-team{margin-top:5px;line-height:1.2}
-#playerIntro .profile-stats{display:flex;flex:1 1 auto;height:auto;min-height:0;gap:12px;margin-top:17px;justify-content:stretch}
-#playerIntro .profile-stat-group,#playerIntro .profile-stat-group.awards{flex:1 1 0;min-height:0}
-#playerIntro .profile-stat-heading{height:31%;padding:4px 15px 0;line-height:1.2}
-#playerIntro .profile-stat-row{height:69%;align-items:center;padding:3px 0 6px;box-sizing:border-box}
-#playerIntro .profile-stat{padding:0 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-#playerIntro .profile-stat strong{line-height:1.13}
-#playerIntro .profile-stat small{line-height:1.2}
-#playerIntro .profile-awards-row{height:69%;padding:3px 0 5px;box-sizing:border-box}
-#playerIntro .profile-shell.no-awards{height:min(275px,56vh)}
-#playerIntro .profile-shell.no-awards .profile-stats{gap:12px;margin-top:17px}
-@media(max-height:450px){
- #playerIntro{top:40%;width:min(74vw,650px)}
- #playerIntro .profile-shell{height:min(285px,70vh);padding:29px 17px 12px}
- #playerIntro .profile-shell.no-awards{height:min(228px,57vh)}
- #playerIntro .profile-stats,#playerIntro .profile-shell.no-awards .profile-stats{gap:9px;margin-top:11px}
- #playerIntro .profile-stat-heading{height:30%;padding:2px 12px 0}
- #playerIntro .profile-stat-row{height:70%;padding:2px 0 4px}
- #playerIntro .profile-stat{gap:3px}
-}
-
-/* Player-profile alignment and background transparency: uses the same opacity query as the footer. */
-#playerIntro{left:50%;transform:translate(-50%,-50%);}
-#playerIntro .profile-team{display:none!important;}
-#playerIntro .profile-shell{
- background:linear-gradient(135deg,
- rgba(255,158,171,var(--profile-alpha,.85)) 0%,
- rgba(120,0,11,var(--profile-alpha,.85)) 1.2%,
- rgba(46,0,5,var(--profile-alpha,.85)) 2.2%,
- rgba(75,0,9,var(--profile-alpha,.85)) 97%,
- rgba(255,138,155,var(--profile-alpha,.85)) 99%,
- rgba(124,0,9,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-stat-group{
- background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)) 0%,rgba(7,73,129,var(--profile-alpha,.85)) 27%,rgba(0,31,56,var(--profile-alpha,.85)) 45%,rgba(0,30,51,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-stat-group.career{
- background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)) 0%,rgba(0,107,69,var(--profile-alpha,.85)) 26%,rgba(0,59,42,var(--profile-alpha,.85)) 47%,rgba(0,47,35,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-stat-group.awards{
- background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)) 0%,rgba(137,66,9,var(--profile-alpha,.85)) 30%,rgba(43,20,2,var(--profile-alpha,.85)) 35%,rgba(37,18,3,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-awards-row.pom-and-achievements{display:grid;grid-template-columns:50% 50%;width:100%;}
-#playerIntro .profile-awards-row.pom-and-achievements .profile-pom{width:100%;box-sizing:border-box;justify-self:center;}
-#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list{padding-left:14px;box-sizing:border-box;min-width:0;}
-#playerIntro .profile-awards-row.pom-only{display:flex;justify-content:center;align-items:center;}
-#playerIntro .profile-awards-row.pom-only .profile-pom{border-right:0;width:100%;}
-#playerIntro .profile-awards-row.achievements-only{display:flex;justify-content:center;align-items:center;}
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{padding-left:0;width:95%;}
-/* Profile position: true viewport vertical center, independent of the footer. */
-#playerIntro{top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;}
-/* Restore natural POM/achievements proportions; only compact POM for >3 awards. */
-#playerIntro .profile-awards-row.pom-and-achievements{grid-template-columns:36% minmax(0,64%);}
-#playerIntro .profile-awards-row.pom-and-achievements.many-achievements{grid-template-columns:24% minmax(0,76%);}
-#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list{padding-left:18px;}
-#playerIntro .profile-awards-row.pom-and-achievements.many-achievements .profile-awards-list{padding-left:14px;}
-#playerIntro .profile-awards-row.pom-and-achievements.many-achievements .profile-pom{padding-left:0;}
+#playerIntro .profile-stat strong{display:block;max-width:100%;font:900 clamp(16px,2.1vw,27px)/1.1 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:visible;text-overflow:clip}
+#playerIntro .profile-stat small{display:block;font:800 clamp(11px,1.12vw,15px)/1.15 Arial,Helvetica,sans-serif;white-space:nowrap;letter-spacing:0}
+#playerIntro .profile-awards-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:23% minmax(0,77%);align-items:stretch;padding:2px 10px 6px}
+#playerIntro .profile-awards-row.achievements-only{grid-template-columns:minmax(0,1fr)}
+#playerIntro .profile-awards-row.pom-only{grid-template-columns:minmax(0,1fr)}
+#playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:1px solid #b5a58b;padding:0 6px;font:900 15px/1.2 Arial,Helvetica,sans-serif}
+#playerIntro .profile-pom strong{display:block;font:900 clamp(22px,2.4vw,34px)/1.1 Arial,Helvetica,sans-serif;color:#ffbd53}
+#playerIntro .profile-pom span{display:block;font:900 clamp(12px,1.24vw,17px)/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center}
+#playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:stretch;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px}
+#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));min-width:0;min-height:0;align-items:center}
+#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:800 clamp(11px,1.12vw,15px)/1.12 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#playerIntro .profile-achievement-entry:before{content:'▪';color:#ffba35;margin-right:5px}
+#playerIntro .profile-achievement-note{grid-column:1/-1;font:700 10px Arial,Helvetica,sans-serif;text-align:right;color:#ffd18d}
+#playerIntro .profile-shell.no-awards{height:min(330px,62vh)}
+body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
+@keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media(max-height:480px){#playerIntro{top:39%;width:min(85vw,960px)}#playerIntro .profile-shell{height:min(310px,75vh);padding:29px 20px 10px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:6px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-shell.no-awards{height:min(265px,66vh)}}
 </style>
 <script>
 (() => {
@@ -1363,7 +1173,8 @@ const layout=['2','3'].includes(q.get('layout'))?q.get('layout'):'3';
 $('summaryPanel').className='summary-panel theme-'+theme;
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
 overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
-document.documentElement.style.setProperty('--profile-alpha',String(Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85))));
+const profileOpacityRaw=Number(q.get('profileOpacity')??(Number.isFinite(opacity)?opacity:.85));
+document.documentElement.style.setProperty('--profile-alpha',String(Math.max(0,Math.min(1,Number.isFinite(profileOpacityRaw)?profileOpacityRaw:.85))));
 $('summaryPanel').style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
 document.documentElement.style.setProperty('--offset',Math.max(0,Number(q.get('bottomOffset')||0))+'px');
 const summaryEnabled=q.get('summary')!=='0';
@@ -2689,34 +2500,5 @@ const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'
 void refresh(); // Always fetch scorecard, regardless of player-statistics preload.
 refreshTimer=setInterval(()=>{void refresh();},interval);
 })();
-</script><style id="player-profile-stats-pom-layout-final">
-/* Each stat occupies an equal-width column, including 50s/100s. */
-#playerIntro .profile-stat-row{display:grid!important;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr))!important;width:100%!important;min-width:0!important;}
-#playerIntro .profile-stat-row .profile-stat{min-width:0!important;width:100%!important;max-width:none!important;padding:0 3px!important;overflow:visible!important;transform:none!important;}
-#playerIntro .profile-stat-row .profile-stat strong{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(14px,1.8vw,24px)!important;font-stretch:normal!important;transform:none!important;letter-spacing:0!important;overflow:visible!important;text-overflow:clip!important;}
-#playerIntro .profile-stat-row .profile-stat small{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(9px,1.05vw,13px)!important;font-weight:800!important;font-stretch:normal!important;transform:none!important;letter-spacing:0!important;overflow:visible!important;text-overflow:clip!important;}
-/* Center POM number and caption in their allocated area; no compressed typography. */
-#playerIntro .profile-awards-row .profile-pom{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;align-self:stretch!important;text-align:center!important;padding:0 8px!important;height:100%!important;min-width:0!important;}
-#playerIntro .profile-pom strong{display:block!important;width:100%!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(24px,2.35vw,36px)!important;font-weight:900!important;line-height:1.1!important;transform:none!important;}
-#playerIntro .profile-pom span{display:block!important;width:100%!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(12px,1.18vw,17px)!important;font-weight:900!important;line-height:1.3!important;letter-spacing:0!important;white-space:normal!important;transform:none!important;}
-</style>
-<style id="player-profile-webview-legibility-v2">
-/* Fix the compressed WebView presentation without changing match/API behavior. */
-#playerIntro{width:min(83vw,1080px)!important;max-width:calc(100vw - 32px)!important;}
-#playerIntro .profile-shell{height:min(480px,73vh)!important;padding:38px 28px 17px!important;}
-#playerIntro .profile-kicker{font-family:Arial,Helvetica,sans-serif!important;font-style:normal!important;font-size:clamp(14px,1.45vw,19px)!important;font-weight:900!important;letter-spacing:.2px!important;height:30px!important;line-height:22px!important;padding:3px 20px!important;}
-#playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(23px,2.3vw,34px)!important;font-weight:900!important;letter-spacing:.1px!important;font-style:normal!important;line-height:1.25!important;min-height:38px!important;margin:3px 0 0 12px!important;padding:0!important;flex-shrink:0!important;}
-#playerIntro .profile-stats{margin-top:12px!important;gap:10px!important;min-height:0!important;}
-#playerIntro .profile-stat-group{display:flex!important;flex-direction:column!important;min-height:0!important;}
-#playerIntro .profile-stat-heading,#playerIntro .profile-stat-group.awards .profile-stat-heading{height:26px!important;min-height:26px!important;flex:0 0 26px!important;padding:4px 17px 2px!important;font-family:Arial,Helvetica,sans-serif!important;font-style:normal!important;font-size:clamp(13px,1.2vw,17px)!important;font-weight:900!important;letter-spacing:.15px!important;line-height:19px!important;box-sizing:border-box!important;}
-#playerIntro .profile-stat-row{flex:1 1 auto!important;height:auto!important;min-height:0!important;padding:0 7px 5px!important;align-items:center!important;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr))!important;}
-#playerIntro .profile-stat-row .profile-stat{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-width:0!important;overflow:hidden!important;padding:0 3px!important;gap:5px!important;}
-#playerIntro .profile-stat-row .profile-stat strong{font-size:clamp(16px,1.7vw,25px)!important;max-width:100%!important;white-space:nowrap!important;overflow:visible!important;}
-#playerIntro .profile-stat-row .profile-stat small{font-size:clamp(10px,.95vw,14px)!important;line-height:1.15!important;white-space:nowrap!important;overflow:visible!important;}
-#playerIntro .profile-stat-group.awards{flex:1.3 1 0!important;}
-#playerIntro .profile-stat-group.awards .profile-awards-row{height:auto!important;flex:1 1 auto!important;min-height:0!important;align-items:center!important;padding:0 8px 5px!important;}
-#playerIntro .profile-awards-row .profile-pom{justify-content:center!important;align-items:center!important;align-self:stretch!important;}
-#playerIntro .profile-pom span{font-size:clamp(12px,1.15vw,17px)!important;white-space:nowrap!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-entry{font-size:clamp(9px,.8vw,12px)!important;line-height:1.22!important;}
-@media(max-height:480px){#playerIntro .profile-shell{height:min(350px,78vh)!important;padding-top:31px!important;}#playerIntro .profile-stat-heading,#playerIntro .profile-stat-group.awards .profile-stat-heading{height:23px!important;min-height:23px!important;flex-basis:23px!important;padding-top:2px!important;}#playerIntro .profile-stats{gap:6px!important;margin-top:6px!important;}#playerIntro .profile-name{min-height:30px!important;}}
-</style></body></html>
+</script>
+</body></html>
