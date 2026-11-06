@@ -1177,6 +1177,14 @@ body.player-profile-preview #playerIntro .profile-shell{outline:none}
 #playerIntro .profile-awards-row.pom-only .profile-pom{border-right:0;width:100%;}
 #playerIntro .profile-awards-row.achievements-only{display:flex;justify-content:center;align-items:center;}
 #playerIntro .profile-awards-row.achievements-only .profile-awards-list{padding-left:0;width:95%;}
+/* Profile position: true viewport vertical center, independent of the footer. */
+#playerIntro{top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;}
+/* Restore natural POM/achievements proportions; only compact POM for >3 awards. */
+#playerIntro .profile-awards-row.pom-and-achievements{grid-template-columns:36% minmax(0,64%);}
+#playerIntro .profile-awards-row.pom-and-achievements.many-achievements{grid-template-columns:24% minmax(0,76%);}
+#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list{padding-left:18px;}
+#playerIntro .profile-awards-row.pom-and-achievements.many-achievements .profile-awards-list{padding-left:14px;}
+#playerIntro .profile-awards-row.pom-and-achievements.many-achievements .profile-pom{padding-left:0;}
 </style>
 <script>
 (() => {
@@ -1551,14 +1559,14 @@ function renderProfile(item,data){
  };
  const awards=achievementEntries(achievementsRaw);
  const list=document.createElement('div');list.className='profile-awards-list';
- for(const entry of awards.slice(0,3)){
+ for(const entry of awards.slice(0,6)){
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
   list.append(el);
  }
- if(awards.length>3){
+ if(awards.length>6){
   const note=document.createElement('div');note.className='profile-achievement-note';
-  note.textContent='Showing top 3 achievements';list.append(note);
+  note.textContent=`Showing 6 of ${awards.length} achievements`;list.append(note);
  }
  const shell=panel.querySelector('.profile-shell');
  if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
@@ -1566,7 +1574,7 @@ function renderProfile(item,data){
   if(pomCount>0)row.append(pom);
   if(awards.length)row.append(list);
   if(pomCount>0&&!awards.length)row.classList.add('pom-only');
-  if(pomCount>0&&awards.length)row.classList.add('pom-and-achievements');
+  if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');}
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
  }
