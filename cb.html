@@ -1078,6 +1078,16 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 @keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 155px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
 @keyframes profile-text-follow{from{opacity:0;transform:translateX(-42px)}to{opacity:1;transform:translateX(0)}}
 @media(prefers-reduced-motion:reduce){#playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}}
+</style><style>
+/* Refined entrance: slightly slower, shorter text travel, no line wrapping. */
+#playerIntro.visible{animation:profile-slide-from-left .78s cubic-bezier(.18,.8,.22,1) both!important}
+#playerIntro.visible .profile-kicker,#playerIntro.visible .profile-name,#playerIntro.visible .profile-stat-group{animation:profile-text-follow .58s cubic-bezier(.18,.8,.22,1) both!important}
+#playerIntro.visible .profile-stat-heading,#playerIntro.visible .profile-stat,#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{animation:profile-text-follow .49s ease-out both!important}
+@keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 115px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
+@keyframes profile-text-follow{from{opacity:0;transform:translateX(-13px)}to{opacity:1;transform:translateX(0)}}
+#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;word-break:normal!important}
+#playerIntro .profile-awards-row .profile-achievement-column{overflow:visible;min-width:0}
+#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{overflow:visible}
 </style></head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1639,6 +1649,7 @@ function renderProfile(item,data){
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
   list.children[index<4?0:1].append(el);
+  el.style.fontSize='inherit';
  }
  if(awards.length>8){
   const note=document.createElement('div');note.className='profile-achievement-note';
@@ -1653,6 +1664,15 @@ function renderProfile(item,data){
   if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');if(awards.length>4)row.classList.add('two-column-achievements');}
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
+  requestAnimationFrame(()=>{
+   for(const entry of list.querySelectorAll('.profile-achievement-entry')){
+    const column=entry.parentElement;
+    if(!column||!column.clientWidth)continue;
+    const available=column.clientWidth;
+    let size=parseFloat(getComputedStyle(entry).fontSize)||10;
+    while(entry.scrollWidth>available&&size>6.5){size-=.25;entry.style.fontSize=size+'px';}
+   }
+  });
  }
 }
 async function drainProfiles(){
