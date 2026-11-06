@@ -1089,8 +1089,8 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-pom strong{display:block;font:900 clamp(22px,2.4vw,34px)/1.1 Arial,Helvetica,sans-serif;color:#ffbd53}
 #playerIntro .profile-pom span{display:block;font:900 clamp(12px,1.24vw,17px)/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center}
 #playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:start;align-content:start;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px;text-align:left}
-#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));min-width:0;min-height:0;align-items:start;justify-items:start;text-align:left}
-#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:800 clamp(11px,1.12vw,15px)/1.12 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;width:100%}
+#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));min-width:0;min-height:0;align-items:center;justify-items:start;text-align:left}
+#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:800 clamp(11px,1.12vw,15px)/1.12 Arial,Helvetica,sans-serif;white-space:normal;overflow:hidden;overflow-wrap:break-word;text-align:left;width:100%}
 #playerIntro .profile-achievement-entry:before{content:'▪';color:#ffba35;margin-right:5px}
 #playerIntro .profile-achievement-note{grid-column:1/-1;font:700 10px Arial,Helvetica,sans-serif;text-align:right;color:#ffd18d}
 #playerIntro .profile-shell.no-awards{height:min(330px,62vh)}
@@ -1492,17 +1492,17 @@ function renderProfile(item,data){
  };
  const awards=achievementEntries(achievementsRaw);
  const list=document.createElement('div');list.className='profile-awards-list';
- for(const [index,entry] of awards.slice(0,8).entries()){
-  if(index===4){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
+ for(const [index,entry] of awards.slice(0,6).entries()){
+  if(index===3){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
   if(index===0){const first=document.createElement('div');first.className='profile-achievement-column profile-achievement-column-one';list.append(first);}
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
-  list.children[index<4?0:1].append(el);
+  list.children[index<3?0:1].append(el);
   el.style.fontSize='inherit';
  }
- if(awards.length>8){
+ if(awards.length>6){
   const note=document.createElement('div');note.className='profile-achievement-note';
-  note.textContent=`Showing 8 of ${awards.length} achievements`;list.append(note);
+  note.textContent=`Showing 6 of ${awards.length} achievements`;list.append(note);
  }
  const shell=panel.querySelector('.profile-shell');
  if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
@@ -1513,15 +1513,7 @@ function renderProfile(item,data){
   if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');if(awards.length>4)row.classList.add('two-column-achievements');}
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
-  requestAnimationFrame(()=>{
-   for(const entry of list.querySelectorAll('.profile-achievement-entry')){
-    const column=entry.parentElement;
-    if(!column||!column.clientWidth)continue;
-    const available=column.clientWidth;
-    let size=parseFloat(getComputedStyle(entry).fontSize)||10;
-    while(entry.scrollWidth>available&&size>6.5){size-=.25;entry.style.fontSize=size+'px';}
-   }
-  });
+
  }
 }
 async function drainProfiles(){
