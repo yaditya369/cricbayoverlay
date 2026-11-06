@@ -1666,7 +1666,7 @@ function renderProfile(item,data){
   }
   return fields;
  };
- const makeGroup=(title,cls,fields)=>{const group=document.createElement('div');group.className='profile-stat-group '+cls;const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent=title;group.append(heading);const row=document.createElement('div');row.className='profile-stat-row';for(const [label,value] of fields){const cell=document.createElement('div');cell.className='profile-stat';const num=document.createElement('strong');num.textContent=format(value);const lbl=document.createElement('small');lbl.textContent=label;cell.append(num,lbl);row.append(cell);}row.style.gridTemplateColumns=`repeat(${fields.length},minmax(0,1fr))`;group.append(row);root.append(group);};
+ const makeGroup=(title,cls,fields)=>{const group=document.createElement('div');group.className='profile-stat-group '+cls;const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent=title;group.append(heading);const row=document.createElement('div');row.className='profile-stat-row';for(const [label,value] of fields){const cell=document.createElement('div');cell.className='profile-stat';const num=document.createElement('strong');num.textContent=format(value);const lbl=document.createElement('small');lbl.textContent=label;cell.append(num,lbl);row.append(cell);}row.style.setProperty("--profile-stat-count",String(fields.length));group.append(row);root.append(group);};
  const tournamentTitle='CURRENT TOURNAMENT'+(p?.tournament_name?' · '+p.tournament_name:'');
  makeGroup(tournamentTitle,'tournament',stats(data?.season,item.role,'season'));
  makeGroup('CAREER STATISTICS','career',stats(data?.career,item.role,'career'));
@@ -2689,4 +2689,34 @@ const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'
 void refresh(); // Always fetch scorecard, regardless of player-statistics preload.
 refreshTimer=setInterval(()=>{void refresh();},interval);
 })();
-</script></body></html>
+</script><style id="player-profile-stats-pom-layout-final">
+/* Each stat occupies an equal-width column, including 50s/100s. */
+#playerIntro .profile-stat-row{display:grid!important;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr))!important;width:100%!important;min-width:0!important;}
+#playerIntro .profile-stat-row .profile-stat{min-width:0!important;width:100%!important;max-width:none!important;padding:0 3px!important;overflow:visible!important;transform:none!important;}
+#playerIntro .profile-stat-row .profile-stat strong{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(14px,1.8vw,24px)!important;font-stretch:normal!important;transform:none!important;letter-spacing:0!important;overflow:visible!important;text-overflow:clip!important;}
+#playerIntro .profile-stat-row .profile-stat small{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(9px,1.05vw,13px)!important;font-weight:800!important;font-stretch:normal!important;transform:none!important;letter-spacing:0!important;overflow:visible!important;text-overflow:clip!important;}
+/* Center POM number and caption in their allocated area; no compressed typography. */
+#playerIntro .profile-awards-row .profile-pom{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;align-self:stretch!important;text-align:center!important;padding:0 8px!important;height:100%!important;min-width:0!important;}
+#playerIntro .profile-pom strong{display:block!important;width:100%!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(24px,2.35vw,36px)!important;font-weight:900!important;line-height:1.1!important;transform:none!important;}
+#playerIntro .profile-pom span{display:block!important;width:100%!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(12px,1.18vw,17px)!important;font-weight:900!important;line-height:1.3!important;letter-spacing:0!important;white-space:normal!important;transform:none!important;}
+</style>
+<style id="player-profile-webview-legibility-v2">
+/* Fix the compressed WebView presentation without changing match/API behavior. */
+#playerIntro{width:min(83vw,1080px)!important;max-width:calc(100vw - 32px)!important;}
+#playerIntro .profile-shell{height:min(480px,73vh)!important;padding:38px 28px 17px!important;}
+#playerIntro .profile-kicker{font-family:Arial,Helvetica,sans-serif!important;font-style:normal!important;font-size:clamp(14px,1.45vw,19px)!important;font-weight:900!important;letter-spacing:.2px!important;height:30px!important;line-height:22px!important;padding:3px 20px!important;}
+#playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(23px,2.3vw,34px)!important;font-weight:900!important;letter-spacing:.1px!important;font-style:normal!important;line-height:1.25!important;min-height:38px!important;margin:3px 0 0 12px!important;padding:0!important;flex-shrink:0!important;}
+#playerIntro .profile-stats{margin-top:12px!important;gap:10px!important;min-height:0!important;}
+#playerIntro .profile-stat-group{display:flex!important;flex-direction:column!important;min-height:0!important;}
+#playerIntro .profile-stat-heading,#playerIntro .profile-stat-group.awards .profile-stat-heading{height:26px!important;min-height:26px!important;flex:0 0 26px!important;padding:4px 17px 2px!important;font-family:Arial,Helvetica,sans-serif!important;font-style:normal!important;font-size:clamp(13px,1.2vw,17px)!important;font-weight:900!important;letter-spacing:.15px!important;line-height:19px!important;box-sizing:border-box!important;}
+#playerIntro .profile-stat-row{flex:1 1 auto!important;height:auto!important;min-height:0!important;padding:0 7px 5px!important;align-items:center!important;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr))!important;}
+#playerIntro .profile-stat-row .profile-stat{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-width:0!important;overflow:hidden!important;padding:0 3px!important;gap:5px!important;}
+#playerIntro .profile-stat-row .profile-stat strong{font-size:clamp(16px,1.7vw,25px)!important;max-width:100%!important;white-space:nowrap!important;overflow:visible!important;}
+#playerIntro .profile-stat-row .profile-stat small{font-size:clamp(10px,.95vw,14px)!important;line-height:1.15!important;white-space:nowrap!important;overflow:visible!important;}
+#playerIntro .profile-stat-group.awards{flex:1.3 1 0!important;}
+#playerIntro .profile-stat-group.awards .profile-awards-row{height:auto!important;flex:1 1 auto!important;min-height:0!important;align-items:center!important;padding:0 8px 5px!important;}
+#playerIntro .profile-awards-row .profile-pom{justify-content:center!important;align-items:center!important;align-self:stretch!important;}
+#playerIntro .profile-pom span{font-size:clamp(12px,1.15vw,17px)!important;white-space:nowrap!important;}
+#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-entry{font-size:clamp(9px,.8vw,12px)!important;line-height:1.22!important;}
+@media(max-height:480px){#playerIntro .profile-shell{height:min(350px,78vh)!important;padding-top:31px!important;}#playerIntro .profile-stat-heading,#playerIntro .profile-stat-group.awards .profile-stat-heading{height:23px!important;min-height:23px!important;flex-basis:23px!important;padding-top:2px!important;}#playerIntro .profile-stats{gap:6px!important;margin-top:6px!important;}#playerIntro .profile-name{min-height:30px!important;}}
+</style></body></html>
