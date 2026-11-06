@@ -1447,7 +1447,7 @@ function chooseCurrentTournament(rows){
  const exact=active.find(t=>String(t.tournament_id??t.id)===matchId);
  if(exact)return exact;
  if(active.length===1)return active[0];
- const matchName=String(match.tournament_name??'').trim().toLowerCase();
+ const matchName=String(match.tournament_name??match.tournament??'').trim().toLowerCase();
  const byName=matchName?active.find(t=>String(t.tournament_name??t.name??'').trim().toLowerCase()===matchName):null;
  if(byName)return byName;
  console.warn('Multiple active CricBay tournaments; unable to choose unambiguously');
@@ -1458,6 +1458,7 @@ async function resolveTournamentId(){
  if(playerPreviewMode && /^\d+$/.test(q.get('tournamentId')||''))return Number(q.get('tournamentId'));
  const rows=await loadTournamentListOnce();
  const selected=chooseCurrentTournament(rows);
+ if(!selected)console.warn('CricBay player preload: tournament not resolved', {count:rows.length,matchTournament:tournamentMatchContext?.tournament});
  const id=selected?.tournament_id??selected?.id;
  return /^\d+$/.test(String(id??''))?Number(id):null;
 }
@@ -1540,6 +1541,15 @@ function extractPlayingXI(data){
    }
   }
  };
+ // Scorecard snapshots expose the playing XIs under innings.inning1/inning2.
+ // Also accept match.innings.innings1/innings2 when supplied by other responses.
+ for(const innings of [data.innings,m.innings]){
+  if(!innings||typeof innings!=='object')continue;
+  for(const key of ['inning1','inning2','innings1','innings2']){
+   const inning=innings[key];
+   if(inning)scan(inning,inning.team||null);
+  }
+ }
  teams.forEach(t=>scan(t,t));
  for(const [i,team] of teams.entries()){
   const side=data.teams?.[i]??data.teams?.[String(team.team_id)]??null;
@@ -1560,8 +1570,10 @@ function preloadAllPlayers(data){
  const matchKey=String(data.match?.match_id??matchId);
  if(preloadMatchId!==matchKey){preloadMatchId=matchKey;preloadPlayers.clear();preloadCompleted.clear();profileCache.clear();profileApiInFlight.clear();}
  const found=extractPlayingXI(data);
+ console.info('CricBay player preload: found',found.size,'unique playing XI players');
  for(const [id,item] of found){if(!preloadPlayers.has(id))preloadPlayers.set(id,item);}
  if(!preloadRunning&&preloadPlayers.size){void drainPlayerPreload();}
+ else if(!preloadPlayers.size)console.warn('CricBay player preload: no playing XI IDs in snapshot innings');
 }
 const preloadCompleted=new Set();
 async function drainPlayerPreload(){
