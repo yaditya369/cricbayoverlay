@@ -1088,6 +1088,11 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;word-break:normal!important}
 #playerIntro .profile-awards-row .profile-achievement-column{overflow:visible;min-width:0}
 #playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{overflow:visible}
+</style><style>
+/* Readable player name: normal-width bold type, single line, no condensed scaling. */
+#playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-stretch:normal!important;font-style:normal!important;font-weight:900!important;font-size:clamp(23px,2.5vw,35px)!important;letter-spacing:.35px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:96%!important;transform-origin:left center!important;text-shadow:0 2px 4px rgba(0,0,0,.85)!important;}
+#playerIntro.visible .profile-name{animation-name:profile-name-readable-in!important;}
+@keyframes profile-name-readable-in{from{opacity:0;translate:-12px 0}to{opacity:1;translate:0 0}}
 </style></head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1274,6 +1279,9 @@ body.player-profile-preview #playerIntro .profile-shell{outline:none}
 (() => {
 'use strict';
 const q=new URLSearchParams(location.search);
+// Controls the one-time snapshot, tournament lookup, and player-stat preload.
+// Defaults to enabled; ?preloadPlayerStats=false disables the entire 68-call initialization.
+const preloadPlayerStatsEnabled=!['false','0','no','off'].includes((q.get('preloadPlayerStats')||'true').trim().toLowerCase());
 const $=id=>document.getElementById(id);
 const matchId=(q.get('matchId')||'31584').trim();
 // Sticky two-Worker failover: new Worker is primary; successful fallback stays active.
@@ -1454,7 +1462,7 @@ async function resolveTournamentId(){
  return /^\d+$/.test(String(id??''))?Number(id):null;
 }
 // Fire the single tournament-list call on page load, independently of player preloading.
-void loadTournamentListOnce();
+if(preloadPlayerStatsEnabled)void loadTournamentListOnce();
 function tournamentStatsObject(response,role,tournamentId){
  const root=unwrapPlayerResult(response);
  const rows=Array.isArray(root)?root:(Array.isArray(root?.tournaments)?root.tournaments:Array.isArray(root?.results)?root.results:Array.isArray(root?.statistics)?root.statistics:[root]);
@@ -1545,7 +1553,8 @@ function tossIsComplete(data){
  return Boolean(m.toss_won_by_team_name||m.toss_won_by||m.toss_decision||m.toss_elected_to||m.batting_first_team_name||hasStartedInnings(data));
 }
 function preloadAllPlayers(data){
- // Preload as soon as the first snapshot exposes player IDs; no toss or display flag gate.
+ if(!preloadPlayerStatsEnabled)return;
+ // Preload only from the single initial snapshot; no toss or display flag gate.
  if(!data||!data.match)return;
  tournamentMatchContext=data.match;
  const matchKey=String(data.match?.match_id??matchId);
@@ -1559,7 +1568,7 @@ async function drainPlayerPreload(){
  if(preloadRunning)return;
  preloadRunning=true;
  try{
-  // Newly discovered players are added to the same sequential work queue.
+  // Players discovered from the one-time initial snapshot are processed sequentially.
   for(const [id,item] of preloadPlayers){
    if(preloadCompleted.has(id))continue;
    preloadCompleted.add(id);
@@ -1568,6 +1577,7 @@ async function drainPlayerPreload(){
  }finally{preloadRunning=false;}
 }
 function enqueuePlayerPreload(item){
+ if(!preloadPlayerStatsEnabled)return;
  if(!preloadPlayers.has(String(item.id)))preloadPlayers.set(String(item.id),item);
  if(!preloadRunning)void drainPlayerPreload();
 }
@@ -2569,6 +2579,7 @@ function updateSummary(data){
 }
 
 let refreshTimer=null;
+let snapshotRequested=false;
 let pollingStoppedForPom=false;
 function stopPollingWhenPomSelected(data){
  if(pollingStoppedForPom||!currentPom(data))return;
@@ -2576,7 +2587,8 @@ function stopPollingWhenPomSelected(data){
  if(refreshTimer!==null){clearInterval(refreshTimer);refreshTimer=null;}
  console.info("CricBay: Player of the Match selected; snapshot polling stopped.");
 }
-async function refresh(){if(busy||pollingStoppedForPom)return;busy=true;try{
+async function refresh(){if(snapshotRequested||busy||pollingStoppedForPom)return;
+ snapshotRequested=true;busy=true;try{
  if(!/^\d+$/.test(matchId))throw Error('matchId must be numeric');
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
@@ -2589,12 +2601,12 @@ async function refresh(){if(busy||pollingStoppedForPom)return;busy=true;try{
  console.error('CricBay overlay:',e);
  failedScoreFetches++;
  if(failedScoreFetches>=3)hideForScoreFailure();
- else set('message','Score unavailable · Retrying in '+Math.round(interval/1000)+'s');
+ else set('message','Score unavailable · Initial snapshot failed');
 }finally{busy=false;}}
 // Explicit player-profile preview: no wait for a wicket, over, toss or player change.
 // Uses the same worker, shared cache and three API calls as live player introductions.
 async function startPlayerProfilePreview(){
- if(!playerPreviewMode)return;
+ if(!playerPreviewMode||!preloadPlayerStatsEnabled)return;
  document.body.classList.add('player-profile-preview');
  const item={id:previewPlayerId,role:previewRole,name:'Player '+previewPlayerId,
    snapshot:{},team:'',inning:'preview'};
@@ -2623,6 +2635,8 @@ if(soundEnabled){
  document.addEventListener('touchend',unlockAudio,{once:true});
 }
 const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
-refresh();if(!pollingStoppedForPom)refreshTimer=setInterval(refresh,interval);
+// Initial snapshot is a one-shot discovery and render request; no interval or repeat.
+if(preloadPlayerStatsEnabled)void refresh();
+else console.info("CricBay: preloadPlayerStats=false; initial snapshot, tournament list and player preload disabled.");
 })();
 </script></body></html>
