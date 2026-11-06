@@ -1484,17 +1484,51 @@ function renderProfile(item,data){
  makeGroup('CAREER STATISTICS','career',stats(data?.career,item.role,'career'));
  const award=document.createElement('div');award.className='profile-stat-group awards';
  const heading=document.createElement('div');heading.className='profile-stat-heading';heading.textContent='ACHIEVEMENTS & AWARDS';award.append(heading);
- const row=document.createElement('div');row.className='profile-awards-row';const pom=document.createElement('div');pom.className='profile-pom';const count=document.createElement('strong');count.textContent=pick(p,['pom_count','player_of_match_count','total_pom','pom']);const caption=document.createElement('span');caption.textContent='CAREER POMs';pom.append(count,caption);row.append(pom);
- const list=document.createElement('div');list.className='profile-awards-list';const rawAwards=p?.awards??p?.achievements??data?.profile?.awards??[];const awards=Array.isArray(rawAwards)?rawAwards.slice(0,3):[];
- if(awards.length){awards.forEach(a=>{const el=document.createElement('div');el.textContent=typeof a==='string'?a:(a?.title||a?.name||a?.award||'');list.append(el);});}
- const pomValue=Number(count.textContent);
- const hasPom=Number.isFinite(pomValue)&&pomValue>0;
- const hasAwards=awards.some(a=>typeof a==='string'?a.trim():Boolean(a?.title||a?.name||a?.award));
+ const row=document.createElement('div');row.className='profile-awards-row';
+ // These are the actual CricBay player-profile fields, not generic awards aliases.
+ const pomRaw=p?.player_of_the_match_awards;
+ const achievementsRaw=p?.notable_achievements;
+ const pomNumber=(value)=>{
+  if(typeof value==='number'||typeof value==='string'){
+   const n=Number(value);return Number.isFinite(n)&&n>=0?n:0;
+  }
+  if(Array.isArray(value))return value.length;
+  if(value&&typeof value==='object'){
+   for(const key of ['count','total','total_count','number','value']){
+    const n=Number(value[key]);if(value[key]!=null&&Number.isFinite(n)&&n>=0)return n;
+   }
+   for(const key of ['awards','items','records'])if(Array.isArray(value[key]))return value[key].length;
+  }
+  return 0;
+ };
+ const pomCount=pomNumber(pomRaw);
+ const pom=document.createElement('div');pom.className='profile-pom';
+ const count=document.createElement('strong');count.textContent=String(pomCount);
+ const caption=document.createElement('span');caption.textContent='CAREER POMs';pom.append(count,caption);
+ const achievementEntries=(value)=>{
+  if(Array.isArray(value))return value;
+  if(typeof value==='string')return value.trim()?[value]:[];
+  if(value&&typeof value==='object'){
+   for(const key of ['achievements','items','records','awards'])if(Array.isArray(value[key]))return value[key];
+  }
+  return [];
+ };
+ const awardText=a=>{
+  if(typeof a==='string')return a.trim();
+  if(!a||typeof a!=='object')return '';
+  return String(a.description??a.title??a.name??a.achievement??a.award??'').trim();
+ };
+ const awards=achievementEntries(achievementsRaw).map(awardText).filter(Boolean).slice(0,3);
+ const list=document.createElement('div');list.className='profile-awards-list';
+ for(const value of awards){const el=document.createElement('div');el.textContent=value;list.append(el);}
  const shell=panel.querySelector('.profile-shell');
- if(shell)shell.classList.toggle('no-awards',!hasPom&&!hasAwards);
- if(hasPom||hasAwards){
-  if(!hasPom)pom.style.visibility='hidden';
-  row.append(list);award.append(row);root.append(award);
+ if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
+ if(pomCount>0||awards.length){
+  if(pomCount>0)row.append(pom);
+  if(awards.length)row.append(list);
+  if(pomCount>0&&!awards.length)row.classList.add('pom-only');
+  if(!pomCount&&awards.length)row.classList.add('achievements-only');
+  award.append(row);root.append(award);
  }
 }
 function drainProfiles(){
