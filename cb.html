@@ -272,9 +272,33 @@ body.cricbay-score-offline #scoreEvent {display:none!important;visibility:hidden
 /* V46: black upper bar and deeper-black lower footer; preserve other theme details. */
 .overlay.theme-red .top,.overlay.theme-marvel .top{background:rgba(18,18,18,var(--alpha))!important}
 .overlay.theme-red .bottom,.overlay.theme-marvel .bottom,.overlay.layout-3.theme-red .bottom,.overlay.layout-3.theme-marvel .bottom{background:rgba(3,3,3,var(--alpha))!important}
-body.player-profile-preview #playerIntro{display:block!important;z-index:9999!important}
+body.player-profile-preview #playerIntro{z-index:9999!important}
 body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #ffffff40}
 .profile-achievement-note{font-size:clamp(9px,1vw,12px);font-style:italic;opacity:.82;margin-top:3px;text-align:right}
+
+/* Eight awards: four rows per column, using the right-side free space. */
+#playerIntro .profile-awards-row.pom-and-achievements.two-column-achievements{grid-template-columns:19% minmax(0,81%)}
+#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list,
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ column-gap:14px;align-content:center;align-items:start;
+ padding:0 12px;box-sizing:border-box;overflow:hidden;max-height:100%;
+ font-size:clamp(7px,.83vw,11px);line-height:1.12;
+}
+#playerIntro .profile-awards-row .profile-achievement-column{min-width:0;display:flex;flex-direction:column;gap:2px;justify-content:center}
+#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{
+ margin:0;line-height:1.15;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry:before{margin-right:5px}
+#playerIntro .profile-awards-row .profile-achievement-note{
+ grid-column:1/-1;text-align:right;font-size:clamp(7px,.75vw,10px);
+ line-height:1.1;color:#ffd18d;margin:2px 0 0;
+}
+#playerIntro .profile-awards-row .profile-achievement-note:before{content:none}
+#playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list{
+ display:block;
+}
+#playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list .profile-achievement-column{gap:2px}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1003,8 +1027,58 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #overlay #balls > *{flex-shrink:0!important}
 #overlay #balls .ball{position:relative!important;transform-origin:center center!important;z-index:1}
 #overlay #balls .ball.delivery-zoom-in{z-index:8!important}
+
+/* Player entrance: API data is rendered first, then the complete card slides in
+   from the left. Text follows with a very short stagger. */
+#playerIntro.visible{display:block;animation:profile-slide-from-left 520ms cubic-bezier(.18,.8,.22,1) both}
+#playerIntro.visible .profile-kicker,
+#playerIntro.visible .profile-name,
+#playerIntro.visible .profile-team,
+#playerIntro.visible .profile-stat-group,
+#playerIntro.visible .profile-awards-row{
+ animation:profile-text-follow 370ms cubic-bezier(.2,.8,.2,1) both;
+}
+#playerIntro.visible .profile-kicker{animation-delay:65ms}
+#playerIntro.visible .profile-name{animation-delay:85ms}
+#playerIntro.visible .profile-team{animation-delay:100ms}
+#playerIntro.visible .profile-stat-group:nth-child(1){animation-delay:110ms}
+#playerIntro.visible .profile-stat-group:nth-child(2){animation-delay:135ms}
+#playerIntro.visible .profile-stat-group:nth-child(3),
+#playerIntro.visible .profile-awards-row{animation-delay:160ms}
+@keyframes profile-slide-from-left{
+ from{opacity:0;transform:translate(calc(-50% - 110px),-50%)}
+ to{opacity:1;transform:translate(-50%,-50%)}
+}
+@keyframes profile-text-follow{
+ from{opacity:0;transform:translateX(-22px)}
+ to{opacity:1;transform:translateX(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ #playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}
+}
 </style>
-</head><style id="v42-bold-players-and-deliveries">
+<style>
+/* Final override: animate the entire profile and each populated panel with left-to-right fade. */
+#playerIntro.visible{animation:profile-slide-from-left .58s cubic-bezier(.18,.8,.22,1) both!important}
+#playerIntro.visible .profile-kicker,#playerIntro.visible .profile-name,
+#playerIntro.visible .profile-stat-group{animation:profile-text-follow .43s cubic-bezier(.18,.8,.22,1) both!important}
+#playerIntro.visible .profile-kicker{animation-delay:.04s!important}
+#playerIntro.visible .profile-name{animation-delay:.07s!important}
+#playerIntro.visible .profile-stat-group:not(.career):not(.awards){animation-delay:.09s!important}
+#playerIntro.visible .profile-stat-group.career{animation-delay:.12s!important}
+#playerIntro.visible .profile-stat-group.awards{animation-delay:.15s!important}
+#playerIntro.visible .profile-stat-heading,#playerIntro.visible .profile-stat,
+#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{
+ animation:profile-text-follow .36s ease-out both!important;
+}
+#playerIntro.visible .profile-stat-heading{animation-delay:.12s!important}
+#playerIntro.visible .profile-stat{animation-delay:.17s!important}
+#playerIntro.visible .career .profile-stat{animation-delay:.20s!important}
+#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{animation-delay:.23s!important}
+@keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 155px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
+@keyframes profile-text-follow{from{opacity:0;transform:translateX(-42px)}to{opacity:1;transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){#playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}}
+</style></head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
 </style>
@@ -1492,7 +1566,7 @@ function profileNameFromApi(profile,fallback){
  return [p?.player_name,p?.full_name,p?.name,[p?.first_name,p?.last_name].filter(Boolean).join(' ')].find(v=>typeof v==='string'&&v.trim())||fallback;
 }
 function renderProfile(item,data){
- const panel=$('playerIntro');panel.className='visible theme-'+theme;
+ const panel=$('playerIntro');panel.className='theme-'+theme;
  $('profileKicker').textContent=item.role==='bowling'?'INCOMING BOWLER':'INCOMING BATSMAN';
  $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
  const p=Array.isArray(data?.profile)?data.profile[0]:(data?.profile||{});
@@ -1559,14 +1633,16 @@ function renderProfile(item,data){
  };
  const awards=achievementEntries(achievementsRaw);
  const list=document.createElement('div');list.className='profile-awards-list';
- for(const entry of awards.slice(0,6)){
+ for(const [index,entry] of awards.slice(0,8).entries()){
+  if(index===4){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
+  if(index===0){const first=document.createElement('div');first.className='profile-achievement-column profile-achievement-column-one';list.append(first);}
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
-  list.append(el);
+  list.children[index<4?0:1].append(el);
  }
- if(awards.length>6){
+ if(awards.length>8){
   const note=document.createElement('div');note.className='profile-achievement-note';
-  note.textContent=`Showing 6 of ${awards.length} achievements`;list.append(note);
+  note.textContent=`Showing 8 of ${awards.length} achievements`;list.append(note);
  }
  const shell=panel.querySelector('.profile-shell');
  if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
@@ -1574,21 +1650,34 @@ function renderProfile(item,data){
   if(pomCount>0)row.append(pom);
   if(awards.length)row.append(list);
   if(pomCount>0&&!awards.length)row.classList.add('pom-only');
-  if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');}
+  if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');if(awards.length>4)row.classList.add('two-column-achievements');}
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
  }
 }
-function drainProfiles(){
+async function drainProfiles(){
  if(profileActive||celebrationActive||milestoneQueue.length||document.body.classList.contains('cricbay-score-offline')||!profileQueue.length)return;
  if(document.body.classList.contains('broadcast-match-visible')){profileQueue.length=0;return;}
- profileActive=true;const item=profileQueue.shift(),token=++profileToken;
- renderProfile(item,null);
- void fetchMissingPlayerApis(item).then(async stats=>{
-  if(profileActive&&profileToken===token&&stats)renderProfile(item,stats);
-
- }).catch(error=>console.warn('Player profile fallback failed',error));
- profileTimer=setTimeout(()=>{$('playerIntro').classList.remove('visible');profileActive=false;setTimeout(drainProfiles,200);},profileDuration);
+ profileActive=true;
+ const item=profileQueue.shift(),token=++profileToken;
+ let stats=null;
+ try{
+  // Wait until all three player API responses have settled. Never reveal placeholders.
+  stats=await fetchMissingPlayerApis(item);
+ }catch(error){console.warn('Player profile data unavailable',error);}
+ if(!profileActive||profileToken!==token)return;
+ if(!stats||!stats.profile||!stats.career||!stats.season){
+  profileActive=false;setTimeout(drainProfiles,200);return;
+ }
+ renderProfile(item,stats);
+ const panel=$('playerIntro');
+ panel.classList.remove('visible');
+ void panel.offsetWidth; // Restart animation for every new player
+ panel.classList.add('visible');
+ profileTimer=setTimeout(()=>{
+  panel.classList.remove('visible');profileActive=false;
+  setTimeout(drainProfiles,200);
+ },profileDuration);
 }
 function trackProfiles(data){
  if(playerPreviewMode)return;
@@ -2489,11 +2578,10 @@ async function startPlayerProfilePreview(){
  document.body.classList.add('player-profile-preview');
  const item={id:previewPlayerId,role:previewRole,name:'Player '+previewPlayerId,
    snapshot:{},team:'',inning:'preview'};
- renderProfile(item,null);
  console.info('CricBay profile preview: fetching',previewPlayerId,previewRole);
  try{
   const data=await fetchMissingPlayerApis(item);
-  if(data)renderProfile(item,data);
+  if(data){renderProfile(item,data);const panel=$('playerIntro');panel.classList.remove('visible');void panel.offsetWidth;panel.classList.add('visible');}
   console.info('CricBay profile preview API status:',data?.status);
  }catch(error){console.error('CricBay profile preview failed:',error);}
 }
