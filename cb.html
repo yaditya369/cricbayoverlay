@@ -276,29 +276,6 @@ body.player-profile-preview #playerIntro{z-index:9999!important}
 body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #ffffff40}
 .profile-achievement-note{font-size:clamp(9px,1vw,12px);font-style:italic;opacity:.82;margin-top:3px;text-align:right}
 
-/* Eight awards: four rows per column, using the right-side free space. */
-#playerIntro .profile-awards-row.pom-and-achievements.two-column-achievements{grid-template-columns:19% minmax(0,81%)}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list,
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- column-gap:14px;align-content:center;align-items:start;
- padding:0 12px;box-sizing:border-box;overflow:hidden;max-height:100%;
- font-size:clamp(7px,.83vw,11px);line-height:1.12;
-}
-#playerIntro .profile-awards-row .profile-achievement-column{min-width:0;display:flex;flex-direction:column;gap:2px;justify-content:center}
-#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{
- margin:0;line-height:1.15;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry:before{margin-right:5px}
-#playerIntro .profile-awards-row .profile-achievement-note{
- grid-column:1/-1;text-align:right;font-size:clamp(7px,.75vw,10px);
- line-height:1.1;color:#ffd18d;margin:2px 0 0;
-}
-#playerIntro .profile-awards-row .profile-achievement-note:before{content:none}
-#playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list{
- display:block;
-}
-#playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list .profile-achievement-column{gap:2px}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1088,7 +1065,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 </svg><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center" aria-hidden="true"><div class="broadcast-final" id="broadcastFinal">FINAL</div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
 <style id="player-profile-layout">
 /* Single authoritative player-profile layout. No additive corrective overrides. */
-#playerIntro{display:none;position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
+#playerIntro{display:none;position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
 #playerIntro.visible{display:block;animation:profile-enter 650ms cubic-bezier(.22,1,.36,1) both}
 #playerIntro .profile-shell{position:relative;width:100%;height:min(455px,76vh);display:flex;flex-direction:column;box-sizing:border-box;padding:34px 23px 14px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-alpha,.85)),rgba(90,0,12,var(--profile-alpha,.85)) 4%,rgba(46,0,5,var(--profile-alpha,.85)) 95%,rgba(255,138,155,var(--profile-alpha,.85)));box-shadow:0 12px 35px #000a}
 #playerIntro .profile-shell:before{content:'';position:absolute;inset:6px;border:1px solid #e5485a;pointer-events:none;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%)}
@@ -1098,7 +1075,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-stats{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;margin-top:8px;justify-content:stretch}
 #playerIntro .profile-stat-group{position:relative;display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;overflow:hidden;box-sizing:border-box;border:1px solid #77b9f5;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)),rgba(0,30,51,var(--profile-alpha,.85)))}
 #playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)),rgba(0,47,35,var(--profile-alpha,.85)))}
-#playerIntro .profile-stat-group.awards{flex:1.25 1 0;border-color:#ffb45b;background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)),rgba(43,20,2,var(--profile-alpha,.85)) 50%,rgba(37,18,3,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-group.awards{flex:.88 1 0;border-color:#ffb45b;background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)),rgba(43,20,2,var(--profile-alpha,.85)) 50%,rgba(37,18,3,var(--profile-alpha,.85)))}
 #playerIntro .profile-stat-heading{display:flex;flex:0 0 26px;min-height:26px;align-items:center;box-sizing:border-box;padding:0 16px;margin:0;font:900 clamp(14px,1.5vw,19px)/1 Arial,Helvetica,sans-serif;letter-spacing:0;color:white;white-space:nowrap;text-shadow:1px 1px #111}
 #playerIntro .profile-stat-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr));align-items:stretch;padding:2px 7px 5px}
 #playerIntro .profile-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:3px;padding:0 3px;box-sizing:border-box;border:0;border-right:1px solid #b4c6d7a6;background:none;text-align:center}
@@ -1111,15 +1088,15 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:1px solid #b5a58b;padding:0 6px;font:900 15px/1.2 Arial,Helvetica,sans-serif}
 #playerIntro .profile-pom strong{display:block;font:900 clamp(22px,2.4vw,34px)/1.1 Arial,Helvetica,sans-serif;color:#ffbd53}
 #playerIntro .profile-pom span{display:block;font:900 clamp(12px,1.24vw,17px)/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center}
-#playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:stretch;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px}
-#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));min-width:0;min-height:0;align-items:center}
-#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:800 clamp(11px,1.12vw,15px)/1.12 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:start;align-content:start;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px;text-align:left}
+#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));min-width:0;min-height:0;align-items:start;justify-items:start;text-align:left}
+#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:800 clamp(11px,1.12vw,15px)/1.12 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;width:100%}
 #playerIntro .profile-achievement-entry:before{content:'▪';color:#ffba35;margin-right:5px}
 #playerIntro .profile-achievement-note{grid-column:1/-1;font:700 10px Arial,Helvetica,sans-serif;text-align:right;color:#ffd18d}
 #playerIntro .profile-shell.no-awards{height:min(330px,62vh)}
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@media(max-height:480px){#playerIntro{top:39%;width:min(85vw,960px)}#playerIntro .profile-shell{height:min(310px,75vh);padding:29px 20px 10px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:6px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-shell.no-awards{height:min(265px,66vh)}}
+@media(max-height:480px){#playerIntro{top:44%;width:min(85vw,960px)}#playerIntro .profile-shell{height:min(292px,72vh);padding:29px 20px 10px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:6px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-shell.no-awards{height:min(265px,66vh)}}
 </style>
 <script>
 (() => {
