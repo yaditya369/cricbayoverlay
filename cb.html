@@ -1120,6 +1120,30 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 @media(max-height:450px){#playerIntro{width:min(72vw,610px);top:42%}#playerIntro .profile-shell{height:min(245px,66vh);padding:26px 16px 10px}#playerIntro .profile-shell.no-awards{height:min(188px,54vh)}#playerIntro .profile-stats{margin-top:6px}}
 body.player-profile-preview #playerIntro .profile-shell{outline:none}
 @media(max-height:450px){#playerIntro{top:42%;width:min(72vw,610px)}#playerIntro .profile-shell{padding:26px 16px 10px}#playerIntro .profile-stats{margin-top:6px}}
+/* vNext: vertical rhythm for player introductions; leave match footer untouched. */
+#playerIntro{top:41%;width:min(78vw,690px);max-width:690px}
+#playerIntro .profile-shell{height:min(355px,69vh);padding:34px 21px 17px;display:flex;flex-direction:column;gap:0}
+#playerIntro .profile-name{margin-top:3px;margin-bottom:0;line-height:1.12}
+#playerIntro .profile-team{margin-top:5px;line-height:1.2}
+#playerIntro .profile-stats{display:flex;flex:1 1 auto;height:auto;min-height:0;gap:12px;margin-top:17px;justify-content:stretch}
+#playerIntro .profile-stat-group,#playerIntro .profile-stat-group.awards{flex:1 1 0;min-height:0}
+#playerIntro .profile-stat-heading{height:31%;padding:4px 15px 0;line-height:1.2}
+#playerIntro .profile-stat-row{height:69%;align-items:center;padding:3px 0 6px;box-sizing:border-box}
+#playerIntro .profile-stat{padding:0 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+#playerIntro .profile-stat strong{line-height:1.13}
+#playerIntro .profile-stat small{line-height:1.2}
+#playerIntro .profile-awards-row{height:69%;padding:3px 0 5px;box-sizing:border-box}
+#playerIntro .profile-shell.no-awards{height:min(275px,56vh)}
+#playerIntro .profile-shell.no-awards .profile-stats{gap:12px;margin-top:17px}
+@media(max-height:450px){
+ #playerIntro{top:40%;width:min(74vw,650px)}
+ #playerIntro .profile-shell{height:min(285px,70vh);padding:29px 17px 12px}
+ #playerIntro .profile-shell.no-awards{height:min(228px,57vh)}
+ #playerIntro .profile-stats,#playerIntro .profile-shell.no-awards .profile-stats{gap:9px;margin-top:11px}
+ #playerIntro .profile-stat-heading{height:30%;padding:2px 12px 0}
+ #playerIntro .profile-stat-row{height:70%;padding:2px 0 4px}
+ #playerIntro .profile-stat{gap:3px}
+}
 </style>
 <script>
 (() => {
