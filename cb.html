@@ -274,6 +274,7 @@ body.cricbay-score-offline #scoreEvent {display:none!important;visibility:hidden
 .overlay.theme-red .bottom,.overlay.theme-marvel .bottom,.overlay.layout-3.theme-red .bottom,.overlay.layout-3.theme-marvel .bottom{background:rgba(3,3,3,var(--alpha))!important}
 body.player-profile-preview #playerIntro{display:block!important;z-index:9999!important}
 body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #ffffff40}
+.profile-achievement-note{font-size:clamp(9px,1vw,12px);font-style:italic;opacity:.82;margin-top:3px;text-align:right}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1147,6 +1148,35 @@ body.player-profile-preview #playerIntro .profile-shell{outline:none}
  #playerIntro .profile-stat-row{height:70%;padding:2px 0 4px}
  #playerIntro .profile-stat{gap:3px}
 }
+
+/* Player-profile alignment and background transparency: uses the same opacity query as the footer. */
+#playerIntro{left:50%;transform:translate(-50%,-50%);}
+#playerIntro .profile-team{display:none!important;}
+#playerIntro .profile-shell{
+ background:linear-gradient(135deg,
+ rgba(255,158,171,var(--profile-alpha,.85)) 0%,
+ rgba(120,0,11,var(--profile-alpha,.85)) 1.2%,
+ rgba(46,0,5,var(--profile-alpha,.85)) 2.2%,
+ rgba(75,0,9,var(--profile-alpha,.85)) 97%,
+ rgba(255,138,155,var(--profile-alpha,.85)) 99%,
+ rgba(124,0,9,var(--profile-alpha,.85)) 100%);
+}
+#playerIntro .profile-stat-group{
+ background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)) 0%,rgba(7,73,129,var(--profile-alpha,.85)) 27%,rgba(0,31,56,var(--profile-alpha,.85)) 45%,rgba(0,30,51,var(--profile-alpha,.85)) 100%);
+}
+#playerIntro .profile-stat-group.career{
+ background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)) 0%,rgba(0,107,69,var(--profile-alpha,.85)) 26%,rgba(0,59,42,var(--profile-alpha,.85)) 47%,rgba(0,47,35,var(--profile-alpha,.85)) 100%);
+}
+#playerIntro .profile-stat-group.awards{
+ background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)) 0%,rgba(137,66,9,var(--profile-alpha,.85)) 30%,rgba(43,20,2,var(--profile-alpha,.85)) 35%,rgba(37,18,3,var(--profile-alpha,.85)) 100%);
+}
+#playerIntro .profile-awards-row.pom-and-achievements{display:grid;grid-template-columns:50% 50%;width:100%;}
+#playerIntro .profile-awards-row.pom-and-achievements .profile-pom{width:100%;box-sizing:border-box;justify-self:center;}
+#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list{padding-left:14px;box-sizing:border-box;min-width:0;}
+#playerIntro .profile-awards-row.pom-only{display:flex;justify-content:center;align-items:center;}
+#playerIntro .profile-awards-row.pom-only .profile-pom{border-right:0;width:100%;}
+#playerIntro .profile-awards-row.achievements-only{display:flex;justify-content:center;align-items:center;}
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list{padding-left:0;width:95%;}
 </style>
 <script>
 (() => {
@@ -1198,6 +1228,7 @@ const layout=['2','3'].includes(q.get('layout'))?q.get('layout'):'3';
 $('summaryPanel').className='summary-panel theme-'+theme;
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
 overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
+document.documentElement.style.setProperty('--profile-alpha',String(Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85))));
 $('summaryPanel').style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
 document.documentElement.style.setProperty('--offset',Math.max(0,Number(q.get('bottomOffset')||0))+'px');
 const summaryEnabled=q.get('summary')!=='0';
@@ -1458,7 +1489,8 @@ function renderProfile(item,data){
  $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
  const p=Array.isArray(data?.profile)?data.profile[0]:(data?.profile||{});
  const detail=item.role==='bowling'?[p?.bowling_style,p?.player_role,p?.role,p?.batting_style,item.team]:[p?.batting_style,p?.batting_hand,p?.player_role,p?.role,p?.bowling_style,item.team].filter(v=>typeof v==='string'&&v.trim());
- $('profileTeam').textContent=detail[0]||item.team||'PLAYER PROFILE';
+ $('profileTeam').textContent=detail[0]||'';
+ $('profileTeam').hidden=true;
  const root=$('profileStats');root.replaceChildren();
  const format=v=>(v===null||v===undefined||v==='')?'—':String(v);
  const pick=(obj,keys)=>{if(!obj||typeof obj!=='object')return '—';for(const key of keys){const val=obj[key];if(val!==undefined&&val!==null&&val!==''&&typeof val!=='object')return format(val);}return '—';};
@@ -1519,10 +1551,14 @@ function renderProfile(item,data){
  };
  const awards=achievementEntries(achievementsRaw);
  const list=document.createElement('div');list.className='profile-awards-list';
- for(const entry of awards){
+ for(const entry of awards.slice(0,3)){
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
   list.append(el);
+ }
+ if(awards.length>3){
+  const note=document.createElement('div');note.className='profile-achievement-note';
+  note.textContent='Showing top 3 achievements';list.append(note);
  }
  const shell=panel.querySelector('.profile-shell');
  if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
@@ -1530,6 +1566,7 @@ function renderProfile(item,data){
   if(pomCount>0)row.append(pom);
   if(awards.length)row.append(list);
   if(pomCount>0&&!awards.length)row.classList.add('pom-only');
+  if(pomCount>0&&awards.length)row.classList.add('pom-and-achievements');
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
  }
