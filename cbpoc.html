@@ -299,6 +299,11 @@ body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #fffff
  display:block;
 }
 #playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list .profile-achievement-column{gap:2px}
+
+/* Shared footer partnership: same left inset as the credit's right inset. */
+.overlay .bottom .partnership{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;pointer-events:none}
+.overlay .bottom .message{max-width:calc(100% - 310px)}
+@media(max-width:650px){.overlay .bottom .partnership{left:5px;font-size:8px}.overlay .bottom .message{max-width:calc(100% - 170px)}}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1160,7 +1165,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  #overlay.layout-3 .identity .name{font-size:clamp(13px,calc(2.25vw + 3px),16px)!important}
 }
 </style>
-<div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
+<div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="partnership" id="partnership"></span><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
 <section id="playerIntro" aria-live="polite"><div class="profile-shell"><div class="profile-kicker" id="profileKicker">INCOMING BATSMAN</div><div class="profile-name" id="profileName"></div><div class="profile-team" id="profileTeam"></div><div class="profile-stats" id="profileStats"></div></div></section>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="fullInningsSummary" class="full-innings-summary"><div class="full-innings-header"><div class="full-eyebrow" id="fullInningsLabel"></div><div class="full-score" id="fullScore"></div><div class="full-context" id="fullContext"></div></div><div class="full-innings-columns"><section class="full-bat"><h3 id="fullBatTeam"></h3><div class="full-colhead">BATTER <span>RUNS (BALLS) · BOUNDARIES</span></div><div id="fullBatRows"></div></section><section class="full-bowl"><h3 id="fullBowlTeam"></h3><div class="full-colhead">BOWLER <span>O · M · R · W</span></div><div id="fullBowlRows"></div></section></div><div class="full-bottom"><span id="fullExtras"></span><span id="fullFow"></span></div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
@@ -2177,7 +2182,68 @@ function firstInningsProjection(data){
  const rr=runs*6/balls;
  return `Projected Score ${Math.round(rr*limit)}`;
 }
+// Split-innings matches retain two cumulative innings records across four batting segments.
+// Use the active innings ID to identify the batting side, and the opponent's
+// progress to distinguish the first and second ten-over segments.
+// The wicket list contains both the cumulative team score and overs played at dismissal.
+// Derive the current stand from those cumulative values, including split-innings
+// resumption. Never reset simply because the batting team changed segments.
+function footerPartnership(data){
+ const m=data.match||{},c=data.current||{},inns=data.innings||{};
+ const active=[inns.inning1,inns.inning2].find(i=>i?.inning_id!=null&&String(i.inning_id)===String(m.current_inning_id));
+ if(!active)return '';
+ const score=Number(c.score??active.score??active.scorecard?.total?.total_runs);
+ const balls=inningsBalls(c.over??active.overs);
+ const wickets=Number(c.wickets??active.wickets??active.scorecard?.total?.total_wickets);
+ if(!Number.isFinite(score)||balls===null||!Number.isFinite(wickets))return '';
+ const list=active.scorecard?.fall_of_wickets_list;
+ if(wickets===0)return `${Math.max(0,score)}(${Math.max(0,balls)})`;
+ if(!Array.isArray(list))return '';
+ const last=list.filter(w=>Number(w.wicket_number)<=wickets&&Number.isFinite(Number(w.score)))
+  .sort((a,b)=>Number(a.wicket_number)-Number(b.wicket_number)).at(-1);
+ if(!last)return '';
+ const wicketBalls=inningsBalls(last.overs_played??last.overs);
+ if(wicketBalls===null||wicketBalls>balls)return '';
+ return `${Math.max(0,score-Number(last.score))}(${Math.max(0,balls-wicketBalls)})`;
+}
+function splitInningsFooter(data){
+ const m=data.match||{};
+ if(m.is_split_inning!==true&&String(m.is_split_inning).toLowerCase()!=='true')return null;
+ const a=data.innings?.inning1||{},b=data.innings?.inning2||{},c=data.current||{};
+ const split=Number(m.split_inning_over);
+ if(!Number.isFinite(split)||split<=0)return null;
+ const activeId=String(m.current_inning_id??'');
+ const activeA=a.inning_id!=null&&activeId===String(a.inning_id);
+ const activeB=b.inning_id!=null&&activeId===String(b.inning_id);
+ if(!activeA&&!activeB)return null;
+ const runs=inn=>{
+  const active=activeA&&inn===a||activeB&&inn===b;
+  const value=active?c.score??inn.score??inn.scorecard?.total?.total_runs:inn.score??inn.scorecard?.total?.total_runs;
+  return value==null?null:Number(value);
+ };
+ const aRuns=runs(a),bRuns=runs(b);
+ const aBalls=inningsBalls(a.overs),bBalls=inningsBalls(b.overs);
+ const aOver=activeA?inningsBalls(c.over)??aBalls:aBalls;
+ const bOver=activeB?inningsBalls(c.over)??bBalls:bBalls;
+ const secondSegmentA=(bBalls??0)>=split*6||(/started|complete|finished|ended/i.test(inningsState(b))&&(bBalls??0)>0&&activeA);
+ const secondSegmentB=(aOver??0)>split*6||/complete|finished|ended/i.test(inningsState(a));
+ // Phase 4: preserve the existing chase calculation and formatting.
+ if(activeB&&secondSegmentB)return null;
+ // Phase 1: only the opening ten overs receive a projected score.
+ if(activeA&&!secondSegmentA){
+  const balls=aOver??0;
+  if(balls<=0||!Number.isFinite(aRuns))return '';
+  return `Projected Score ${Math.round(aRuns*split*6/balls)}`;
+ }
+ // Phases 2 and 3: compare cumulative totals, never segment-only runs.
+ const battingRuns=activeA?aRuns:bRuns,opponentRuns=activeA?bRuns:aRuns;
+ if(!Number.isFinite(battingRuns)||!Number.isFinite(opponentRuns))return '';
+ const difference=battingRuns-opponentRuns;
+ if(difference===0)return 'Scores Level';
+ return `${difference>0?'Lead':'Trail'} by ${Math.abs(difference)} run${Math.abs(difference)===1?'':'s'}`;
+}
 function renderToss(data){
+ set('partnership','');
  const m=data.match||{},i1=data.innings?.inning1||{};
  const t1=m.team1||{},t2=m.team2||{};
  const first=String(m.batting_first_team_name||i1.team?.team_name||'').trim();
@@ -2342,8 +2408,11 @@ function render(data){
  const firstTotal=optionalNumber(data.innings?.inning1?.scorecard?.total?.total_runs??data.innings?.inning1?.score??(currentMatchesBatting&&batting===i1?c.score:null));
  let footer=phase==='innings'?('INNINGS BREAK'+(Number.isFinite(firstTotal)?` · Target ${firstTotal+1}`:'')):matchFooter(data);
  if(!footer){
+  const splitFooter=splitInningsFooter(data);
   const chase=chaseContext(data);
-  if(chase.second&&Number.isFinite(chase.firstRuns)&&Number.isFinite(chase.secondRuns)){
+  if(splitFooter!==null){
+   footer=splitFooter||[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
+  }else if(chase.second&&Number.isFinite(chase.firstRuns)&&Number.isFinite(chase.secondRuns)){
    const needed=Math.max(0,chase.firstRuns+1-chase.secondRuns);
    footer=`Need ${needed} run${needed===1?'':'s'}`;
    if(chase.ballsLeft!=null)footer+=` · ${chase.ballsLeft} balls left`;
@@ -2351,6 +2420,7 @@ function render(data){
   }else footer=firstInningsProjection(data)||[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
  }
  set('message',footer);
+ set('partnership',footerPartnership(data));
 }
 
 // Result is authoritative when CricBay publishes it; otherwise avoid declaring
