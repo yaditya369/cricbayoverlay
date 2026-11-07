@@ -2233,7 +2233,9 @@ function splitInningsFooter(data){
  if(activeA&&!secondSegmentA){
   const balls=aOver??0;
   if(balls<=0||!Number.isFinite(aRuns))return '';
-  return `Projected Score ${Math.round(aRuns*split*6/balls)}`;
+  const fullOvers=Number(m.max_overs??m.maximum_overs);
+  if(!Number.isFinite(fullOvers)||fullOvers<=0)return '';
+  return `Projected Score ${Math.round(aRuns*fullOvers*6/balls)}`;
  }
  // Phases 2 and 3: compare cumulative totals, never segment-only runs.
  const battingRuns=activeA?aRuns:bRuns,opponentRuns=activeA?bRuns:aRuns;
@@ -2420,7 +2422,8 @@ function render(data){
   }else footer=firstInningsProjection(data)||[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
  }
  set('message',footer);
- set('partnership',footerPartnership(data));
+ const currentStand=footerPartnership(data);
+ set('partnership',currentStand?`PARTNERSHIP ${currentStand}`:'');
 }
 
 // Result is authoritative when CricBay publishes it; otherwise avoid declaring
@@ -2708,6 +2711,29 @@ function checkLifecycle(data){
 }
 // New summaries are isolated from the preserved legacy summary markup and renderer.
 let lastFullSummaryOver='', fullSummaryUntil=0, overBaseline=null, modernVisible=false;
+// An over is confirmed only after the following over begins (or innings ends).
+// This deliberately avoids treating a wide/no-ball displayed as x.6 as legal.
+const confirmedSummaryOvers=new Set();
+let priorSummaryBalls=new Map();
+function confirmedCompletedOvers(data,n){
+ const inn=sumInning(data,n),id=String(data.match?.match_id??matchId)+':'+String(inn.inning_id??n);
+ const active=String(data.match?.current_inning_id??'')===String(inn.inning_id??'');
+ const balls=inningsBalls(active?(data.current?.over??inn.overs):inn.overs);
+ if(balls===null)return [];
+ const previous=priorSummaryBalls.get(id);
+ priorSummaryBalls.set(id,balls);
+ if(previous===undefined||balls<=previous)return [];
+ // At x.6 the delivery may still be an illegal ball. Wait for x+1.1.
+ // A completed innings is authoritative, including the final x.6 delivery.
+ const completed= Math.floor(Math.max(0,balls-1)/6);
+ const prevCompleted=Math.floor(Math.max(0,previous-1)/6);
+ const result=[];
+ for(let over=prevCompleted+1;over<=completed;over++){
+  const key=id+':'+over;
+  if(!confirmedSummaryOvers.has(key)){confirmedSummaryOvers.add(key);result.push({key,over});}
+ }
+ return result;
+}
 const modernRoot=document.createElement('section');
 modernRoot.id='cricbayModernSummary';modernRoot.setAttribute('aria-label','CricBay modern match summary');
 document.body.append(modernRoot);
@@ -2736,7 +2762,19 @@ function sumBowlRow(p){
  const eco=Number(p.economy??p.economy_rate??p.eco??(numOvers?statNum(p.runs)/numOvers:0));
  return `<div class="ms-bowl-row"><span class="ms-name" title="${sumEsc(name)}">${sumEsc(name)}</span><span>${sumEsc(o)}</span><span>${statNum(p.maidens??p.maiden)}</span><span>${statNum(p.runs)}</span><span>${statNum(p.wickets)}</span><span>${eco.toFixed(2)}</span></div>`;
 }
-function sumFow(inn){const list=inn?.scorecard?.fall_of_wickets||[];return Array.isArray(list)?list.map(x=>typeof x==='string'?x:(x.score||x.runs||x.fow||'')).filter(Boolean):[];}
+function sumFow(inn){
+ const sc=inn?.scorecard||{};
+ const list=[sc.fall_of_wickets_list,sc.fall_of_wickets,inn?.fall_of_wickets_list,inn?.fall_of_wickets].find(Array.isArray)||[];
+ return list.map((x,i)=>{
+  if(typeof x==='string')return x;
+  if(!x||typeof x!=='object')return '';
+  const wicket=x.wicket_number??x.wicket_no??x.wicket??(i+1);
+  const score=x.score??x.runs??x.team_score??x.total_runs;
+  const name=x.batter_name??x.batsman_name??x.player_name??x.name??'';
+  const over=x.over??x.overs??x.over_number;
+  return score==null?'':`${wicket}-${score}${name?' ('+name+(over!=null?', '+over+' ov':'')+')':(over!=null?' ('+over+' ov)':'')}`;
+ }).filter(Boolean);
+}
 function sumExtras(inn){const ex=inn?.scorecard?.extras??inn?.scorecard?.total?.extras; if(ex==null)return '—';if(typeof ex!=='object')return String(ex);return String(ex.total??ex.total_extras??Object.values(ex).filter(x=>Number.isFinite(Number(x))).reduce((a,b)=>a+Number(b),0));}
 function sumNextBat(inn,bat,data,n){
  const sc=inn?.scorecard||{};
@@ -2764,31 +2802,18 @@ function sumTeamBadge(name,variant,team){
  return `<div class="ms-team-identity ms-${variant}" aria-label="${sumEsc(clean)}"><span class="ms-team-label">${sumEsc(clean)}</span></div>`;
 }
 function sumPowerplayOvers(inn){
- // Use only explicitly tagged CricBay BAPP/BOPP overs. Do not infer powerplays.
- const sc=inn?.scorecard||{};
- const candidates=[sc.powerplay_overs,sc.power_play_overs,sc.powerplayOvers,sc.powerplay_overs_list,inn?.powerplay_overs,inn?.power_play_overs,inn?.powerplayOvers,sc.overs,inn?.overs_list,inn?.over_summaries,inn?.recent_overs];
- const raw=candidates.flatMap(v=>Array.isArray(v)?v:(v&&typeof v==='object'&&Array.isArray(v.overs)?v.overs:[]));
- const seen=new Set();
- return raw.filter(o=>{
-  const type=String(o?.power_play_type??o?.powerplay_type??o?.powerplayType??o?.type??'').toUpperCase();
-  if(type!=='BAPP'&&type!=='BOPP')return false;
-  const num=o?.over_number??o?.over_no??o?.over_num??o?.over;
-  if(num==null||!Number.isFinite(Number(num))||seen.has(String(num)))return false;
-  seen.add(String(num));return true;
- }).sort((a,b)=>Number(a.over_number??a.over_no??a.over_num??a.over)-Number(b.over_number??b.over_no??b.over_num??b.over));
+ // CricBay: innings.inningN.scorecard.power_play_overs.
+ // power_play_number is the sequence; power_play_over_number is the actual over.
+ const records=inn?.scorecard?.power_play_overs;
+ if(!Array.isArray(records))return [];
+ return records.filter(o=>o&&['BAPP','BOPP'].includes(String(o.power_play_type||'').toUpperCase()))
+  .slice().sort((a,b)=>Number(a.power_play_over_number)-Number(b.power_play_over_number));
 }
 function sumPowerplayTable(inn){
  const overs=sumPowerplayOvers(inn);
  if(!overs.length)return '';
- const cell=(v)=>v==null?'—':sumEsc(String(v));
- const rows=overs.map(o=>{
-  const num=o.over_number??o.over_no??o.over_num??o.over;
-  const runs=o.runs??o.total_runs??o.runs_scored;
-  const wickets=o.wickets??o.total_wickets??o.wickets_fallen;
-  const bowler=o.bowler_name??o.bowled_by??o.bowler?.name??o.bowler?.player_name;
-  const type=o.power_play_type??o.powerplay_type??o.powerplayType??o.type;
-  return `<div class="ms-pp-row"><span>${cell(num)}</span><span>${cell(runs)}</span><span>${cell(wickets)}</span><span class="ms-pp-bowler" title="${cell(bowler)}">${cell(bowler)}</span><span>${cell(String(type).toUpperCase())}</span></div>`;
- }).join('');
+ const cell=v=>v==null?'—':sumEsc(String(v));
+ const rows=overs.map(o=>`<div class="ms-pp-row"><span>${cell(o.power_play_over_number)}</span><span>${cell(o.runs)}</span><span>${cell(o.wickets)}</span><span class="ms-pp-bowler" title="${cell(o.bowler_name)}">${cell(o.bowler_name)}</span><span>${cell(String(o.power_play_type).toUpperCase())}</span></div>`).join('');
  return `<section class="ms-pp-section"><h3>POWERPLAY OVERS</h3><div class="ms-pp-row ms-pp-th"><span>O#</span><span>R</span><span>W</span><span>BOWLED BY</span><span>TYPE</span></div>${rows}</section>`;
 }
 function sumFowTable(inn){
@@ -2799,11 +2824,6 @@ function sumFowTable(inn){
 function sumTotalStrip(inn){
  const t=inn?.scorecard?.total||{};
  return `<div class="ms-total-strip"><span>EXTRAS <b>${sumEsc(sumExtras(inn))}</b></span><span>TOTAL <b>${sumEsc(sumScore(inn))}</b></span></div>`;
-}
-function sumFocusTeam(data){
- // Match-stable viewpoint: Marvel when present; otherwise the first-innings team.
- const first=sumName(sumInning(data,1)),second=sumName(sumInning(data,2));
- return [first,second].find(x=>/\bmarvel\b/i.test(x))||first;
 }
 function renderModernOver(data,n){
  const inn=sumInning(data,n),batName=sumName(inn),other=sumInning(data,3-n),bowlName=sumName(other);
@@ -2817,12 +2837,7 @@ function renderModernOver(data,n){
  const nextBatter=sumNextBat(inn,bat,data,n);
  const chase=n===2?`<div class="ms-chase"><span>TARGET <b>${target}</b></span><span>NEED <b>${need}</b></span><span>BALLS <b>${ballsLeft}</b></span><span>RRR <b>${ballsLeft?(need*6/ballsLeft).toFixed(2):'—'}</b></span></div>`:'';
  let batColor=sumTeamColor(batName),bowlColor=sumTeamColor(bowlName);if(batColor===bowlColor)batColor="marvel";
- const focus=sumFocusTeam(data),focusBatting=focus.toLowerCase()===batName.toLowerCase();
- const opponent=focusBatting?bowlName:batName;
- const focusRole=focusBatting?'BATTING':'BOWLING';
- const opponentRole=focusBatting?'BOWLING':'BATTING';
- const focusColor=sumTeamColor(focus),opponentColor=sumTeamColor(opponent);
- modernRoot.innerHTML=`<div class="ms-shell ms-over ms-innings-${n}"><header class="ms-reference-header ms-focus-only"><div class="ms-reference-title ms-${focusColor}">${sumEsc(focus)} ${focusRole}</div></header><div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2>${chase}<div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div>${sumPowerplayTable(inn)}${wickets>0?sumFowTable(inn):''}</section></div></div>`;
+ modernRoot.innerHTML=`<div class="ms-shell ms-over ms-innings-${n}"><header class="ms-reference-header ms-focus-only"><div class="ms-reference-title ms-${batColor}">${sumEsc(batName)} INNINGS</div></header><div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2>${chase}<div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div>${sumPowerplayTable(inn)}${fow.length?sumFowTable(inn):''}</section></div></div>`;
 }
 function sumTopRows(people,kind){const sorted=people.slice().sort((a,b)=>kind==='bat'?statNum(b.runs)-statNum(a.runs):statNum(b.wickets)-statNum(a.wickets)||statNum(a.runs)-statNum(b.runs)).slice(0,3);
  return sorted.map(p=>{const nm=sumShortName(p.batter_name||p.bowler_name||p.player_name||fullName(p),80);const v=kind==='bat'?`${statNum(p.runs)} (${statNum(p.balls_faced??p.balls)})${sumNotOut(p)?'<b class="ms-star">*</b>':''}`:`${statNum(p.wickets)}/${statNum(p.runs)} (${sumEsc(p.overs??p.overs_bowled??'0.0')})`;return `<div class="ms-top-row"><span class="ms-final-player" title="${sumEsc(nm)}">${sumEsc(nm)}</span><strong>${v}</strong></div>`;}).join('')||'<div class="ms-empty">Statistics pending</div>';
@@ -2847,16 +2862,16 @@ function updateSummary(data){
   renderModernFinal(data);modernShow(true);return;
  }
  if(summaryPreview==='first'||summaryPreview==='second'){renderModernOver(data,summaryPreview==='first'?1:2);modernShow(true);return;}
- if(!showOverSummary||!summaryEnabled){modernShow(false);return;}
- if(phase==='innings'){modernShow(false);return;}
  const n=secondInningsStarted(data)?2:1;
- if(overSummaryInnings!=='both'&&overSummaryInnings!==(n===1?'first':'second')){modernShow(false);return;}
- const inn=sumInning(data,n),over=String(inn.overs??'');const key=String(data.match?.match_id??matchId)+':'+n+':'+over;
- const completed=/^[1-9]\d*\.0$/.test(over);
- // Never replay a historical over on the first successful live snapshot.
- if(overBaseline===null){overBaseline=key;modernShow(false);return;}
- if(key!==overBaseline){overBaseline=key;if(completed&&phase!=='match'){lastFullSummaryOver=key;fullSummaryUntil=Date.now()+overSummaryDuration;}}
- if(lastFullSummaryOver===key&&Date.now()<fullSummaryUntil){renderModernOver(data,n);modernShow(true);}else modernShow(false);
+ // Keep tracking even when summaries are disabled so enabling won't replay old overs.
+ const confirmed=confirmedCompletedOvers(data,n);
+ if(!showOverSummary||!summaryEnabled||overSummaryInnings!=='both'&&overSummaryInnings!==(n===1?'first':'second')){modernShow(false);return;}
+ if(confirmed.length){
+  lastFullSummaryOver=confirmed.at(-1).key;
+  fullSummaryUntil=Date.now()+overSummaryDuration;
+ }
+ if(lastFullSummaryOver&&Date.now()<fullSummaryUntil){renderModernOver(data,n);modernShow(true);}
+ else modernShow(false);
 }
 
 let refreshTimer=null;
@@ -3280,7 +3295,7 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
  gap:9px!important;padding:0 5px!important;
 }
 #cricbayModernSummary .ms-over .ms-reference-header>div{
- font-size:clamp(13px,1.8vw,26px)!important;
+ font-size:clamp(19px,2.7vw,38px)!important;
 }
 #cricbayModernSummary .ms-over .ms-reference-header>.ms-reference-title.ms-other{
  border-color:#38aaff!important;
@@ -3298,7 +3313,7 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
  #cricbayModernSummary .ms-over .ms-name small{font-size:.72em!important}
  #cricbayModernSummary .ms-over .ms-card>h2{min-height:23px!important;padding:3px 6px!important}
  #cricbayModernSummary .ms-over .ms-reference-header{height:34px!important;flex-basis:34px!important}
- #cricbayModernSummary .ms-over .ms-reference-header>div{font-size:clamp(11px,1.45vw,18px)!important}
+ #cricbayModernSummary .ms-over .ms-reference-header>div{font-size:clamp(16px,2.1vw,27px)!important}
 }
 </style>
 
