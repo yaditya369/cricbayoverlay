@@ -1038,6 +1038,33 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  #playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}
 }
 </style>
+
+<style id="v35-bowling-rows-no-collapse">
+/* Bowling figures must retain one readable line per player. The prior
+   flex column allowed its children to shrink to almost zero height. */
+#cricbayModernSummary .ms-over .ms-bowl-body{
+  flex:0 0 auto!important;min-height:0!important;height:auto!important;
+  overflow:visible!important;display:flex!important;flex-direction:column!important;
+}
+#cricbayModernSummary .ms-over .ms-bowl-body>.ms-bowl-row{
+  flex:0 0 auto!important;min-height:19px!important;height:auto!important;
+  padding:2px 6px!important;line-height:1.2!important;
+  display:grid!important;align-items:center!important;
+}
+#cricbayModernSummary .ms-over .ms-bowl-body>.ms-bowl-row>.ms-name{
+  display:block!important;min-width:0!important;white-space:nowrap!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;
+}
+#cricbayModernSummary .ms-over .ms-card:has(>.ms-bowl-body){
+  height:auto!important;min-height:max-content!important;
+}
+#cricbayModernSummary .ms-over .ms-card:has(>.ms-bowl-body)>.ms-pp-section{
+  flex:0 0 auto!important;position:relative!important;
+}
+@media(max-height:500px){
+ #cricbayModernSummary .ms-over .ms-bowl-body>.ms-bowl-row{min-height:17px!important;padding:1px 5px!important;font-size:clamp(9px,.9vw,12px)!important}
+}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1123,6 +1150,11 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:11px;line-height:1.12;white-space:nowrap}#playerIntro .profile-pom strong{font-size:18px}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
+/* v34: consistent award typography, POM left inset and readable full bowler names. */
+#playerIntro .profile-awards-row{grid-template-columns:21% minmax(0,79%);padding-left:3px}
+#playerIntro .profile-pom{padding-left:0;padding-right:5px}
+#playerIntro .profile-achievement-entry{font-size:11px!important;font-weight:500!important;line-height:1.12!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+@media(max-height:480px){#playerIntro .profile-awards-row{padding-left:2px}#playerIntro .profile-achievement-entry{font-size:11px!important}}
 </style>
 <script>
 (() => {
@@ -1453,7 +1485,11 @@ function enqueuePlayerPreload(item){
 }
 function profileNameFromApi(profile,fallback){
  const p=Array.isArray(profile)?profile[0]:profile;
- return [p?.player_name,p?.full_name,p?.name,[p?.first_name,p?.last_name].filter(Boolean).join(' ')].find(v=>typeof v==='string'&&v.trim())||fallback;
+ // Prefer the scorecard's full on-field name when the profile API only supplies initials.
+ const candidates=[fallback,p?.full_name,[p?.first_name,p?.last_name].filter(Boolean).join(' '),p?.player_name,p?.name]
+  .filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim());
+ const complete=candidates.find(v=>v.includes(' ')&&!/(?:^|\s)[A-Za-z]\.?($|\s)/.test(v));
+ return complete||candidates.sort((a,b)=>b.length-a.length)[0]||'—';
 }
 const battingProfileHeadings=["THE STAGE IS SET","ENTER THE BATTER","READY FOR BATTLE","THE NEXT WARRIOR","THE RUN MACHINE","THE BATTERY IS CHARGED","TIME TO DOMINATE","THE NEW CONTENDER","THE BAT SPEAKS","LET THE BAT TALK","THE POWER ARRIVES","A NEW FORCE","THE BATTLE CONTINUES","THE SPOTLIGHT IS ON","READY TO UNLEASH","THE CREASE AWAITS","THE NEXT BIG HIT","THE GAME IS ON","THE HERO STEPS IN","BRING ON THE POWER"];
 const bowlingProfileHeadings=["THE HUNT BEGINS","ENTER THE BOWLER","READY TO STRIKE","THE NEXT DESTROYER","THE WICKET HUNTER","THE ATTACK IS LOADED","TIME TO DELIVER","THE NEW CHALLENGER","THE BALL ROARS","LET THE BALL TALK","THE STORM ARRIVES","A NEW THREAT","THE ATTACK CONTINUES","THE PRESSURE IS ON","READY TO ATTACK","THE WICKET AWAITS","THE NEXT BIG BREAKTHROUGH","THE GAME IS ON","THE WARRIOR STEPS UP","BRING ON THE HEAT"];
@@ -1560,7 +1596,7 @@ function renderProfile(item,data){
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ').replace(/wicket[\s-]*keeper/gi,'WK');
   list.children[index<3?0:1].append(el);
-  el.style.fontSize='inherit';
+  // Keep every achievement at the same font size; CSS handles overflow consistently.
  }
  if(awards.length>6){const note=document.createElement('span');note.className='profile-achievement-note';note.textContent=`6 of ${awards.length} achievements`;heading.append(note);}
  const shell=panel.querySelector('.profile-shell');
@@ -1572,15 +1608,7 @@ function renderProfile(item,data){
   if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');if(awards.length>4)row.classList.add('two-column-achievements');}
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
-  requestAnimationFrame(()=>{
-   for(const entry of list.querySelectorAll('.profile-achievement-entry')){
-    const column=entry.parentElement;
-    if(!column||!column.clientWidth)continue;
-    const available=column.clientWidth;
-    let size=parseFloat(getComputedStyle(entry).fontSize)||10;
-    while(entry.scrollWidth>available&&size>9){size-=.25;entry.style.fontSize=size+'px';}
-   }
-  });
+
  }
 }
 async function drainProfiles(){
@@ -1608,11 +1636,40 @@ async function drainProfiles(){
   setTimeout(drainProfiles,200);
  },profileDuration);
 }
+// Incoming batters are resolved from the scorecard belonging to the current
+// batting team's innings ID, never from a hardcoded inning1/inning2 path.
+const yetToBatHistory=new Map();
+function activeBattingScorecard(data){
+ const currentId=String(data?.match?.current_inning_id??'');
+ if(!currentId)return null;
+ const entries=Object.entries(data?.innings||{}).filter(([,v])=>v&&typeof v==='object'&&v.inning_id!=null);
+ const found=entries.find(([,v])=>String(v.inning_id)===currentId);
+ return found?{key:found[0],inning:found[1],scorecard:found[1].scorecard||{},id:currentId}:null;
+}
+function playerIdFromYetToBat(p){
+ const id=p?.player_id??p?.playerId??p?.batter_id??p?.player?.player_id??p?.player?.id;
+ return id!=null&&/^\d+$/.test(String(id))?String(id):null;
+}
+function trackYetToBat(data){
+ const active=activeBattingScorecard(data);
+ if(!active)return new Set();
+ const list=active.scorecard.yet_to_bat_list;
+ if(!Array.isArray(list))return new Set(); // Missing data must not clear the baseline.
+ const matchKey=String(data.match?.match_id??matchId);
+ const key=matchKey+':'+active.id;
+ const current=new Set(list.map(playerIdFromYetToBat).filter(Boolean));
+ const previous=yetToBatHistory.get(key);
+ yetToBatHistory.set(key,current);
+ if(!previous)return new Set(); // Never announce historical players on first load.
+ return new Set([...previous].filter(id=>!current.has(id)));
+}
 function trackProfiles(data){
  if(playerPreviewMode)return;
  if(superOverPhase(data)||getMatchPhase(data)==='match')return;
- const c=data.current||{},inning=String(data.match?.current_inning_id??'');
+ const c=data.current||{},active=activeBattingScorecard(data);
+ const inning=active?.id||String(data.match?.current_inning_id??'');
  if(!inning)return;
+ trackYetToBat(data);
  const candidates=[['batting',c.batter1],['batting',c.batter2],['bowling',c.current_bowler]];
  const items=candidates.filter(([,p])=>p&&p.player_id!=null).map(([role,p])=>({role,id:String(p.player_id),name:fullName(p),snapshot:p,inning,team:role==='batting'?$('batTeam').textContent:$('bowlTeam').textContent,tournament:data.match?.tournament_id??data.match?.tournament?.id??q.get('tournamentId')??'',tournamentName:data.match?.tournament_name??data.match?.tournament??''}));
  // Warm the player cache even for initial players, without showing a card on initial load.
@@ -1621,7 +1678,15 @@ function trackProfiles(data){
   if(!items.length)return;
   items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;
  }
- for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;profileSeen.add(key);if(showPlayerProfile)profileQueue.push(item);
+ for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;
+  // A new batter is confirmed by the current on-field scorecard. If the
+  // yet-to-bat list is available, require that the player has left that list
+  // (or was already absent on the previous poll, e.g. scorer updated late).
+  if(item.role==='batting'&&active&&Array.isArray(active.scorecard.yet_to_bat_list)){
+   const remaining=yetToBatHistory.get(String(data.match?.match_id??matchId)+':'+active.id);
+   if(remaining?.has(item.id))continue;
+  }
+  profileSeen.add(key);if(showPlayerProfile)profileQueue.push(item);
   void fetchMissingPlayerApis(item).catch(console.warn);}
  if(showPlayerProfile)drainProfiles();
 }
@@ -1796,6 +1861,16 @@ const set=(id,value)=>$(id).textContent=String(value??'—');
 // Reset when the active innings changes, without animating the initial snapshot.
 let thisOverSeen=null;
 let thisOverInnings=null;
+function isActualWicket(value){
+ if(value===true||value===1)return true;
+ if(value===false||value===0||value==null)return false;
+ if(typeof value==='string'){
+  const v=value.trim().toLowerCase();
+  return !['','0','false','no','n','null','undefined','none'].includes(v);
+ }
+ if(typeof value==='number')return value>0;
+ return false;
+}
 function normalizeBall(b){
  const n=number(b.runs),w=number(b.wides),nb=number(b.noballs),by=number(b.byes),lb=number(b.legbyes),pen=number(b.penalty_runs);
  let label=n===0?'●':String(n),kind=n===0?'dot':'';
@@ -1806,7 +1881,7 @@ function normalizeBall(b){
  else if(by){label='B'+(by>1?by:'');kind='extra';}
  else if(lb){label='LB'+(lb>1?lb:'');kind='extra';}
  else if(pen){label='P'+pen;kind='extra';}
- if(b.wicket){label='W';kind='wicket';}
+ if(isActualWicket(b.wicket)){label='W';kind='wicket';}
  else if(!w&&!nb&&!by&&!lb&&n===4){kind='four';label='4';}
  else if(!w&&!nb&&!by&&!lb&&n===6){kind='six';label='6';}
  return {label,kind,id:String(b.live_score_id??[b.over_number,b.ball_number,b.ball_count,b.commentary_type,b.runs,b.wicket].join(':'))};
@@ -1819,7 +1894,7 @@ function allDeliveries(data){
    const runs=number(b.runs),noBalls=number(b.noballs),wides=number(b.wides);
    // Boundary runs off a no-ball are still FOUR/SIX events (N+4 / N+6).
    // Wides, byes and leg-byes must not be mistaken for bat boundaries.
-   const batBoundary=!b.wicket&&!wides&&!number(b.byes)&&!number(b.legbyes)&&
+   const batBoundary=!isActualWicket(b.wicket)&&!wides&&!number(b.byes)&&!number(b.legbyes)&&
      (runs===4||runs===6)?(runs===4?'four':'six'):null;
    return {...normalized,kind:batBoundary||normalized.kind,
     over:number(b.over_number??o.over_number),ball:number(b.ball_number),
