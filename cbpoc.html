@@ -1387,7 +1387,7 @@ const milestoneShown=new Set();
 const milestoneThresholds=[25,50,75,100,150,200,250,300];
 const milestoneQueue=[];
 // Player introductions: tournament list resolved once per page load, shared by all players.
-const showPlayerProfile=q.get('showPlayerProfile')==='1';
+const showPlayerProfile=q.get('showPlayerProfile')!=='0'&&q.get('showPlayerProfile')!=='false';
 const previewPlayerId=(q.get('playerId')||'').trim();
 const previewRole=(q.get('profileRole')||'batting').toLowerCase();
 const playerPreviewMode=/^\d+$/.test(previewPlayerId)&&['batting','bowling'].includes(previewRole);
@@ -2233,9 +2233,7 @@ function splitInningsFooter(data){
  if(activeA&&!secondSegmentA){
   const balls=aOver??0;
   if(balls<=0||!Number.isFinite(aRuns))return '';
-  const fullOvers=Number(m.max_overs??m.maximum_overs);
-  if(!Number.isFinite(fullOvers)||fullOvers<=0)return '';
-  return `Projected Score ${Math.round(aRuns*fullOvers*6/balls)}`;
+  return `Projected Score ${Math.round(aRuns*split*6/balls)}`;
  }
  // Phases 2 and 3: compare cumulative totals, never segment-only runs.
  const battingRuns=activeA?aRuns:bRuns,opponentRuns=activeA?bRuns:aRuns;
@@ -2422,8 +2420,7 @@ function render(data){
   }else footer=firstInningsProjection(data)||[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
  }
  set('message',footer);
- const currentStand=footerPartnership(data);
- set('partnership',currentStand?`PARTNERSHIP ${currentStand}`:'');
+ set('partnership',footerPartnership(data));
 }
 
 // Result is authoritative when CricBay publishes it; otherwise avoid declaring
@@ -2711,29 +2708,6 @@ function checkLifecycle(data){
 }
 // New summaries are isolated from the preserved legacy summary markup and renderer.
 let lastFullSummaryOver='', fullSummaryUntil=0, overBaseline=null, modernVisible=false;
-// An over is confirmed only after the following over begins (or innings ends).
-// This deliberately avoids treating a wide/no-ball displayed as x.6 as legal.
-const confirmedSummaryOvers=new Set();
-let priorSummaryBalls=new Map();
-function confirmedCompletedOvers(data,n){
- const inn=sumInning(data,n),id=String(data.match?.match_id??matchId)+':'+String(inn.inning_id??n);
- const active=String(data.match?.current_inning_id??'')===String(inn.inning_id??'');
- const balls=inningsBalls(active?(data.current?.over??inn.overs):inn.overs);
- if(balls===null)return [];
- const previous=priorSummaryBalls.get(id);
- priorSummaryBalls.set(id,balls);
- if(previous===undefined||balls<=previous)return [];
- // At x.6 the delivery may still be an illegal ball. Wait for x+1.1.
- // A completed innings is authoritative, including the final x.6 delivery.
- const completed= Math.floor(Math.max(0,balls-1)/6);
- const prevCompleted=Math.floor(Math.max(0,previous-1)/6);
- const result=[];
- for(let over=prevCompleted+1;over<=completed;over++){
-  const key=id+':'+over;
-  if(!confirmedSummaryOvers.has(key)){confirmedSummaryOvers.add(key);result.push({key,over});}
- }
- return result;
-}
 const modernRoot=document.createElement('section');
 modernRoot.id='cricbayModernSummary';modernRoot.setAttribute('aria-label','CricBay modern match summary');
 document.body.append(modernRoot);
@@ -2771,7 +2745,7 @@ function sumFow(inn){
   const wicket=x.wicket_number??x.wicket_no??x.wicket??(i+1);
   const score=x.score??x.runs??x.team_score??x.total_runs;
   const name=x.batter_name??x.batsman_name??x.player_name??x.name??'';
-  const over=x.over??x.overs??x.over_number;
+  const over=x.overs_played??x.over??x.overs??x.over_number;
   return score==null?'':`${wicket}-${score}${name?' ('+name+(over!=null?', '+over+' ov':'')+')':(over!=null?' ('+over+' ov)':'')}`;
  }).filter(Boolean);
 }
@@ -2802,18 +2776,31 @@ function sumTeamBadge(name,variant,team){
  return `<div class="ms-team-identity ms-${variant}" aria-label="${sumEsc(clean)}"><span class="ms-team-label">${sumEsc(clean)}</span></div>`;
 }
 function sumPowerplayOvers(inn){
- // CricBay: innings.inningN.scorecard.power_play_overs.
- // power_play_number is the sequence; power_play_over_number is the actual over.
- const records=inn?.scorecard?.power_play_overs;
- if(!Array.isArray(records))return [];
- return records.filter(o=>o&&['BAPP','BOPP'].includes(String(o.power_play_type||'').toUpperCase()))
-  .slice().sort((a,b)=>Number(a.power_play_over_number)-Number(b.power_play_over_number));
+ // Use only explicitly tagged CricBay BAPP/BOPP overs. Do not infer powerplays.
+ const sc=inn?.scorecard||{};
+ const candidates=[sc.powerplay_overs,sc.power_play_overs,sc.powerplayOvers,sc.powerplay_overs_list,inn?.powerplay_overs,inn?.power_play_overs,inn?.powerplayOvers,sc.powerplay_overs_list,sc.power_play_details,sc.powerplay_details,sc.overs,sc.over_summaries,inn?.overs_list,inn?.over_summaries,inn?.recent_overs];
+ const raw=candidates.flatMap(v=>Array.isArray(v)?v:(v&&typeof v==='object'&&Array.isArray(v.overs)?v.overs:[]));
+ const seen=new Set();
+ return raw.filter(o=>{
+  const type=String(o?.power_play_type??o?.powerplay_type??o?.powerplayType??o?.type??'').toUpperCase();
+  if(type!=='BAPP'&&type!=='BOPP')return false;
+  const num=o?.power_play_over_number??o?.over_number??o?.over_no??o?.over_num??o?.over;
+  if(num==null||!Number.isFinite(Number(num))||seen.has(String(num)))return false;
+  seen.add(String(num));return true;
+ }).sort((a,b)=>Number(a.power_play_over_number??a.over_number??a.over_no??a.over_num??a.over)-Number(b.power_play_over_number??b.over_number??b.over_no??b.over_num??b.over));
 }
 function sumPowerplayTable(inn){
  const overs=sumPowerplayOvers(inn);
  if(!overs.length)return '';
- const cell=v=>v==null?'—':sumEsc(String(v));
- const rows=overs.map(o=>`<div class="ms-pp-row"><span>${cell(o.power_play_over_number)}</span><span>${cell(o.runs)}</span><span>${cell(o.wickets)}</span><span class="ms-pp-bowler" title="${cell(o.bowler_name)}">${cell(o.bowler_name)}</span><span>${cell(String(o.power_play_type).toUpperCase())}</span></div>`).join('');
+ const cell=(v)=>v==null?'—':sumEsc(String(v));
+ const rows=overs.map(o=>{
+  const num=o.power_play_over_number??o.over_number??o.over_no??o.over_num??o.over;
+  const runs=o.runs??o.total_runs??o.runs_scored;
+  const wickets=o.wickets??o.total_wickets??o.wickets_fallen;
+  const bowler=o.bowler_name??o.bowled_by??o.bowler?.name??o.bowler?.player_name;
+  const type=o.power_play_type??o.powerplay_type??o.powerplayType??o.type;
+  return `<div class="ms-pp-row"><span>${cell(num)}</span><span>${cell(runs)}</span><span>${cell(wickets)}</span><span class="ms-pp-bowler" title="${cell(bowler)}">${cell(bowler)}</span><span>${cell(String(type).toUpperCase())}</span></div>`;
+ }).join('');
  return `<section class="ms-pp-section"><h3>POWERPLAY OVERS</h3><div class="ms-pp-row ms-pp-th"><span>O#</span><span>R</span><span>W</span><span>BOWLED BY</span><span>TYPE</span></div>${rows}</section>`;
 }
 function sumFowTable(inn){
@@ -2862,16 +2849,26 @@ function updateSummary(data){
   renderModernFinal(data);modernShow(true);return;
  }
  if(summaryPreview==='first'||summaryPreview==='second'){renderModernOver(data,summaryPreview==='first'?1:2);modernShow(true);return;}
+ if(!showOverSummary||!summaryEnabled){modernShow(false);return;}
+ if(phase==='innings'){modernShow(false);return;}
  const n=secondInningsStarted(data)?2:1;
- // Keep tracking even when summaries are disabled so enabling won't replay old overs.
- const confirmed=confirmedCompletedOvers(data,n);
- if(!showOverSummary||!summaryEnabled||overSummaryInnings!=='both'&&overSummaryInnings!==(n===1?'first':'second')){modernShow(false);return;}
- if(confirmed.length){
-  lastFullSummaryOver=confirmed.at(-1).key;
-  fullSummaryUntil=Date.now()+overSummaryDuration;
+ if(overSummaryInnings!=='both'&&overSummaryInnings!==(n===1?'first':'second')){modernShow(false);return;}
+ const inn=sumInning(data,n),over=String(inn.overs??'');const key=String(data.match?.match_id??matchId)+':'+n+':'+over;
+ // A completed over may be skipped between 5-second API polls.
+ // Detect progression across the over boundary, not just an exact N.0 snapshot.
+ const currentBalls=inningsBalls(over);
+ // Never replay a historical over on the first successful live snapshot.
+ if(overBaseline===null){overBaseline=key;modernShow(false);return;}
+ if(key!==overBaseline){
+  const prior=overBaseline.split(':');
+  const priorBalls=inningsBalls(prior.at(-1));
+  const sameInning=prior.slice(0,-1).join(':')===key.split(':').slice(0,-1).join(':');
+  if(sameInning&&priorBalls!==null&&currentBalls!==null&&currentBalls>priorBalls&&Math.floor(currentBalls/6)>Math.floor(priorBalls/6)&&phase!=='match'){
+   lastFullSummaryOver=key;fullSummaryUntil=Date.now()+overSummaryDuration;
+  }
+  overBaseline=key;
  }
- if(lastFullSummaryOver&&Date.now()<fullSummaryUntil){renderModernOver(data,n);modernShow(true);}
- else modernShow(false);
+ if(Date.now()<fullSummaryUntil&&lastFullSummaryOver&&lastFullSummaryOver.split(':').slice(0,-1).join(':')===key.split(':').slice(0,-1).join(':')){renderModernOver(data,n);modernShow(true);}else modernShow(false);
 }
 
 let refreshTimer=null;
