@@ -276,30 +276,6 @@ body.player-profile-preview #playerIntro{z-index:9999!important}
 body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #ffffff40}
 .profile-achievement-note{font-size:clamp(9px,1vw,12px);font-style:italic;opacity:.82;margin-top:3px;text-align:right}
 
-/* Eight awards: four rows per column, using the right-side free space. */
-#playerIntro .profile-awards-row.pom-and-achievements.two-column-achievements{grid-template-columns:19% minmax(0,81%)}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list,
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- column-gap:14px;align-content:center;align-items:start;
- padding:0 12px;box-sizing:border-box;overflow:hidden;max-height:100%;
- font-size:clamp(7px,.83vw,11px);line-height:1.12;
-}
-#playerIntro .profile-awards-row .profile-achievement-column{min-width:0;display:flex;flex-direction:column;gap:2px;justify-content:center}
-#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{
- margin:0;line-height:1.15;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry:before{margin-right:5px}
-#playerIntro .profile-awards-row .profile-achievement-note{
- grid-column:1/-1;text-align:right;font-size:clamp(7px,.75vw,10px);
- line-height:1.1;color:#ffd18d;margin:2px 0 0;
-}
-#playerIntro .profile-awards-row .profile-achievement-note:before{content:none}
-#playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list{
- display:block;
-}
-#playerIntro .profile-awards-row.pom-and-achievements:not(.two-column-achievements) .profile-awards-list .profile-achievement-column{gap:2px}
-
 /* Shared footer partnership: same left inset as the credit's right inset. */
 .overlay .bottom .partnership{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;pointer-events:none}
 .overlay .bottom .message{max-width:calc(100% - 310px)}
@@ -1062,43 +1038,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  #playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}
 }
 </style>
-<style>
-/* Final override: animate the entire profile and each populated panel with left-to-right fade. */
-#playerIntro.visible{animation:profile-slide-from-left .58s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-kicker,#playerIntro.visible .profile-name,
-#playerIntro.visible .profile-stat-group{animation:profile-text-follow .43s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-kicker{animation-delay:.04s!important}
-#playerIntro.visible .profile-name{animation-delay:.07s!important}
-#playerIntro.visible .profile-stat-group:not(.career):not(.awards){animation-delay:.09s!important}
-#playerIntro.visible .profile-stat-group.career{animation-delay:.12s!important}
-#playerIntro.visible .profile-stat-group.awards{animation-delay:.15s!important}
-#playerIntro.visible .profile-stat-heading,#playerIntro.visible .profile-stat,
-#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{
- animation:profile-text-follow .36s ease-out both!important;
-}
-#playerIntro.visible .profile-stat-heading{animation-delay:.12s!important}
-#playerIntro.visible .profile-stat{animation-delay:.17s!important}
-#playerIntro.visible .career .profile-stat{animation-delay:.20s!important}
-#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{animation-delay:.23s!important}
-@keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 155px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
-@keyframes profile-text-follow{from{opacity:0;transform:translateX(-42px)}to{opacity:1;transform:translateX(0)}}
-@media(prefers-reduced-motion:reduce){#playerIntro.visible,#playerIntro.visible *{animation-duration:1ms!important;animation-delay:0ms!important}}
-</style><style>
-/* Refined entrance: slightly slower, shorter text travel, no line wrapping. */
-#playerIntro.visible{animation:profile-slide-from-left .78s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-kicker,#playerIntro.visible .profile-name,#playerIntro.visible .profile-stat-group{animation:profile-text-follow .58s cubic-bezier(.18,.8,.22,1) both!important}
-#playerIntro.visible .profile-stat-heading,#playerIntro.visible .profile-stat,#playerIntro.visible .profile-pom,#playerIntro.visible .profile-achievement-entry{animation:profile-text-follow .49s ease-out both!important}
-@keyframes profile-slide-from-left{from{opacity:0;transform:translate(calc(-50% - 115px),-50%)}to{opacity:1;transform:translate(-50%,-50%)}}
-@keyframes profile-text-follow{from{opacity:0;transform:translateX(-13px)}to{opacity:1;transform:translateX(0)}}
-#playerIntro .profile-awards-row .profile-achievement-column .profile-achievement-entry{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;word-break:normal!important}
-#playerIntro .profile-awards-row .profile-achievement-column{overflow:visible;min-width:0}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{overflow:visible}
-</style><style>
-/* Readable player name: normal-width bold type, single line, no condensed scaling. */
-#playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-stretch:normal!important;font-style:normal!important;font-weight:900!important;font-size:clamp(23px,2.5vw,35px)!important;letter-spacing:.35px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:96%!important;transform-origin:left center!important;text-shadow:0 2px 4px rgba(0,0,0,.85)!important;}
-#playerIntro.visible .profile-name{animation-name:profile-name-readable-in!important;}
-@keyframes profile-name-readable-in{from{opacity:0;translate:-12px 0}to{opacity:1;translate:0 0}}
-</style></head><style id="v42-bold-players-and-deliveries">
+</head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
 </style>
@@ -1151,17 +1091,17 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 </svg><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center" aria-hidden="true"><div class="broadcast-final" id="broadcastFinal">FINAL</div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
 <style id="player-profile-layout">
 /* Single authoritative player-profile layout. No additive corrective overrides. */
-#playerIntro{display:none;position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
-#playerIntro.visible{display:block;animation:profile-enter 650ms cubic-bezier(.22,1,.36,1) both}
-#playerIntro .profile-shell{position:relative;width:100%;height:min(435px,76vh);display:flex;flex-direction:column;box-sizing:border-box;padding:32px 23px 12px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-alpha,.85)),rgba(90,0,12,var(--profile-alpha,.85)) 4%,rgba(46,0,5,var(--profile-alpha,.85)) 95%,rgba(255,138,155,var(--profile-alpha,.85)));box-shadow:0 12px 35px #000a}
+#playerIntro{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
+#playerIntro.visible{display:block;animation:profile-enter 1000ms cubic-bezier(.22,1,.36,1) both}
+#playerIntro .profile-shell{position:relative;width:100%;height:342px;display:flex;flex-direction:column;box-sizing:border-box;padding:29px 23px 12px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-shell-alpha,.85)),rgba(90,0,12,var(--profile-shell-alpha,.85)) 4%,rgba(46,0,5,var(--profile-shell-alpha,.85)) 95%,rgba(255,138,155,var(--profile-shell-alpha,.85)));box-shadow:0 12px 35px #000a}
 #playerIntro .profile-shell:before{content:'';position:absolute;inset:6px;border:1px solid #e5485a;pointer-events:none;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%)}
 #playerIntro .profile-kicker{position:absolute;left:2.3%;top:0;width:34%;height:29px;display:flex;align-items:center;padding:0 19px;box-sizing:border-box;background:linear-gradient(#ff5b6a,#a40819 65%,#510007);border:1px solid #ffb1b8;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);font:900 18px/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;white-space:nowrap;text-shadow:1px 1px #220006}
-#playerIntro .profile-name{display:block;flex:0 0 auto;margin:1px 0 0 9px;padding:0;min-height:0;font:900 23px/1.12 Arial,Helvetica,sans-serif;letter-spacing:0;font-stretch:normal;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 2px #270005}
+#playerIntro .profile-name{display:block;flex:0 0 auto;margin:7px 0 0 9px;padding:0;min-height:0;font:900 23px/1.12 Arial,Helvetica,sans-serif;letter-spacing:0;font-stretch:normal;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 2px #270005}
 #playerIntro .profile-team{display:none}
-#playerIntro .profile-stats{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:10px;margin-top:8px;justify-content:stretch}
-#playerIntro .profile-stat-group{position:relative;display:flex;flex-direction:column;flex:0 0 86px;min-height:0;width:100%;overflow:hidden;box-sizing:border-box;border:1px solid #77b9f5;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)),rgba(0,30,51,var(--profile-alpha,.85)))}
-#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)),rgba(0,47,35,var(--profile-alpha,.85)))}
-#playerIntro .profile-stat-group.awards{flex:0 0 126px;border-color:#ffb45b;background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)),rgba(43,20,2,var(--profile-alpha,.85)) 50%,rgba(37,18,3,var(--profile-alpha,.85)))}
+#playerIntro .profile-stats{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:18px;margin-top:7px;justify-content:stretch}
+#playerIntro .profile-stat-group{position:relative;display:flex;flex-direction:column;flex:0 0 72px;min-height:0;width:100%;overflow:hidden;box-sizing:border-box;border:1px solid #77b9f5;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);background:linear-gradient(180deg,rgba(0,96,180,var(--profile-section-alpha,.85)),rgba(0,30,51,var(--profile-section-alpha,.85)))}
+#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,rgba(0,157,98,var(--profile-section-alpha,.85)),rgba(0,47,35,var(--profile-section-alpha,.85)))}
+#playerIntro .profile-stat-group.awards{flex:0 0 75px;border-color:#ffb45b;background:linear-gradient(180deg,rgba(189,109,14,var(--profile-section-alpha,.85)),rgba(43,20,2,var(--profile-section-alpha,.85)) 50%,rgba(37,18,3,var(--profile-section-alpha,.85)))}
 #playerIntro .profile-stat-heading{display:flex;flex:0 0 23px;min-height:23px;align-items:center;box-sizing:border-box;padding:0 16px;margin:0;font:900 12px/1 Arial,Helvetica,sans-serif;letter-spacing:0;color:white;white-space:nowrap;text-shadow:1px 1px #111}
 #playerIntro .profile-stat-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr));align-items:stretch;padding:2px 7px 5px}
 #playerIntro .profile-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:3px;padding:0 3px;box-sizing:border-box;border:0;border-right:1px solid #b4c6d7a6;background:none;text-align:center}
@@ -1171,18 +1111,18 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-awards-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:23% minmax(0,77%);align-items:stretch;padding:2px 10px 6px}
 #playerIntro .profile-awards-row.achievements-only{grid-template-columns:minmax(0,1fr)}
 #playerIntro .profile-awards-row.pom-only{grid-template-columns:minmax(0,1fr)}
-#playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:1px solid #b5a58b;padding:0 6px;font:900 13px/1.2 Arial,Helvetica,sans-serif}
-#playerIntro .profile-pom strong{display:block;font:900 32px/1.1 Arial,Helvetica,sans-serif;color:#ffbd53}
-#playerIntro .profile-pom span{display:block;font:900 13px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center}
+#playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;border-right:1px solid #b5a58b;padding:2px 6px 0;font:900 13px/1.2 Arial,Helvetica,sans-serif}
+#playerIntro .profile-pom strong{display:block;font:900 23px/1.1 Arial,Helvetica,sans-serif;color:#ffbd53;text-align:center;width:100%}
+#playerIntro .profile-pom span{display:block;font:900 12px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center;width:100%}
 #playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:start;align-content:start;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px;text-align:left}
-#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));min-width:0;min-height:0;align-items:center;justify-items:start;text-align:left}
+#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));min-width:0;min-height:0;align-items:center;justify-items:start;text-align:left}
 #playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:400 12px/1.12 Arial,Helvetica,sans-serif;white-space:normal;overflow:hidden;overflow-wrap:break-word;text-align:left;width:100%}
 #playerIntro .profile-achievement-entry:before{content:'▪';color:#ffba35;margin-right:5px}
 #playerIntro .profile-achievement-note{margin-left:auto;font:400 10px Arial,Helvetica,sans-serif;text-align:right;color:#ffd18d;text-shadow:none}
-#playerIntro .profile-shell.no-awards{height:min(330px,62vh)}
+#playerIntro .profile-shell.no-awards{height:min(250px,62vh)}
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@media(max-height:480px){#playerIntro{top:44%;width:min(85vw,960px)}#playerIntro .profile-shell{height:min(292px,72vh);padding:29px 20px 10px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:6px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-shell.no-awards{height:min(265px,66vh)}}
+@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:10px;line-height:1.12}#playerIntro .profile-pom strong{font-size:18px}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
 </style>
 <script>
 (() => {
@@ -1614,18 +1554,15 @@ function renderProfile(item,data){
  };
  const awards=achievementEntries(achievementsRaw);
  const list=document.createElement('div');list.className='profile-awards-list';
- for(const [index,entry] of awards.slice(0,8).entries()){
-  if(index===4){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
+ for(const [index,entry] of awards.slice(0,6).entries()){
+  if(index===3){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
   if(index===0){const first=document.createElement('div');first.className='profile-achievement-column profile-achievement-column-one';list.append(first);}
   const el=document.createElement('div');el.className='profile-achievement-entry';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
-  list.children[index<4?0:1].append(el);
+  list.children[index<3?0:1].append(el);
   el.style.fontSize='inherit';
  }
- if(awards.length>8){
-  const note=document.createElement('div');note.className='profile-achievement-note';
-  note.textContent=`Showing 8 of ${awards.length} achievements`;list.append(note);
- }
+ if(awards.length>6)heading.textContent=`ACHIEVEMENTS & AWARDS · NOTABLE REWARDS (6 of ${awards.length})`;
  const shell=panel.querySelector('.profile-shell');
  if(shell)shell.classList.toggle('no-awards',pomCount===0&&awards.length===0);
  if(pomCount>0||awards.length){
@@ -2877,7 +2814,17 @@ function updateSummary(data){
  if(!showOverSummary||!summaryEnabled){modernShow(false);return;}
  const n=secondInningsStarted(data)?2:1;
  if(overSummaryInnings!=='both'&&overSummaryInnings!==(n===1?'first':'second')){modernShow(false);return;}
- const inn=sumInning(data,n),over=String(inn.overs??'');const key=String(data.match?.match_id??matchId)+':'+n+':'+over;
+ const inn=sumInning(data,n);
+ // The innings aggregate may lag the live delivery feed by one or more polls.
+ // Use the active inning's current.over when it is newer, preserving the
+ // aggregate as fallback and avoiding false transitions between stale values.
+ const activeInningId=data.match?.current_inning_id;
+ const currentIsThisInning=activeInningId!=null&&inn.inning_id!=null&&String(activeInningId)===String(inn.inning_id);
+ const aggregateBalls=inningsBalls(inn.overs);
+ const liveBalls=currentIsThisInning?inningsBalls(data.current?.over):null;
+ const observedBalls=Math.max(aggregateBalls??-1,liveBalls??-1);
+ const over=observedBalls>=0?`${Math.floor(observedBalls/6)}.${observedBalls%6}`:String(inn.overs??'');
+ const key=String(data.match?.match_id??matchId)+':'+n+':'+over;
  // A completed over may be skipped between 5-second API polls.
  // Detect progression across the over boundary, not just an exact N.0 snapshot.
  const currentBalls=inningsBalls(over);
