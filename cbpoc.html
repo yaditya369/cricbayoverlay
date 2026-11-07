@@ -2688,24 +2688,41 @@ function sumNextBat(inn,bat,data,n){
  // The playing XI is not necessarily in batting order. Do not guess a player from it.
  return 'TBD';
 }
+function sumTeamBadge(name,variant){
+ const clean=String(name||'TEAM').trim();
+ const letters=clean.split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
+ return `<div class="ms-team-identity ms-${variant}" aria-label="${sumEsc(clean)}"><div class="ms-team-emblem">${sumEsc(letters)}</div><span>${sumEsc(clean)}</span></div>`;
+}
+function sumTotalStrip(inn){
+ const t=inn?.scorecard?.total||{};
+ return `<div class="ms-total-strip"><span>EXTRAS <b>${sumEsc(sumExtras(inn))}</b></span><span>TOTAL <b>${sumEsc(sumScore(inn))}</b></span></div>`;
+}
 function renderModernOver(data,n){
- const inn=sumInning(data,n),batName=sumName(inn),other=sumInning(data,3-n),bowlName=sumName(other);const stats=sumStats(inn),bat=stats.batters,bowl=stats.bowlers;
+ const inn=sumInning(data,n),batName=sumName(inn),other=sumInning(data,3-n),bowlName=sumName(other);
+ const stats=sumStats(inn),bat=stats.batters,bowl=stats.bowlers;
  const fow=sumFow(inn),wickets=Number(inn.wickets??inn.scorecard?.total?.total_wickets??0);
  const target=Number(sumInning(data,1).score??sumInning(data,1).scorecard?.total?.total_runs??0)+1;
  const runs=Number(inn.score??inn.scorecard?.total?.total_runs??0);const overs=String(inn.overs??'0.0').split('.');
- const ballsBowled=Number(overs[0]||0)*6+Number(overs[1]||0);const maxOvers=Number(data.match?.max_overs??data.match?.maximum_overs??20);const ballsLeft=Math.max(0,maxOvers*6-ballsBowled);const need=Math.max(0,target-runs);
+ const ballsBowled=Number(overs[0]||0)*6+Number(overs[1]||0);
+ const maxOvers=Number(data.match?.max_overs??data.match?.maximum_overs??20);
+ const ballsLeft=Math.max(0,maxOvers*6-ballsBowled);const need=Math.max(0,target-runs);
  const nextBatter=sumNextBat(inn,bat,data,n);
- const chase=n===2?`<span>TARGET ${target}</span><span>NEED ${need}</span><span>BALLS ${ballsLeft}</span><span>RRR ${ballsLeft?(need*6/ballsLeft).toFixed(2):'—'}</span>`:'';
- const batColor=sumTeamColor(batName),bowlColor=sumTeamColor(bowlName);
- modernRoot.innerHTML=`<div class="ms-shell"><div class="ms-header"><span>${n===1?'FIRST':'SECOND'} INNINGS · END OF OVER</span><strong>${sumEsc(batName)} · ${sumEsc(sumScore(inn))}</strong><div class="ms-context">${chase}</div></div><div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} · BATTING</h2><div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${nextBatter?`<div class="ms-next">NEXT BATTER: ${sumEsc(nextBatter)}</div>`:""}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div><div class="ms-extras">EXTRAS <b>${sumEsc(sumExtras(inn))}</b></div>${wickets>0&&fow.length?`<div class="ms-fow">FALL OF WICKETS: ${sumEsc(fow.join(' · '))}</div>`:''}</section></div></div>`;
+ const chase=n===2?`<div class="ms-chase"><span>TARGET <b>${target}</b></span><span>NEED <b>${need}</b></span><span>BALLS <b>${ballsLeft}</b></span><span>RRR <b>${ballsLeft?(need*6/ballsLeft).toFixed(2):'—'}</b></span></div>`:'';
+ let batColor=sumTeamColor(batName),bowlColor=sumTeamColor(bowlName);if(batColor===bowlColor)batColor="marvel";
+ modernRoot.innerHTML=`<div class="ms-shell ms-over"><div class="ms-header ms-over-header">${sumTeamBadge(batName,batColor)}<div class="ms-title-block"><span>${n===1?'FIRST':'SECOND'} INNINGS · END OF OVER</span><strong>${sumEsc(sumScore(inn))}</strong></div>${sumTeamBadge(bowlName,bowlColor)}</div>${chase}<div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} · BATTING</h2><div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${wickets>0&&fow.length?`<div class="ms-fow">FALL OF WICKETS: ${sumEsc(fow.join(' · '))}</div>`:''}${nextBatter?`<div class="ms-next">NEXT BATTER: ${sumEsc(nextBatter)}</div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div></section></div></div>`;
 }
 function sumTopRows(people,kind){const sorted=people.slice().sort((a,b)=>kind==='bat'?statNum(b.runs)-statNum(a.runs):statNum(b.wickets)-statNum(a.wickets)||statNum(a.runs)-statNum(b.runs)).slice(0,3);
  return sorted.map(p=>{const nm=sumShortName(p.batter_name||p.bowler_name||p.player_name||fullName(p),28);const v=kind==='bat'?`${statNum(p.runs)} (${statNum(p.balls_faced??p.balls)})${sumNotOut(p)?'<b class="ms-star">*</b>':''}`:`${statNum(p.wickets)}/${statNum(p.runs)} (${sumEsc(p.overs??p.overs_bowled??'0.0')})`;return `<div class="ms-top-row"><span>${sumEsc(nm)}</span><strong>${v}</strong></div>`;}).join('')||'<div class="ms-empty">Statistics pending</div>';
 }
-function renderModernFinal(data){const inn1=sumInning(data,1),inn2=sumInning(data,2),innings=[inn1,inn2];
- const panels=innings.map((inn,i)=>{const other=innings[1-i],name=sumName(inn),bat=sumStats(inn).batters,bowl=sumStats(other).bowlers;
- return `<section class="ms-final-team ms-${sumTeamColor(name)}"><h2>${sumEsc(name)} <strong>${sumEsc(sumScore(inn))}</strong></h2><h3>TOP BATTERS</h3>${sumTopRows(bat,'bat')}<h3>TOP BOWLERS</h3>${sumTopRows(bowl,'bowl')}</section>`;}).join('');
- const pom=currentPom(data);modernRoot.innerHTML=`<div class="ms-shell ms-final"><div class="ms-header"><span>MATCH SUMMARY</span><strong>${sumEsc(getMatchResult(data)||'MATCH COMPLETED')}</strong></div><div class="ms-final-columns">${panels}</div>${pom?`<div class="ms-pom"><span>🏆 PLAYER OF THE MATCH</span><strong>${sumEsc(sumShortName(pom,42))}</strong></div>`:''}</div>`;
+function renderModernFinal(data){
+ const innings=[sumInning(data,1),sumInning(data,2)];
+ const panels=innings.map((inn,i)=>{
+  const other=innings[1-i],name=sumName(inn),bat=sumStats(inn).batters,bowl=sumStats(other).bowlers;
+  const tone=sumTeamColor(name)==="marvel"?"marvel":(innings.some(x=>sumTeamColor(sumName(x))==="marvel")?"other":(i===0?"marvel":"other"));
+  return `<section class="ms-final-team ms-${tone}"><div class="ms-final-team-head">${sumTeamBadge(name,tone)}<strong>${sumEsc(sumScore(inn))}</strong></div><h3>TOP BATTERS</h3>${sumTopRows(bat,'bat')}<h3>TOP BOWLERS</h3>${sumTopRows(bowl,'bowl')}</section>`;
+ }).join('');
+ const pom=currentPom(data);
+ modernRoot.innerHTML=`<div class="ms-shell ms-final"><div class="ms-header ms-final-header"><span>MATCH SUMMARY</span><strong>${sumEsc(getMatchResult(data)||'MATCH COMPLETED')}</strong></div><div class="ms-final-columns">${panels}</div>${pom?`<div class="ms-pom"><span>🏆 PLAYER OF THE MATCH</span><strong>${sumEsc(sumShortName(pom,42))}</strong></div>`:''}</div>`;
 }
 function modernShow(on){if(modernVisible===on)return;modernVisible=on;modernRoot.classList.toggle('ms-visible',on);document.body.classList.toggle('modern-summary-visible',on);if(on){$('summaryPanel').classList.remove('visible','broadcast-active','innings-full-active');document.body.classList.remove('broadcast-match-visible');}}
 function updateSummary(data){
@@ -2934,5 +2951,42 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
 @keyframes ms-card-arrive{from{opacity:0;transform:translateX(-35px)}to{opacity:1;transform:translateX(0)}}
 @media(max-height:480px){#cricbayModernSummary .ms-shell{height:min(82vh,380px)!important;}#cricbayModernSummary .ms-shell.ms-final{height:min(78vh,340px)!important;}#cricbayModernSummary .ms-bat-row,#cricbayModernSummary .ms-bowl-row{font-size:clamp(9px,1.05vw,13px)!important;padding:1px 6px!important;}#cricbayModernSummary .ms-header{padding:3px 10px!important;}#cricbayModernSummary .ms-next,#cricbayModernSummary .ms-extras{padding:2px 7px!important;}}
 @media(prefers-reduced-motion:reduce){#cricbayModernSummary.ms-visible .ms-shell,#cricbayModernSummary.ms-visible .ms-card,#cricbayModernSummary.ms-visible .ms-final-team{animation:none!important;}}
+</style>
+
+<style id="modern-summary-final-corrections">
+/* Compact broadcast scene. Logo placeholders use team initials because the snapshot has no team-logo URL. */
+#cricbayModernSummary{background:transparent!important;overflow:hidden!important}
+#cricbayModernSummary .ms-shell{width:min(85vw,1480px)!important;height:min(76vh,710px)!important;max-height:calc(100dvh - 20px)!important;overflow:hidden!important;gap:7px!important;filter:drop-shadow(0 8px 18px #000a)}
+#cricbayModernSummary .ms-shell.ms-final{height:min(69vh,550px)!important}
+#cricbayModernSummary .ms-over-header{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr)!important;align-items:center!important;min-height:66px!important;padding:5px 12px!important;gap:10px!important}
+#cricbayModernSummary .ms-title-block{text-align:center;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#cricbayModernSummary .ms-title-block>span{font-size:clamp(11px,1.25vw,18px);font-weight:900;white-space:nowrap;color:#fff}
+#cricbayModernSummary .ms-title-block>strong{font-size:clamp(20px,2.6vw,36px)!important;color:#ffdf70;white-space:nowrap}
+#cricbayModernSummary .ms-team-identity{display:flex;align-items:center;gap:8px;min-width:0;font-size:clamp(10px,1.25vw,18px);font-weight:900;letter-spacing:0;text-shadow:none;font-style:normal}
+#cricbayModernSummary .ms-over-header>.ms-team-identity:last-child{flex-direction:row-reverse;text-align:right}
+#cricbayModernSummary .ms-team-identity>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cricbayModernSummary .ms-team-emblem{width:clamp(36px,4.6vw,64px);height:clamp(36px,4.6vw,64px);flex:none;display:grid;place-items:center;clip-path:polygon(50% 0,91% 18%,100% 62%,50% 100%,0 62%,9% 18%);border:0;background:linear-gradient(135deg,#b22d3a,#25020a);color:#ffe6bd;font-size:clamp(12px,1.7vw,22px);font-weight:1000;box-shadow:inset 0 0 0 2px #f66}
+#cricbayModernSummary .ms-team-identity.ms-other .ms-team-emblem{background:linear-gradient(135deg,#1367b9,#051329);color:#dff4ff}
+#cricbayModernSummary .ms-chase{display:flex;justify-content:center;gap:clamp(10px,3vw,44px);padding:3px 8px;border:1px solid #e6b657;background:rgba(27,5,12,var(--sa));font-size:clamp(10px,1.2vw,16px);color:#ffe2a2}
+#cricbayModernSummary .ms-chase b{color:#fff;margin-left:5px}
+#cricbayModernSummary .ms-columns{grid-template-columns:minmax(0,1.27fr) minmax(0,.73fr)!important;gap:8px!important;flex:1;overflow:hidden}
+#cricbayModernSummary .ms-card{min-height:0;overflow:hidden!important}
+#cricbayModernSummary .ms-bat-body,#cricbayModernSummary .ms-bowl-body{flex:1;overflow:hidden!important;justify-content:flex-start}
+#cricbayModernSummary .ms-total-strip{margin-top:auto;display:flex;justify-content:space-between;gap:12px;padding:5px 9px;background:rgba(0,0,0,.38);border-top:1px solid var(--ms-line);font-weight:900;color:#ffe0a0;font-size:clamp(10px,1.05vw,15px)}
+#cricbayModernSummary .ms-total-strip b{color:#fff;margin-left:5px}
+#cricbayModernSummary .ms-next{margin-top:0!important}
+#cricbayModernSummary .ms-fow{margin-top:0!important}
+#cricbayModernSummary .ms-final-header{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 12px!important}
+#cricbayModernSummary .ms-final-header>span{font-size:clamp(12px,1.4vw,19px)!important}
+#cricbayModernSummary .ms-final-header>strong{font-size:clamp(15px,2.1vw,29px)!important;text-align:center}
+#cricbayModernSummary .ms-final-team-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 10px;border-bottom:2px solid var(--ms-line);min-height:53px;background:rgba(var(--ms-rgb),var(--sa))}
+#cricbayModernSummary .ms-final-team-head>strong{font-size:clamp(13px,1.55vw,22px);white-space:nowrap;color:#ffdf82}
+#cricbayModernSummary .ms-final-team-head .ms-team-emblem{width:36px;height:36px;font-size:13px}
+#cricbayModernSummary .ms-final-columns{min-height:0!important}
+#cricbayModernSummary .ms-final-team{display:flex;flex-direction:column}
+#cricbayModernSummary .ms-final-team h3{margin:7px 10px 3px!important}
+#cricbayModernSummary .ms-top-row{padding:5px 10px!important}
+#cricbayModernSummary.ms-visible .ms-shell{animation:ms-profile-arrive .52s cubic-bezier(.18,.8,.22,1) both}
+@media(max-height:500px){#cricbayModernSummary .ms-shell{height:min(82vh,400px)!important}#cricbayModernSummary .ms-shell.ms-final{height:min(76vh,370px)!important}#cricbayModernSummary .ms-over-header{min-height:48px!important;padding:2px 8px!important}#cricbayModernSummary .ms-team-emblem{width:34px;height:34px}#cricbayModernSummary .ms-title-block>strong{font-size:20px!important}#cricbayModernSummary .ms-bat-row,#cricbayModernSummary .ms-bowl-row{padding:1px 5px!important;font-size:clamp(9px,1vw,12px)!important}#cricbayModernSummary .ms-name small{line-height:1!important}#cricbayModernSummary .ms-total-strip{padding:2px 6px!important}#cricbayModernSummary .ms-final-team-head{min-height:42px;padding:3px 7px}#cricbayModernSummary .ms-top-row{padding:2px 8px!important}}
 </style>
 </body></html>
