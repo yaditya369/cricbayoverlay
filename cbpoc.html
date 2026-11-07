@@ -1098,42 +1098,6 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-name{font-family:Arial,Helvetica,sans-serif!important;font-stretch:normal!important;font-style:normal!important;font-weight:900!important;font-size:clamp(23px,2.5vw,35px)!important;letter-spacing:.35px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:96%!important;transform-origin:left center!important;text-shadow:0 2px 4px rgba(0,0,0,.85)!important;}
 #playerIntro.visible .profile-name{animation-name:profile-name-readable-in!important;}
 @keyframes profile-name-readable-in{from{opacity:0;translate:-12px 0}to{opacity:1;translate:0 0}}
-</style><style id="player-profile-typography-spacing-fix">
-/* Player intro only: readable full-width lettering and tighter awards alignment. */
-#playerIntro .profile-name{
- font-family:Arial,Helvetica,sans-serif!important;
- font-stretch:normal!important;font-style:normal!important;
- font-weight:900!important;font-size:clamp(25px,2.5vw,37px)!important;
- letter-spacing:.25px!important;line-height:1.2!important;
- white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
- width:calc(100% - 26px)!important;max-width:none!important;
- transform:none!important;scale:none!important;
-}
-#playerIntro .profile-pom strong{
- font-family:Arial,Helvetica,sans-serif!important;
- font-size:clamp(24px,2.5vw,36px)!important;
- font-weight:900!important;line-height:1.05!important;
-}
-#playerIntro .profile-pom span{
- font-family:Arial,Helvetica,sans-serif!important;
- font-size:clamp(12px,1.15vw,17px)!important;
- font-weight:900!important;letter-spacing:.15px!important;
- line-height:1.2!important;white-space:nowrap!important;
-}
-#playerIntro .profile-awards-row{align-items:start!important;padding-top:0!important;}
-#playerIntro .profile-awards-row .profile-pom{align-self:start!important;justify-content:flex-start!important;padding-top:6px!important;height:auto!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list,
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
- align-content:start!important;align-items:start!important;padding-top:3px!important;
-}
-#playerIntro .profile-awards-row .profile-achievement-column{justify-content:flex-start!important;}
-/* Keep the fourth achievement fully inside the awards panel on landscape WebView. */
-#playerIntro .profile-stat-group.awards{flex:1.25 1 0!important;}
-#playerIntro .profile-stat-group.awards .profile-stat-heading{height:26%!important;}
-#playerIntro .profile-stat-group.awards .profile-awards-row{height:74%!important;padding:0 0 5px!important;min-height:0!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-awards-list{height:100%!important;max-height:100%!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:12px!important;align-items:start!important;overflow:hidden!important;box-sizing:border-box!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-column{display:flex!important;flex-direction:column!important;gap:2px!important;min-height:0!important;overflow:hidden!important;}
-#playerIntro .profile-awards-row.two-column-achievements .profile-achievement-entry{margin:0!important;line-height:1.12!important;font-size:clamp(7px,.77vw,10px)!important;}
 </style></head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1185,136 +1149,40 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 
 <path d="M 60 3 L 185 3 M 1015 3 L 1140 3 M 60 267 L 185 267 M 1015 267 L 1140 267" stroke="#ffe5a2" stroke-width="2.5" opacity=".8"/>
 </svg><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName1"></div><div class="broadcast-total" id="broadcastScore1"></div><div class="broadcast-overs" id="broadcastOvers1"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat1"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl1"></div></div></div></article><div class="broadcast-center" aria-hidden="true"><div class="broadcast-final" id="broadcastFinal">FINAL</div></div><article class="broadcast-team"><div class="broadcast-teamhead"><div class="broadcast-identity"><div class="broadcast-teamname" id="broadcastName2"></div><div class="broadcast-total" id="broadcastScore2"></div><div class="broadcast-overs" id="broadcastOvers2"></div></div></div><div class="broadcast-stats"><div class="broadcast-statgroup"><div class="broadcast-label">TOP BATTERS</div><div id="broadcastBat2"></div></div><div class="broadcast-statgroup"><div class="broadcast-label">TOP BOWLERS</div><div id="broadcastBowl2"></div></div></div></article></div><div class="broadcast-pom" id="broadcastPom"></div></div></section>
-<style>
-/* Player introductions are independent of the compact footer. */
-#playerIntro{display:none;position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);z-index:1600;width:min(600px,88vw);pointer-events:none;color:#fff;font-family:Arial,sans-serif}
-#playerIntro.visible{display:block;animation:profile-in .4s ease-out both}
-#playerIntro .profile-shell{background:linear-gradient(125deg,#202b3b,#101620);border:2px solid #a4bedb;border-radius:12px;padding:18px 24px;box-shadow:0 14px 45px #000b;overflow:hidden}
-#playerIntro.theme-marvel .profile-shell{background:linear-gradient(125deg,#9c101e,#220509);border-color:#ffe66b}
-#playerIntro.theme-blue .profile-shell{background:linear-gradient(125deg,#0865ba,#071d38);border-color:#80d8ff}
-#playerIntro.theme-red .profile-shell{background:linear-gradient(125deg,#a3192e,#29070e);border-color:#ffc2c7}
-#playerIntro.theme-stadium .profile-shell{background:linear-gradient(125deg,#12614c,#071e19);border-color:#eacb72}
-#playerIntro .profile-kicker{font-size:12px;letter-spacing:2px;font-weight:900;opacity:.85}
-#playerIntro .profile-name{font-size:clamp(22px,3vw,39px);font-weight:950;margin:7px 0 5px;overflow-wrap:anywhere}
-#playerIntro .profile-team{font-size:14px;font-weight:700;opacity:.85}
-#playerIntro .profile-stats{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-#playerIntro .profile-stat-group{width:100%}
-#playerIntro .profile-stat-heading{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#ffe5a2;margin-bottom:5px}
-#playerIntro .profile-stat-row{display:flex;flex-wrap:wrap;gap:8px}
-#playerIntro .profile-stat{min-width:80px;padding:8px 12px;background:#ffffff20;border:1px solid #ffffff50;border-radius:6px;text-align:center}
-#playerIntro .profile-stat strong{display:block;font-size:20px}
-#playerIntro .profile-stat small{font-size:10px;letter-spacing:.6px}
-@keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
-@media(max-height:450px){#playerIntro{top:40%;width:min(570px,85vw)}#playerIntro .profile-shell{padding:10px 17px}#playerIntro .profile-stats{margin-top:8px}}
-
-/* Broadcast player introduction: geometry and palette matched to reference 92481.png */
-#playerIntro{position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);width:min(96vw,960px);max-width:calc((100vh - 35px)*1.94);font-family:Arial,Helvetica,sans-serif;color:#fff;pointer-events:none;z-index:1600}
-#playerIntro .profile-shell{position:relative;box-sizing:border-box;width:100%;aspect-ratio:644 / 326;padding:4.2% 2.9% 2.1%;border:0;border-radius:0;overflow:hidden;background:linear-gradient(135deg,#ff9eab 0%,#78000b 1.2%,#2e0005 2.2%,#4b0009 97%,#ff8a9b 99%,#7c0009 100%);box-shadow:0 6px 0 #180409,0 0 0 1px #ffd4d8,0 14px 35px #000a;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%)}
-#playerIntro .profile-shell:before{content:'';position:absolute;inset:1.1%;border:2px solid #e5485a;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%);pointer-events:none;box-shadow:inset 0 0 7px #ff9aa0}
-#playerIntro .profile-kicker{position:absolute;left:2.4%;top:0.4%;width:62%;height:7.1%;box-sizing:border-box;padding:0.8% 3.1%;background:linear-gradient(#ff5b6a 0%,#c51325 20%,#780009 67%,#4d0008 100%);border:1px solid #ffb1b8;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);font-weight:950;font-style:italic;letter-spacing:0;font-size:clamp(9px,1.85vw,21px);white-space:nowrap;text-shadow:1px 2px 1px #220006;opacity:1;z-index:2}
-#playerIntro .profile-name{position:relative;margin:0 0 0 2.5%;font-size:clamp(18px,3.8vw,39px);font-style:italic;font-weight:950;line-height:1.04;letter-spacing:-.6px;text-transform:uppercase;text-shadow:1px 2px 1px #270005;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-top:0}
-#playerIntro .profile-team{margin:0.5% 0 0 2.5%;font-size:clamp(9px,1.65vw,17px);font-weight:700;font-style:italic;line-height:1.15;opacity:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#playerIntro .profile-stats{display:flex;flex-direction:column;gap:1.5%;margin-top:2%;height:74%;justify-content:space-between}
-#playerIntro .profile-stat-group{position:relative;flex:0 0 29%;width:100%;box-sizing:border-box;overflow:hidden;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);border:1px solid #77b9f5;background:linear-gradient(180deg,#0060b4 0%,#074981 27%,#001f38 45%,#001e33 100%);box-shadow:inset 0 0 0 1px #59a9e2}
-#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,#009d62 0%,#006b45 26%,#003b2a 47%,#002f23 100%);box-shadow:inset 0 0 0 1px #26b77b}
-#playerIntro .profile-stat-group.awards{flex-basis:31%;border-color:#ffb45b;background:linear-gradient(180deg,#bd6d0e 0%,#894209 30%,#2b1402 35%,#251203 100%);box-shadow:inset 0 0 0 1px #da9a4e}
-#playerIntro .profile-stat-heading{box-sizing:border-box;height:32%;padding:0.35% 2.8%;font-size:clamp(8px,1.5vw,15px);font-weight:950;font-style:italic;letter-spacing:0;color:white;text-shadow:1px 1px 1px #111;margin:0;white-space:nowrap}
-#playerIntro .profile-stat-row{height:65%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:center}
-#playerIntro .profile-stat{min-width:0;padding:0 1%;background:transparent;border:0;border-radius:0;text-align:center;box-sizing:border-box;border-right:1px solid #b4c6d7a6}
+<style id="player-profile-layout">
+/* Single authoritative player-profile layout. No additive corrective overrides. */
+#playerIntro{display:none;position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
+#playerIntro.visible{display:block;animation:profile-enter 650ms cubic-bezier(.22,1,.36,1) both}
+#playerIntro .profile-shell{position:relative;width:100%;height:min(435px,76vh);display:flex;flex-direction:column;box-sizing:border-box;padding:32px 23px 12px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-alpha,.85)),rgba(90,0,12,var(--profile-alpha,.85)) 4%,rgba(46,0,5,var(--profile-alpha,.85)) 95%,rgba(255,138,155,var(--profile-alpha,.85)));box-shadow:0 12px 35px #000a}
+#playerIntro .profile-shell:before{content:'';position:absolute;inset:6px;border:1px solid #e5485a;pointer-events:none;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%)}
+#playerIntro .profile-kicker{position:absolute;left:2.3%;top:0;width:34%;height:29px;display:flex;align-items:center;padding:0 19px;box-sizing:border-box;background:linear-gradient(#ff5b6a,#a40819 65%,#510007);border:1px solid #ffb1b8;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);font:900 18px/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;white-space:nowrap;text-shadow:1px 1px #220006}
+#playerIntro .profile-name{display:block;flex:0 0 auto;margin:1px 0 0 9px;padding:0;min-height:0;font:900 23px/1.12 Arial,Helvetica,sans-serif;letter-spacing:0;font-stretch:normal;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 2px #270005}
+#playerIntro .profile-team{display:none}
+#playerIntro .profile-stats{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:10px;margin-top:8px;justify-content:stretch}
+#playerIntro .profile-stat-group{position:relative;display:flex;flex-direction:column;flex:0 0 86px;min-height:0;width:100%;overflow:hidden;box-sizing:border-box;border:1px solid #77b9f5;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)),rgba(0,30,51,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-group.career{border-color:#5bffb5;background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)),rgba(0,47,35,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-group.awards{flex:0 0 126px;border-color:#ffb45b;background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)),rgba(43,20,2,var(--profile-alpha,.85)) 50%,rgba(37,18,3,var(--profile-alpha,.85)))}
+#playerIntro .profile-stat-heading{display:flex;flex:0 0 23px;min-height:23px;align-items:center;box-sizing:border-box;padding:0 16px;margin:0;font:900 12px/1 Arial,Helvetica,sans-serif;letter-spacing:0;color:white;white-space:nowrap;text-shadow:1px 1px #111}
+#playerIntro .profile-stat-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr));align-items:stretch;padding:2px 7px 5px}
+#playerIntro .profile-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:3px;padding:0 3px;box-sizing:border-box;border:0;border-right:1px solid #b4c6d7a6;background:none;text-align:center}
 #playerIntro .profile-stat:last-child{border-right:0}
-#playerIntro .profile-stat strong{font-size:clamp(13px,2.8vw,29px);font-weight:950;line-height:1.05;white-space:nowrap}
-#playerIntro .profile-stat small{display:block;font-size:clamp(8px,1.45vw,14px);font-weight:800;line-height:1.1;letter-spacing:0}
-#playerIntro .profile-awards-row{height:67%;display:grid;grid-template-columns:36% 64%;align-items:center}
-#playerIntro .profile-pom{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #b5a58b;font-size:clamp(7px,1.1vw,11px)}
-#playerIntro .profile-pom strong{font-size:clamp(11px,1.8vw,19px);color:#ffb442}
-#playerIntro .profile-awards-list{padding-left:9%;font-size:clamp(7px,1.1vw,12px);line-height:1.35;overflow:hidden}
-#playerIntro .profile-awards-list{max-height:100%;overflow-y:auto;scrollbar-width:none;padding-right:8px}
-#playerIntro .profile-awards-list::-webkit-scrollbar{display:none}
-#playerIntro .profile-awards-list .profile-achievement-entry{white-space:normal;overflow-wrap:anywhere;margin:2px 0;line-height:1.25}
-#playerIntro .profile-achievement-group{font-weight:800;color:#ffd27d}
-#playerIntro .profile-awards-list div:before{content:'▪';color:#ffba35;margin-right:9px}
-/* Compact player introduction: retain reference palette without obscuring the field. */
-#playerIntro{width:min(78vw,650px);max-width:650px;top:42%}
-#playerIntro .profile-shell{aspect-ratio:auto;height:270px;padding:30px 18px 12px;display:flex;flex-direction:column}
-#playerIntro .profile-kicker{font-size:clamp(9px,1.35vw,13px);height:23px;line-height:15px;padding:3px 17px}
-#playerIntro .profile-name{font-size:clamp(17px,2.25vw,25px);margin-left:12px;line-height:1.05;flex-shrink:0}
-#playerIntro .profile-team{font-size:clamp(9px,1.1vw,12px);margin:2px 0 0 12px;flex-shrink:0}
-#playerIntro .profile-stats{height:auto;min-height:0;flex:1;gap:5px;margin-top:9px;justify-content:stretch}
-#playerIntro .profile-stat-group{flex:1 1 0;min-height:0}
-#playerIntro .profile-stat-group.awards{flex:1 1 0}
-#playerIntro .profile-stat-heading{height:29%;font-size:clamp(8px,1.15vw,11px);padding:2px 14px}
-#playerIntro .profile-stat-row{height:70%}
-#playerIntro .profile-stat strong{display:block;font-size:clamp(13px,2vw,19px);overflow:hidden;text-overflow:ellipsis;max-width:100%}
-#playerIntro .profile-stat small{display:block;font-size:clamp(7px,.95vw,10px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#playerIntro .profile-pom strong{font-size:clamp(11px,1.5vw,16px)}
-#playerIntro .profile-awards-list{font-size:clamp(7px,.9vw,10px)}
-#playerIntro .profile-shell.no-awards{height:208px}
-#playerIntro .profile-shell.no-awards .profile-stats{gap:6px}
-@media(max-height:450px){#playerIntro{width:min(72vw,610px);top:42%}#playerIntro .profile-shell{height:min(245px,66vh);padding:26px 16px 10px}#playerIntro .profile-shell.no-awards{height:min(188px,54vh)}#playerIntro .profile-stats{margin-top:6px}}
-body.player-profile-preview #playerIntro .profile-shell{outline:none}
-@media(max-height:450px){#playerIntro{top:42%;width:min(72vw,610px)}#playerIntro .profile-shell{padding:26px 16px 10px}#playerIntro .profile-stats{margin-top:6px}}
-/* vNext: vertical rhythm for player introductions; leave match footer untouched. */
-#playerIntro{top:41%;width:min(78vw,690px);max-width:690px}
-#playerIntro .profile-shell{height:min(355px,69vh);padding:34px 21px 17px;display:flex;flex-direction:column;gap:0}
-#playerIntro .profile-name{margin-top:3px;margin-bottom:0;line-height:1.12}
-#playerIntro .profile-team{margin-top:5px;line-height:1.2}
-#playerIntro .profile-stats{display:flex;flex:1 1 auto;height:auto;min-height:0;gap:12px;margin-top:17px;justify-content:stretch}
-#playerIntro .profile-stat-group,#playerIntro .profile-stat-group.awards{flex:1 1 0;min-height:0}
-#playerIntro .profile-stat-heading{height:31%;padding:4px 15px 0;line-height:1.2}
-#playerIntro .profile-stat-row{height:69%;align-items:center;padding:3px 0 6px;box-sizing:border-box}
-#playerIntro .profile-stat{padding:0 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-#playerIntro .profile-stat strong{line-height:1.13}
-#playerIntro .profile-stat small{line-height:1.2}
-#playerIntro .profile-awards-row{height:69%;padding:3px 0 5px;box-sizing:border-box}
-#playerIntro .profile-shell.no-awards{height:min(275px,56vh)}
-#playerIntro .profile-shell.no-awards .profile-stats{gap:12px;margin-top:17px}
-@media(max-height:450px){
- #playerIntro{top:40%;width:min(74vw,650px)}
- #playerIntro .profile-shell{height:min(285px,70vh);padding:29px 17px 12px}
- #playerIntro .profile-shell.no-awards{height:min(228px,57vh)}
- #playerIntro .profile-stats,#playerIntro .profile-shell.no-awards .profile-stats{gap:9px;margin-top:11px}
- #playerIntro .profile-stat-heading{height:30%;padding:2px 12px 0}
- #playerIntro .profile-stat-row{height:70%;padding:2px 0 4px}
- #playerIntro .profile-stat{gap:3px}
-}
-
-/* Player-profile alignment and background transparency: uses the same opacity query as the footer. */
-#playerIntro{left:50%;transform:translate(-50%,-50%);}
-#playerIntro .profile-team{display:none!important;}
-#playerIntro .profile-shell{
- background:linear-gradient(135deg,
- rgba(255,158,171,var(--profile-alpha,.85)) 0%,
- rgba(120,0,11,var(--profile-alpha,.85)) 1.2%,
- rgba(46,0,5,var(--profile-alpha,.85)) 2.2%,
- rgba(75,0,9,var(--profile-alpha,.85)) 97%,
- rgba(255,138,155,var(--profile-alpha,.85)) 99%,
- rgba(124,0,9,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-stat-group{
- background:linear-gradient(180deg,rgba(0,96,180,var(--profile-alpha,.85)) 0%,rgba(7,73,129,var(--profile-alpha,.85)) 27%,rgba(0,31,56,var(--profile-alpha,.85)) 45%,rgba(0,30,51,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-stat-group.career{
- background:linear-gradient(180deg,rgba(0,157,98,var(--profile-alpha,.85)) 0%,rgba(0,107,69,var(--profile-alpha,.85)) 26%,rgba(0,59,42,var(--profile-alpha,.85)) 47%,rgba(0,47,35,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-stat-group.awards{
- background:linear-gradient(180deg,rgba(189,109,14,var(--profile-alpha,.85)) 0%,rgba(137,66,9,var(--profile-alpha,.85)) 30%,rgba(43,20,2,var(--profile-alpha,.85)) 35%,rgba(37,18,3,var(--profile-alpha,.85)) 100%);
-}
-#playerIntro .profile-awards-row.pom-and-achievements{display:grid;grid-template-columns:50% 50%;width:100%;}
-#playerIntro .profile-awards-row.pom-and-achievements .profile-pom{width:100%;box-sizing:border-box;justify-self:center;}
-#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list{padding-left:14px;box-sizing:border-box;min-width:0;}
-#playerIntro .profile-awards-row.pom-only{display:flex;justify-content:center;align-items:center;}
-#playerIntro .profile-awards-row.pom-only .profile-pom{border-right:0;width:100%;}
-#playerIntro .profile-awards-row.achievements-only{display:flex;justify-content:center;align-items:center;}
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{padding-left:0;width:95%;}
-/* Profile position: true viewport vertical center, independent of the footer. */
-#playerIntro{top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;}
-/* Restore natural POM/achievements proportions; only compact POM for >3 awards. */
-#playerIntro .profile-awards-row.pom-and-achievements{grid-template-columns:36% minmax(0,64%);}
-#playerIntro .profile-awards-row.pom-and-achievements.many-achievements{grid-template-columns:24% minmax(0,76%);}
-#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list{padding-left:18px;}
-#playerIntro .profile-awards-row.pom-and-achievements.many-achievements .profile-awards-list{padding-left:14px;}
-#playerIntro .profile-awards-row.pom-and-achievements.many-achievements .profile-pom{padding-left:0;}
+#playerIntro .profile-stat strong{display:block;max-width:100%;font:900 23px/1.1 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:visible;text-overflow:clip}
+#playerIntro .profile-stat small{display:block;font:800 12px/1.15 Arial,Helvetica,sans-serif;white-space:nowrap;letter-spacing:0}
+#playerIntro .profile-awards-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:23% minmax(0,77%);align-items:stretch;padding:2px 10px 6px}
+#playerIntro .profile-awards-row.achievements-only{grid-template-columns:minmax(0,1fr)}
+#playerIntro .profile-awards-row.pom-only{grid-template-columns:minmax(0,1fr)}
+#playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:1px solid #b5a58b;padding:0 6px;font:900 13px/1.2 Arial,Helvetica,sans-serif}
+#playerIntro .profile-pom strong{display:block;font:900 32px/1.1 Arial,Helvetica,sans-serif;color:#ffbd53}
+#playerIntro .profile-pom span{display:block;font:900 13px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center}
+#playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:start;align-content:start;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px;text-align:left}
+#playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));min-width:0;min-height:0;align-items:center;justify-items:start;text-align:left}
+#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:400 12px/1.12 Arial,Helvetica,sans-serif;white-space:normal;overflow:hidden;overflow-wrap:break-word;text-align:left;width:100%}
+#playerIntro .profile-achievement-entry:before{content:'▪';color:#ffba35;margin-right:5px}
+#playerIntro .profile-achievement-note{margin-left:auto;font:400 10px Arial,Helvetica,sans-serif;text-align:right;color:#ffd18d;text-shadow:none}
+#playerIntro .profile-shell.no-awards{height:min(330px,62vh)}
+body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
+@keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media(max-height:480px){#playerIntro{top:44%;width:min(85vw,960px)}#playerIntro .profile-shell{height:min(292px,72vh);padding:29px 20px 10px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:6px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-shell.no-awards{height:min(265px,66vh)}}
 </style>
 <script>
 (() => {
@@ -2486,7 +2354,7 @@ function render(data){
   }else footer=firstInningsProjection(data)||[m.tournament,m.group_name].filter(Boolean).join(' · ')||'Live cricket';
  }
  set('message',footer);
- set('partnership',footerPartnership(data));
+ set('partnership',footerPartnership(data) ? 'PARTNERSHIP ' + footerPartnership(data) : '');
 }
 
 // Result is authoritative when CricBay publishes it; otherwise avoid declaring
@@ -2723,8 +2591,8 @@ function currentPom(data){
  }
  return '';
 }
-function emitLifecycle(type,data,extra={}){
- if(lifecycleEmitted.has(type))return;
+function emitLifecycle(type,data,extra={},dedupeKey=type){
+ if(lifecycleEmitted.has(dedupeKey))return;
  const payload={type,matchId:String(matchId),timestamp:Date.now(),...extra};
  let delivered=false;
  try{
@@ -2736,7 +2604,7 @@ function emitLifecycle(type,data,extra={}){
   // Browser consumers can subscribe without an Android bridge.
   if(window.dispatchEvent(new CustomEvent('cricbay:match-event',{detail:payload})))delivered=true;
  }catch(e){console.warn('Match lifecycle callback failed:',e);}
- if(delivered)lifecycleEmitted.add(type);
+ if(delivered)lifecycleEmitted.add(dedupeKey);
 }
 function lifecycleState(data){
  const sp=superOverPhase(data);
@@ -2752,6 +2620,98 @@ function lifecycleState(data){
   ended:phase==='match',
   pom:phase==='match'?currentPom(data):''
  };
+}
+// Android bridge event for each team's 10th completed over. This is independent
+// of the five-second on-screen over summary and never replays on initial load.
+let tenthOverPrevious=null;
+function tenthOverState(data){
+ const isSplit=data?.match?.is_split_inning===true||String(data?.match?.is_split_inning).toLowerCase()==='true';
+ return [1,2].map(n=>{
+  const inn=data?.innings?.['inning'+n]||{};
+  const balls=inningsBalls(inn.overs??inn.scorecard?.total?.total_overs);
+  const statusCompleted=isSplit&&inningsState(inn)==='split innings completed';
+  return {balls,completed:statusCompleted,teamName:inn.team?.team_name||inn.scorecard?.team_name||'',isSplit};
+ });
+}
+function checkTenthOverLifecycle(data){
+ const next=tenthOverState(data),prev=tenthOverPrevious;
+ tenthOverPrevious=next;
+ if(!prev)return; // Do not replay a completed 10th over on page load.
+ next.forEach((now,i)=>{
+  const before=prev[i];
+  // 9.6 means 60 legal balls in CricBay; tolerate skipped snapshots.
+  const crossedBalls=before.balls!==null&&now.balls!==null&&before.balls<60&&now.balls>=60;
+  // For split games, status is authoritative when the 10-over snapshot is skipped.
+  const crossedStatus=now.isSplit&&now.completed&&!before.completed;
+  if(!crossedBalls&&!crossedStatus)return;
+  const innings=i+1;
+  const eventKey=`TENTH_OVER_COMPLETED:${innings}`;
+  const selected=selectedBowlerIdentity(data);
+  emitLifecycle('TENTH_OVER_COMPLETED',data,{
+   innings,teamName:now.teamName,overs:now.balls===null?'':`${Math.floor(now.balls/6)}.${now.balls%6}`,
+   splitInnings:now.isSplit
+  },eventKey);
+  if(lifecycleEmitted.has(eventKey)&&!tenthOverAwaitingBowler.has(eventKey)){
+   tenthOverAwaitingBowler.set(eventKey,{
+    innings,splitInnings:now.isSplit,inningId:currentInningsIdentity(data),
+    currentBalls:inningsBalls(data?.current?.over),bowlerKey:selected?.key||null
+   });
+  }
+ });
+}
+// Recording bridge: resume only after a bowler is selected following a
+// TENTH_OVER_COMPLETED event. Do not replay historical events on first load.
+// Track by match and completed tenth-over event, not by polling frequency.
+const tenthOverAwaitingBowler=new Map();
+function selectedBowlerIdentity(data){
+ const b=data?.current?.current_bowler;
+ if(!b)return null;
+ const id=b.player_id??b.bowler_id;
+ const name=String(b.player_name||b.bowler_name||fullName(b)||'').trim();
+ if(id==null&&(!name||name==='—'))return null;
+ return {key:id!=null?'id:'+String(id):'name:'+name.toLowerCase(),
+  playerId:id==null?null:String(id),name};
+}
+function currentInningsIdentity(data){
+ const m=data?.match||{};
+ return m.current_inning_id==null?'':String(m.current_inning_id);
+}
+// Notify Android when a newly selected bowler is observed for ANY over.
+// Keep a per-innings baseline, and dedupe by innings + over + bowler.
+let previousSelectedBowler=null;
+const announcedBowlerSelections=new Set();
+function checkNextBowlerLifecycle(data){
+ const bowler=selectedBowlerIdentity(data);
+ const inningId=currentInningsIdentity(data);
+ const currentBalls=inningsBalls(data?.current?.over);
+ const activeInning=Object.values(data?.innings||{}).find(i=>i?.inning_id!=null&&String(i.inning_id)===inningId);
+ const inningsBallCount=inningsBalls(activeInning?.overs??activeInning?.scorecard?.total?.total_overs);
+ const balls=currentBalls??inningsBallCount;
+ const current={inningId,bowlerKey:bowler?.key||null,balls};
+ const previous=previousSelectedBowler;
+ previousSelectedBowler=current;
+ if(!bowler||!inningId||!previous)return; // No event on initial page load.
+ if(previous.inningId===inningId&&previous.bowlerKey===bowler.key)return;
+ // For the same innings, only announce a new bowler if we previously
+ // observed a different selected bowler; ignore empty/stale snapshots.
+ if(previous.inningId===inningId&&!previous.bowlerKey)return;
+ const overNumber=balls===null?null:Math.floor(Math.max(0,balls-1)/6)+1;
+ const eventKey=`NEXT_BOWLER_SELECTED:${inningId}:${overNumber??'unknown'}:${bowler.key}`;
+ if(announcedBowlerSelections.has(eventKey))return;
+ const split=data?.match?.is_split_inning===true||String(data?.match?.is_split_inning).toLowerCase()==='true';
+ const pending=[...tenthOverAwaitingBowler].find(([,p])=>
+  (!p.bowlerKey||p.bowlerKey!==bowler.key)&&
+  (p.inningId!==inningId||(balls!==null&&p.currentBalls!==null&&balls>p.currentBalls)));
+ const innings=String(data?.innings?.inning2?.inning_id??'')===inningId?2:1;
+ emitLifecycle('NEXT_BOWLER_SELECTED',data,{
+  innings,inningId,bowlerId:bowler.playerId,bowlerName:bowler.name,
+  overNumber,splitInnings:split,
+  ...(pending?{afterEvent:'TENTH_OVER_COMPLETED'}:{})
+ },eventKey);
+ if(lifecycleEmitted.has(eventKey)){
+  announcedBowlerSelections.add(eventKey);
+  if(pending)tenthOverAwaitingBowler.delete(pending[0]);
+ }
 }
 function checkLifecycle(data){
  const next=lifecycleState(data);
@@ -2951,6 +2911,8 @@ async function refresh(){if(busy||pollingStoppedForPom)return;
  restoreAfterScoreSuccess();
  latestSnapshot=data;render(data);if(preloadPlayerStatsEnabled){preloadAllPlayers(data);trackProfiles(data);}lastVersion=data.version;
  updateSummary(data);
+ checkTenthOverLifecycle(data);
+ checkNextBowlerLifecycle(data);
  checkLifecycle(data);
  stopPollingWhenPomSelected(data);
  }catch(e){
@@ -3006,17 +2968,7 @@ void refresh(); // Always fetch scorecard, regardless of player-statistics prelo
 refreshTimer=setInterval(()=>{void refresh();},interval);
 }
 })();
-</script><style id="player-profile-stats-pom-layout-final">
-/* Each stat occupies an equal-width column, including 50s/100s. */
-#playerIntro .profile-stat-row{display:grid!important;grid-template-columns:repeat(var(--profile-stat-count,6),minmax(0,1fr))!important;width:100%!important;min-width:0!important;}
-#playerIntro .profile-stat-row .profile-stat{min-width:0!important;width:100%!important;max-width:none!important;padding:0 3px!important;overflow:visible!important;transform:none!important;}
-#playerIntro .profile-stat-row .profile-stat strong{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(14px,1.8vw,24px)!important;font-stretch:normal!important;transform:none!important;letter-spacing:0!important;overflow:visible!important;text-overflow:clip!important;}
-#playerIntro .profile-stat-row .profile-stat small{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(9px,1.05vw,13px)!important;font-weight:800!important;font-stretch:normal!important;transform:none!important;letter-spacing:0!important;overflow:visible!important;text-overflow:clip!important;}
-/* Center POM number and caption in their allocated area; no compressed typography. */
-#playerIntro .profile-awards-row .profile-pom{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;align-self:stretch!important;text-align:center!important;padding:0 8px!important;height:100%!important;min-width:0!important;}
-#playerIntro .profile-pom strong{display:block!important;width:100%!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(24px,2.35vw,36px)!important;font-weight:900!important;line-height:1.1!important;transform:none!important;}
-#playerIntro .profile-pom span{display:block!important;width:100%!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(12px,1.18vw,17px)!important;font-weight:900!important;line-height:1.3!important;letter-spacing:0!important;white-space:normal!important;transform:none!important;}
-</style>
+</script>
 <style id="cricbay-new-summary-2026">
 #summaryPanel #fullInningsSummary{display:none}
 #summaryPanel.innings-full-active{display:block!important;position:fixed!important;top:50%!important;left:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:96vw!important;max-width:1500px!important;max-height:96vh!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important}
