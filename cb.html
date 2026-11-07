@@ -1006,7 +1006,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #overlay #balls .ball.delivery-zoom-in{z-index:8!important}
 
 /* One entrance animation: the entire card fades and glides together, never flashes first. */
-#playerIntro.visible{display:block;animation:profile-enter 1300ms cubic-bezier(.22,1,.36,1) both}
+#playerIntro.visible{display:block;animation:profile-enter 1000ms cubic-bezier(.22,1,.36,1) both}
 @keyframes profile-enter{
   from{opacity:0;transform:translate(calc(-50% - 44px),-50%) scale(.97)}
   to{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -1066,7 +1066,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 <style id="player-profile-layout">
 /* Single authoritative player-profile layout. No additive corrective overrides. */
 #playerIntro{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,1060px);max-width:calc(100vw - 24px);z-index:1600;pointer-events:none;color:#fff;font-family:Arial,Helvetica,sans-serif}
-#playerIntro.visible{display:block;animation:profile-enter 1300ms cubic-bezier(.22,1,.36,1) both}
+#playerIntro.visible{display:block;animation:profile-enter 1000ms cubic-bezier(.22,1,.36,1) both}
 #playerIntro .profile-shell{position:relative;width:100%;height:342px;display:flex;flex-direction:column;box-sizing:border-box;padding:29px 23px 12px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-shell-alpha,.85)),rgba(90,0,12,var(--profile-shell-alpha,.85)) 4%,rgba(46,0,5,var(--profile-shell-alpha,.85)) 95%,rgba(255,138,155,var(--profile-shell-alpha,.85)));box-shadow:0 12px 35px #000a}
 #playerIntro .profile-shell:before{content:'';position:absolute;inset:6px;border:1px solid #e5485a;pointer-events:none;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%)}
 #playerIntro .profile-kicker{position:absolute;left:2.3%;top:0;width:34%;height:29px;display:flex;align-items:center;padding:0 19px;box-sizing:border-box;background:linear-gradient(#ff5b6a,#a40819 65%,#510007);border:1px solid #ffb1b8;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);font:900 18px/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;white-space:nowrap;text-shadow:1px 1px #220006}
@@ -1171,7 +1171,7 @@ const milestoneShown=new Set();
 const milestoneThresholds=[25,50,75,100,150,200,250,300];
 const milestoneQueue=[];
 // Player introductions: tournament list resolved once per page load, shared by all players.
-const showPlayerProfile=q.get('showPlayerProfile')==='1';
+const showPlayerProfile=q.get('showPlayerProfile')!=='0';
 const previewPlayerId=(q.get('playerId')||'').trim();
 const previewRole=(q.get('profileRole')||'batting').toLowerCase();
 const playerPreviewMode=/^\d+$/.test(previewPlayerId)&&['batting','bowling'].includes(previewRole);
@@ -1522,6 +1522,8 @@ function renderProfile(item,data){
 
  }
 }
+// One shared display lane: celebrations and player introductions never overlap.
+// Profile requests are processed FIFO, with at most one introduction visible.
 async function drainProfiles(){
  if(profileActive||celebrationActive||milestoneQueue.length||document.body.classList.contains('cricbay-score-offline')||!profileQueue.length)return;
  if(document.body.classList.contains('broadcast-match-visible')){profileQueue.length=0;return;}
@@ -1529,35 +1531,70 @@ async function drainProfiles(){
  const item=profileQueue.shift(),token=++profileToken;
  let stats=null;
  try{
-  // Wait until all three player API responses have settled. Never reveal placeholders.
+  // Await all player API responses before revealing the next introduction.
   stats=await fetchMissingPlayerApis(item);
  }catch(error){console.warn('Player profile data unavailable',error);}
  if(!profileActive||profileToken!==token)return;
+ // A celebration discovered during API loading takes priority without
+ // discarding or displaying the waiting player profile.
+ if(celebrationActive||milestoneQueue.length){
+  profileQueue.unshift(item);profileActive=false;drainCelebrations();return;
+ }
  if(!stats||!stats.profile||!stats.career||!stats.season){
-  profileActive=false;setTimeout(drainProfiles,200);return;
+  profileActive=false;setTimeout(()=>{drainCelebrations();drainProfiles();},200);return;
  }
  renderProfile(item,stats);
  const panel=$('playerIntro');
  panel.classList.remove('visible');
- void panel.offsetWidth; // Restart animation for every new player
+ void panel.offsetWidth; // Restart entrance animation for each player.
  panel.classList.add('visible');
  profileTimer=setTimeout(()=>{
-  panel.classList.remove('visible');profileActive=false;
-  setTimeout(drainProfiles,200);
+  if(profileToken!==token)return;
+  panel.classList.remove('visible');
+  // Allow the outgoing profile to clear before showing anything else.
+  profileTimer=setTimeout(()=>{
+   if(profileToken!==token)return;
+   profileActive=false;
+   drainCelebrations();drainProfiles();
+  },220);
  },profileDuration);
 }
 function trackProfiles(data){
- if(playerPreviewMode)return;
+ if(playerPreviewMode||!showPlayerProfile)return;
  if(superOverPhase(data)||getMatchPhase(data)==='match')return;
  const c=data.current||{},inning=String(data.match?.current_inning_id??'');
  if(!inning)return;
  const candidates=[['batting',c.batter1],['batting',c.batter2],['bowling',c.current_bowler]];
  const items=candidates.filter(([,p])=>p&&p.player_id!=null).map(([role,p])=>({role,id:String(p.player_id),name:fullName(p),snapshot:p,inning,team:role==='batting'?$('batTeam').textContent:$('bowlTeam').textContent,tournament:data.match?.tournament_id??data.match?.tournament?.id??q.get('tournamentId')??'',tournamentName:data.match?.tournament_name??data.match?.tournament??''}));
- // Warm the player cache even for initial players, without showing a card on initial load.
- if(!profileBaseline){items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;}
- for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;profileSeen.add(key);if(showPlayerProfile)profileQueue.push(item);
-  void fetchMissingPlayerApis(item).catch(console.warn);}
- if(showPlayerProfile)drainProfiles();
+ // Introduce opening batters (striker, then non-striker) and the opening bowler
+ // only when this innings has not yet recorded a delivery. Never replay
+ // introductions on a mid-innings page refresh.
+ const innings=Object.values(data.innings||{}).find(x=>x&&String(x.inning_id)===inning);
+ const sc=innings?.scorecard||{};
+ const oversValue=Number(sc.overs??sc.overs_bowled??c.overs??c.overs_bowled??0);
+ const ballsValue=Number(sc.balls??sc.balls_bowled??c.balls??0);
+ const hasStarted=allDeliveries(data).length>0||oversValue>0||ballsValue>0;
+ if(!profileBaseline){
+  profileBaseline=true;
+  for(const item of items){
+   const key=item.inning+':'+item.role+':'+item.id;
+   profileSeen.add(key);
+   if(!hasStarted)profileQueue.push(item);
+   if(preloadPlayerStatsEnabled)enqueuePlayerPreload(item);
+   if(!hasStarted)void fetchMissingPlayerApis(item).catch(console.warn);
+  }
+  drainProfiles();
+  return;
+ }
+ for(const item of items){
+  const key=item.inning+':'+item.role+':'+item.id;
+  if(profileSeen.has(key))continue;
+  profileSeen.add(key);
+  // A newly selected opener before ball one, or a replacement player later.
+  profileQueue.push(item);
+  void fetchMissingPlayerApis(item).catch(console.warn);
+ }
+ drainProfiles();
 }
 
 let celebrationTimer=null,celebrationActive=false;
@@ -1577,10 +1614,12 @@ function restoreAfterScoreSuccess(){
 function enqueueCelebration(e){
  if(e.key&&milestoneShown.has(e.key))return;
  if(e.key)milestoneShown.add(e.key);
- milestoneQueue.push(e);if(profileActive){clearTimeout(profileTimer);profileToken++;profileActive=false;$('playerIntro').classList.remove('visible');}drainCelebrations();
+ // Do not interrupt an active player profile; wait for its full duration.
+ milestoneQueue.push(e);
+ drainCelebrations();
 }
 function drainCelebrations(){
- if(celebrationActive||document.body.classList.contains('cricbay-score-offline')||!milestoneQueue.length)return;
+ if(profileActive||celebrationActive||document.body.classList.contains('cricbay-score-offline')||!milestoneQueue.length)return;
  celebrationActive=true;
  const e=milestoneQueue.shift();
  const el=$('scoreEvent');
@@ -1593,8 +1632,11 @@ function drainCelebrations(){
  void el.offsetWidth;el.classList.add('active');
  if(e.kind==='four'||e.kind==='six'){if(soundEnabled)playBoundaryAudio();}
  celebrationTimer=setTimeout(()=>{
-  el.classList.remove('active');celebrationActive=false;
-  celebrationTimer=setTimeout(()=>{drainCelebrations();drainProfiles();},220);
+  el.classList.remove('active');
+  celebrationTimer=setTimeout(()=>{
+   celebrationActive=false;
+   drainCelebrations();drainProfiles();
+  },220);
  },e.duration||2800);
 }
 function inningSnapshot(data){
@@ -2429,7 +2471,7 @@ async function refresh(){if(busy||pollingStoppedForPom)return;
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
  restoreAfterScoreSuccess();
- latestSnapshot=data;render(data);if(preloadPlayerStatsEnabled){preloadAllPlayers(data);trackProfiles(data);}lastVersion=data.version;
+ latestSnapshot=data;render(data);if(preloadPlayerStatsEnabled)preloadAllPlayers(data);trackProfiles(data);lastVersion=data.version;
  updateSummary(data);
  checkLifecycle(data);
  stopPollingWhenPomSelected(data);
