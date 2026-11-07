@@ -2795,7 +2795,7 @@ function renderModernFinal(data){
   return `<section class="ms-final-team ms-${tone}"><div class="ms-final-team-head">${sumTeamBadge(name,tone,inn.team)}<strong>${sumEsc(sumScore(inn))}</strong></div><h3>TOP BATTERS</h3>${sumTopRows(bat,'bat')}<h3>TOP BOWLERS</h3>${sumTopRows(bowl,'bowl')}</section>`;
  }).join('');
  const pom=currentPom(data);
- modernRoot.innerHTML=`<div class="ms-shell ms-final"><header class="ms-header ms-final-header ms-broadcast-header"><span>MATCH SUMMARY</span><strong>${sumEsc(getMatchResult(data)||'MATCH COMPLETED')}</strong></header><div class="ms-final-columns">${panels}</div>${pom?`<div class="ms-pom"><span>🏆 PLAYER OF THE MATCH</span><strong>${sumEsc(sumShortName(pom,42))}</strong></div>`:''}</div>`;
+ modernRoot.innerHTML=`<div class="ms-shell ms-final"><header class="ms-reference-header ms-reference-final"><div class="ms-reference-title">MATCH SUMMARY</div><div class="ms-reference-team ms-result-ribbon">${sumEsc(getMatchResult(data)||'MATCH COMPLETED')}</div></header><div class="ms-final-columns">${panels}</div>${pom?`<div class="ms-pom"><span>🏆 PLAYER OF THE MATCH</span><strong>${sumEsc(sumShortName(pom,42))}</strong></div>`:''}</div>`;
 }
 function modernShow(on){if(modernVisible===on)return;modernVisible=on;modernRoot.classList.toggle('ms-visible',on);document.body.classList.toggle('modern-summary-visible',on);if(on){$('summaryPanel').classList.remove('visible','broadcast-active','innings-full-active');document.body.classList.remove('broadcast-match-visible');}}
 function updateSummary(data){
@@ -3105,5 +3105,48 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
 #cricbayModernSummary .ms-final-team-head .ms-team-identity{min-width:0!important;flex:1 1 auto!important}
 #cricbayModernSummary .ms-final-team-head>strong{flex:0 0 auto!important}
 @media(max-height:500px){#cricbayModernSummary .ms-reference-header{min-height:34px;gap:8px}#cricbayModernSummary .ms-reference-title,#cricbayModernSummary .ms-reference-team{min-height:33px;padding:3px 8px;font-size:clamp(11px,1.7vw,20px)}#cricbayModernSummary .ms-over .ms-card h2{min-height:24px!important}}
+</style>
+
+<style id="cricbay-header-only-fix-v4">
+/* Header-only patch: match approved two-ribbon neon reference, preserve all other features. */
+#cricbayModernSummary .ms-reference-header{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ gap:clamp(8px,1.2vw,18px)!important;align-items:stretch!important;
+ width:100%!important;min-height:0!important;height:clamp(42px,8.5vh,78px)!important;
+ flex:0 0 clamp(42px,8.5vh,78px)!important;padding:0 8px!important;
+ margin:0!important;overflow:visible!important;position:relative!important;z-index:5!important;
+ border:0!important;background:none!important;box-shadow:none!important;
+}
+#cricbayModernSummary .ms-reference-header>div{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ min-width:0!important;min-height:0!important;height:100%!important;
+ padding:3px 12px!important;margin:0!important;box-sizing:border-box!important;
+ transform:skew(-13deg)!important;overflow:hidden!important;
+ border:2px solid #ff4a4d!important;border-radius:10px!important;
+ background:linear-gradient(105deg,rgba(25,0,5,var(--sa)),rgba(132,5,14,var(--sa)),rgba(25,0,5,var(--sa)))!important;
+ box-shadow:0 0 8px #ff2738,inset 0 0 9px #ff273880!important;
+ color:#fff!important;font-size:clamp(15px,2.45vw,37px)!important;
+ font-weight:900!important;font-style:italic!important;line-height:1.06!important;
+ text-align:center!important;text-shadow:2px 3px 3px #000!important;
+ white-space:normal!important;overflow-wrap:break-word!important;
+}
+#cricbayModernSummary .ms-reference-header>.ms-reference-team{color:#ffda49!important}
+#cricbayModernSummary .ms-reference-header>.ms-reference-team.ms-other{
+ border-color:#38aaff!important;background:linear-gradient(105deg,rgba(2,16,42,var(--sa)),rgba(6,55,126,var(--sa)),rgba(2,16,42,var(--sa)))!important;
+ box-shadow:0 0 8px #168bff,inset 0 0 9px #168bff!important;
+}
+#cricbayModernSummary .ms-reference-final>.ms-result-ribbon{font-size:clamp(12px,1.7vw,25px)!important;color:#ffda49!important}
+#cricbayModernSummary .ms-over .ms-card>h2{
+ min-height:clamp(31px,6vh,53px)!important;flex:0 0 auto!important;
+ padding:4px 12px!important;font-size:clamp(14px,2vw,30px)!important;
+ display:flex!important;align-items:center!important;white-space:normal!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;
+}
+@media(max-height:500px){
+ #cricbayModernSummary .ms-reference-header{height:clamp(34px,9vh,46px)!important;flex-basis:clamp(34px,9vh,46px)!important;padding:0 5px!important;gap:9px!important}
+ #cricbayModernSummary .ms-reference-header>div{font-size:clamp(13px,2.2vw,24px)!important;padding:2px 8px!important}
+ #cricbayModernSummary .ms-reference-final>.ms-result-ribbon{font-size:clamp(11px,1.55vw,19px)!important}
+ #cricbayModernSummary .ms-over .ms-card>h2{min-height:27px!important;font-size:clamp(12px,1.7vw,21px)!important}
+}
 </style>
 </body></html>
