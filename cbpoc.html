@@ -1111,18 +1111,18 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-awards-row{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:23% minmax(0,77%);align-items:stretch;padding:2px 10px 6px}
 #playerIntro .profile-awards-row.achievements-only{grid-template-columns:minmax(0,1fr)}
 #playerIntro .profile-awards-row.pom-only{grid-template-columns:minmax(0,1fr)}
-#playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;border-right:1px solid #b5a58b;padding:2px 6px 0;font:900 13px/1.2 Arial,Helvetica,sans-serif}
+#playerIntro .profile-pom{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:1px solid #b5a58b;padding:2px 6px 0;font:900 13px/1.2 Arial,Helvetica,sans-serif}
 #playerIntro .profile-pom strong{display:block;font:900 23px/1.1 Arial,Helvetica,sans-serif;color:#ffbd53;text-align:center;width:100%}
 #playerIntro .profile-pom span{display:block;font:900 12px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap;text-align:center;width:100%}
 #playerIntro .profile-awards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:13px;align-items:start;align-content:start;min-width:0;min-height:0;overflow:hidden;padding:0 4px 0 12px;text-align:left}
 #playerIntro .profile-achievement-column{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));min-width:0;min-height:0;align-items:center;justify-items:start;text-align:left}
-#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:400 12px/1.12 Arial,Helvetica,sans-serif;white-space:normal;overflow:hidden;overflow-wrap:break-word;text-align:left;width:100%}
+#playerIntro .profile-achievement-entry{min-width:0;margin:0;padding:0;font:400 10px/1.12 Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:clip;text-align:left;width:100%}
 #playerIntro .profile-achievement-entry:before{content:'▪';color:#ffba35;margin-right:5px}
 #playerIntro .profile-achievement-note{margin-left:auto;font:400 10px Arial,Helvetica,sans-serif;text-align:right;color:#ffd18d;text-shadow:none}
 #playerIntro .profile-shell.no-awards{height:min(250px,62vh)}
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:10px;line-height:1.12}#playerIntro .profile-pom strong{font-size:18px}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
+@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:10px;line-height:1.12;white-space:nowrap}#playerIntro .profile-pom strong{font-size:18px}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
 </style>
 <script>
 (() => {
@@ -1558,7 +1558,7 @@ function renderProfile(item,data){
   if(index===3){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
   if(index===0){const first=document.createElement('div');first.className='profile-achievement-column profile-achievement-column-one';list.append(first);}
   const el=document.createElement('div');el.className='profile-achievement-entry';
-  el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ');
+  el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ').replace(/wicket[\s-]*keeper/gi,'WK');
   list.children[index<3?0:1].append(el);
   el.style.fontSize='inherit';
  }
@@ -1585,7 +1585,7 @@ function renderProfile(item,data){
 }
 async function drainProfiles(){
  if(profileActive||celebrationActive||milestoneQueue.length||document.body.classList.contains('cricbay-score-offline')||!profileQueue.length)return;
- if(document.body.classList.contains('broadcast-match-visible')){profileQueue.length=0;return;}
+ if(document.body.classList.contains('broadcast-match-visible'))return;
  profileActive=true;
  const item=profileQueue.shift(),token=++profileToken;
  let stats=null;
@@ -1595,7 +1595,8 @@ async function drainProfiles(){
  }catch(error){console.warn('Player profile data unavailable',error);}
  if(!profileActive||profileToken!==token)return;
  if(!stats||!stats.profile||!stats.career||!stats.season){
-  profileActive=false;setTimeout(drainProfiles,200);return;
+  // Keep the incoming player pending when tournament/profile APIs are temporarily delayed.
+  profileActive=false;profileQueue.unshift(item);return;
  }
  renderProfile(item,stats);
  const panel=$('playerIntro');
@@ -1615,7 +1616,11 @@ function trackProfiles(data){
  const candidates=[['batting',c.batter1],['batting',c.batter2],['bowling',c.current_bowler]];
  const items=candidates.filter(([,p])=>p&&p.player_id!=null).map(([role,p])=>({role,id:String(p.player_id),name:fullName(p),snapshot:p,inning,team:role==='batting'?$('batTeam').textContent:$('bowlTeam').textContent,tournament:data.match?.tournament_id??data.match?.tournament?.id??q.get('tournamentId')??'',tournamentName:data.match?.tournament_name??data.match?.tournament??''}));
  // Warm the player cache even for initial players, without showing a card on initial load.
- if(!profileBaseline){items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;}
+ if(!profileBaseline){
+  // An empty initial snapshot is not a baseline: wait for actual on-field players.
+  if(!items.length)return;
+  items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;
+ }
  for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;profileSeen.add(key);if(showPlayerProfile)profileQueue.push(item);
   void fetchMissingPlayerApis(item).catch(console.warn);}
  if(showPlayerProfile)drainProfiles();
@@ -2326,6 +2331,60 @@ function adjustedTarget(data){
 }
 function isInningsComplete(data,index){return matchInningsInfo(data,index).finished;}
 function matchOutcome(data){
+ const mSplit=data.match||{};
+ const isSplit=mSplit.is_split_inning===true||String(mSplit.is_split_inning).toLowerCase()==='true';
+ if(isSplit){
+  const a=matchInningsInfo(data,1),b=matchInningsInfo(data,2);
+  const splitOvers=Number(mSplit.split_inning_over)||10;
+  const activeId=String(mSplit.current_inning_id??'');
+  const activeB=b.inn.inning_id!=null&&activeId===String(b.inn.inning_id);
+  const explicitSegment=Number(data.current?.segment_number??data.current?.split_inning_number??mSplit.current_segment_number??mSplit.current_split_inning_number);
+  // A completed first split segment is not a completed match innings.
+  // Team B must be batting again AFTER Team A's second segment.
+  const fourthPhase=activeB&&(explicitSegment===4||(a.balls!=null&&a.balls>splitOvers*6));
+  // A team dismissed in its opening split segment has no wickets to resume.
+  // Do not end the match until Team A has finished its full allocation (or
+  // CricBay explicitly confirms a final result), even if Team B is all out.
+  const fullOvers=Number(mSplit.max_overs??mSplit.maximum_overs)||splitOvers*2;
+  const aFullBalls=a.balls!=null&&a.balls>=fullOvers*6;
+  const aAllOut=a.allOut;
+  const aFinalStatus=/^(completed|complete|finished|ended|all out|all-out)$/i.test(String(a.inn.status||'').trim());
+  const aFinalDone=aFullBalls||aAllOut||aFinalStatus;
+  const officialSplit=officialResult(data);
+  const bCannotResume=b.allOut;
+  const earlyAllOutFinish=bCannotResume&&aFinalDone;
+  if(!fourthPhase&&!earlyAllOutFinish){
+   // An explicit final CricBay result is authoritative, but ignore any
+   // calculated result in summaryScorecard before the last batting phase.
+   const directResult=meaningfulResult(mSplit.result??mSplit.result_text??mSplit.result_description);
+   if(directResult&&/complete|finished|ended|result/i.test(String(mSplit.status??mSplit.match_status??'')))
+    return {complete:true,result:directResult,source:'split-official-final'};
+   return {complete:false,result:'',source:'split-innings-before-final-segment'};
+  }
+  const sp=superOverPhase(data);
+  if(sp)return sp.result?{complete:true,result:sp.result,source:'superover'}:{complete:false,result:'',source:'superover-pending'};
+  const official=officialSplit;
+  if(official)return {complete:true,result:official,source:'official'};
+  if(!Number.isFinite(a.runs)||!Number.isFinite(b.runs))return {complete:false,result:'',source:'split-scores-pending'};
+  const target=adjustedTarget(data)??(a.runs+1);
+  const secondName=b.inn.team?.team_name||b.inn.team?.short_name||b.inn.scorecard?.team_name||'Second team';
+  const firstName=a.inn.team?.team_name||a.inn.team?.short_name||a.inn.scorecard?.team_name||'First team';
+  if(b.runs>=target && !earlyAllOutFinish){
+   if(Number.isFinite(b.wickets)){
+    const margin=Math.max(0,b.wicketLimit-b.wickets);
+    return {complete:true,result:`${secondName} won by ${margin} wicket${margin===1?'':'s'}`,source:'split-chase'};
+   }
+   return {complete:true,result:`${secondName} won (target reached)`,source:'split-chase'};
+  }
+  // In split innings, a first-segment 'complete' status must never end the match.
+  const finalBalls=b.balls!=null&&b.balls>=fullOvers*6;
+  const finalAllOut=b.allOut;
+  if(!finalBalls&&!finalAllOut&&!earlyAllOutFinish)return {complete:false,result:'',source:'split-final-segment-live'};
+  if(a.runs===b.runs)return {complete:true,result:'Match tied',source:'split-tie'};
+  if(a.runs<b.runs)return {complete:true,result:`${secondName} won by ${b.runs-a.runs} run${b.runs-a.runs===1?'':'s'}`,source:'split-first-team-short'};
+  const margin=a.runs-b.runs;
+  return {complete:true,result:`${firstName} won by ${margin} run${margin===1?'':'s'}`,source:'split-runs'};
+ }
  const sp=superOverPhase(data);
  if(sp)return sp.result?{complete:true,result:sp.result,source:'superover'}:{complete:false,result:'',source:'superover-pending'};
  const official=officialResult(data);
@@ -2461,7 +2520,7 @@ function renderBroadcastSummary(data){
 function renderSummary(data,phase){
  const panel=$('summaryPanel');
  const active=['match','first','second','innings'].includes(phase);
- if(!active){panel.classList.remove('visible','broadcast-active','innings-full-active');document.body.classList.remove('broadcast-match-visible');return;}
+ if(!active){panel.classList.remove('visible','broadcast-active','innings-full-active');document.body.classList.remove('broadcast-match-visible');if(profileQueue.length)void drainProfiles();return;}
  panel.classList.add('visible');document.body.classList.add('broadcast-match-visible');
  if(phase==='match'){
   panel.classList.remove('innings-full-active');panel.classList.add('broadcast-active');
@@ -2856,7 +2915,7 @@ async function refresh(){if(busy||pollingStoppedForPom)return;
  const data=await fetchWorkerJSON(`/live/snapshot/${matchId}`,data=>Boolean(data&&typeof data==='object'&&data.match));
  document.body.classList.toggle('cricbay-superover',Boolean(superOverPhase(data)));
  restoreAfterScoreSuccess();
- latestSnapshot=data;render(data);if(preloadPlayerStatsEnabled){preloadAllPlayers(data);trackProfiles(data);}lastVersion=data.version;
+ latestSnapshot=data;render(data);if(preloadPlayerStatsEnabled)preloadAllPlayers(data);trackProfiles(data);lastVersion=data.version;
  updateSummary(data);
  checkTenthOverLifecycle(data);
  checkNextBowlerLifecycle(data);
