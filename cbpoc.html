@@ -1212,7 +1212,7 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro{position:fixed;left:50%;top:43%;transform:translate(-50%,-50%);width:min(96vw,960px);max-width:calc((100vh - 35px)*1.94);font-family:Arial,Helvetica,sans-serif;color:#fff;pointer-events:none;z-index:1600}
 #playerIntro .profile-shell{position:relative;box-sizing:border-box;width:100%;aspect-ratio:644 / 326;padding:4.2% 2.9% 2.1%;border:0;border-radius:0;overflow:hidden;background:linear-gradient(135deg,#ff9eab 0%,#78000b 1.2%,#2e0005 2.2%,#4b0009 97%,#ff8a9b 99%,#7c0009 100%);box-shadow:0 6px 0 #180409,0 0 0 1px #ffd4d8,0 14px 35px #000a;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%)}
 #playerIntro .profile-shell:before{content:'';position:absolute;inset:1.1%;border:2px solid #e5485a;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%);pointer-events:none;box-shadow:inset 0 0 7px #ff9aa0}
-#playerIntro .profile-kicker{position:absolute;left:2.4%;top:0.4%;width:33%;height:7.1%;box-sizing:border-box;padding:0.8% 3.1%;background:linear-gradient(#ff5b6a 0%,#c51325 20%,#780009 67%,#4d0008 100%);border:1px solid #ffb1b8;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);font-weight:950;font-style:italic;letter-spacing:0;font-size:clamp(9px,1.85vw,21px);white-space:nowrap;text-shadow:1px 2px 1px #220006;opacity:1;z-index:2}
+#playerIntro .profile-kicker{position:absolute;left:2.4%;top:0.4%;width:62%;height:7.1%;box-sizing:border-box;padding:0.8% 3.1%;background:linear-gradient(#ff5b6a 0%,#c51325 20%,#780009 67%,#4d0008 100%);border:1px solid #ffb1b8;clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);font-weight:950;font-style:italic;letter-spacing:0;font-size:clamp(9px,1.85vw,21px);white-space:nowrap;text-shadow:1px 2px 1px #220006;opacity:1;z-index:2}
 #playerIntro .profile-name{position:relative;margin:0 0 0 2.5%;font-size:clamp(18px,3.8vw,39px);font-style:italic;font-weight:950;line-height:1.04;letter-spacing:-.6px;text-transform:uppercase;text-shadow:1px 2px 1px #270005;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-top:0}
 #playerIntro .profile-team{margin:0.5% 0 0 2.5%;font-size:clamp(9px,1.65vw,17px);font-weight:700;font-style:italic;line-height:1.15;opacity:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #playerIntro .profile-stats{display:flex;flex-direction:column;gap:1.5%;margin-top:2%;height:74%;justify-content:space-between}
@@ -1647,9 +1647,40 @@ function profileNameFromApi(profile,fallback){
  const p=Array.isArray(profile)?profile[0]:profile;
  return [p?.player_name,p?.full_name,p?.name,[p?.first_name,p?.last_name].filter(Boolean).join(' ')].find(v=>typeof v==='string'&&v.trim())||fallback;
 }
+const battingProfileHeadings=["THE STAGE IS SET","ENTER THE BATTER","READY FOR BATTLE","THE NEXT WARRIOR","THE RUN MACHINE","THE BATTERY IS CHARGED","TIME TO DOMINATE","THE NEW CONTENDER","THE BAT SPEAKS","LET THE BAT TALK","THE POWER ARRIVES","A NEW FORCE","THE BATTLE CONTINUES","THE SPOTLIGHT IS ON","READY TO UNLEASH","THE CREASE AWAITS","THE NEXT BIG HIT","THE GAME IS ON","THE HERO STEPS IN","BRING ON THE POWER"];
+const bowlingProfileHeadings=["THE HUNT BEGINS","ENTER THE BOWLER","READY TO STRIKE","THE NEXT DESTROYER","THE WICKET HUNTER","THE ATTACK IS LOADED","TIME TO DELIVER","THE NEW CHALLENGER","THE BALL ROARS","LET THE BALL TALK","THE STORM ARRIVES","A NEW THREAT","THE ATTACK CONTINUES","THE PRESSURE IS ON","READY TO ATTACK","THE WICKET AWAITS","THE NEXT BIG BREAKTHROUGH","THE GAME IS ON","THE WARRIOR STEPS UP","BRING ON THE HEAT"];
+function randomProfileHeading(role){const options=role==='bowling'?bowlingProfileHeadings:battingProfileHeadings;return options[Math.floor(Math.random()*options.length)];}
+// Fit every possible heading to the same available width, using the widest
+// measured batting/bowling phrase rather than sizing only the current phrase.
+function fitProfileHeading(){
+ const el=$('profileKicker');if(!el)return;
+ const width=el.getBoundingClientRect().width;
+ if(!width)return;
+ const css=getComputedStyle(el);
+ const available=width-(parseFloat(css.paddingLeft)||0)-(parseFloat(css.paddingRight)||0)-4;
+ if(available<=0)return;
+ const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');
+ if(!ctx)return;
+ const fontFamily=css.fontFamily;
+ const fontWeight=css.fontWeight;
+ const fontStyle=css.fontStyle;
+ const letterSpacing=parseFloat(css.letterSpacing)||0;
+ const phrases=[...battingProfileHeadings,...bowlingProfileHeadings];
+ let size=19;
+ while(size>8){
+  ctx.font=`${fontStyle} ${fontWeight} ${size}px ${fontFamily}`;
+  const widest=Math.max(...phrases.map(t=>ctx.measureText(t).width+Math.max(0,t.length-1)*letterSpacing));
+  if(widest<=available)break;
+  size-=0.25;
+ }
+ el.style.fontSize=`${size}px`;
+}
+window.addEventListener('resize',()=>requestAnimationFrame(fitProfileHeading));
+
 function renderProfile(item,data){
  const panel=$('playerIntro');panel.className='theme-'+theme;
- $('profileKicker').textContent=item.role==='bowling'?'INCOMING BOWLER':'INCOMING BATSMAN';
+ $('profileKicker').textContent=randomProfileHeading(item.role);
+ requestAnimationFrame(fitProfileHeading);
  $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
  const p=Array.isArray(data?.profile)?data.profile[0]:(data?.profile||{});
  const detail=item.role==='bowling'?[p?.bowling_style,p?.player_role,p?.role,p?.batting_style,item.team]:[p?.batting_style,p?.batting_hand,p?.player_role,p?.role,p?.bowling_style,item.team].filter(v=>typeof v==='string'&&v.trim());
@@ -2189,22 +2220,29 @@ function firstInningsProjection(data){
 // Derive the current stand from those cumulative values, including split-innings
 // resumption. Never reset simply because the batting team changed segments.
 function footerPartnership(data){
- const m=data.match||{},c=data.current||{},inns=data.innings||{};
- const active=[inns.inning1,inns.inning2].find(i=>i?.inning_id!=null&&String(i.inning_id)===String(m.current_inning_id));
+ const m=data.match||{}, c=data.current||{}, inns=data.innings||{};
+ const active=[inns.inning1,inns.inning2].find(i=>i?.inning_id!=null&&String(i.inning_id)===String(m.current_inning_id))
+   || (secondInningsStarted(data)?inns.inning2:inns.inning1);
  if(!active)return '';
- const score=Number(c.score??active.score??active.scorecard?.total?.total_runs);
- const balls=inningsBalls(c.over??active.overs);
- const wickets=Number(c.wickets??active.wickets??active.scorecard?.total?.total_wickets);
+ const sc=active.scorecard||{}, total=sc.total||{};
+ const score=Number(c.score??active.score??total.total_runs);
+ const balls=inningsBalls(c.over??active.overs??total.total_overs);
+ const wickets=Number(c.wickets??active.wickets??total.total_wickets);
  if(!Number.isFinite(score)||balls===null||!Number.isFinite(wickets))return '';
- const list=active.scorecard?.fall_of_wickets_list;
+ const direct=sc.partnership??active.partnership??c.partnership;
+ if(direct&&typeof direct==='object'){
+  const r=Number(direct.runs??direct.partnership_runs), b=Number(direct.balls??direct.partnership_balls);
+  if(Number.isFinite(r)&&Number.isFinite(b)&&r>=0&&b>=0)return `${r}(${b})`;
+ }
  if(wickets===0)return `${Math.max(0,score)}(${Math.max(0,balls)})`;
+ const list=sc.fall_of_wickets_list??active.fall_of_wickets_list;
  if(!Array.isArray(list))return '';
- const last=list.filter(w=>Number(w.wicket_number)<=wickets&&Number.isFinite(Number(w.score)))
-  .sort((a,b)=>Number(a.wicket_number)-Number(b.wicket_number)).at(-1);
+ const last=list.filter(w=>Number(w.wicket_number??w.wicket_no??w.wicket)<=wickets&&Number.isFinite(Number(w.score??w.team_score)))
+  .sort((a,b)=>Number(a.wicket_number??a.wicket_no??a.wicket)-Number(b.wicket_number??b.wicket_no??b.wicket)).at(-1);
  if(!last)return '';
- const wicketBalls=inningsBalls(last.overs_played??last.overs);
+ const wicketBalls=inningsBalls(last.overs_played??last.overs??last.over);
  if(wicketBalls===null||wicketBalls>balls)return '';
- return `${Math.max(0,score-Number(last.score))}(${Math.max(0,balls-wicketBalls)})`;
+ return `${Math.max(0,score-Number(last.score??last.team_score))}(${Math.max(0,balls-wicketBalls)})`;
 }
 function splitInningsFooter(data){
  const m=data.match||{};
@@ -2225,15 +2263,43 @@ function splitInningsFooter(data){
  const aBalls=inningsBalls(a.overs),bBalls=inningsBalls(b.overs);
  const aOver=activeA?inningsBalls(c.over)??aBalls:aBalls;
  const bOver=activeB?inningsBalls(c.over)??bBalls:bBalls;
- const secondSegmentA=(bBalls??0)>=split*6||(/started|complete|finished|ended/i.test(inningsState(b))&&(bBalls??0)>0&&activeA);
- const secondSegmentB=(aOver??0)>split*6||/complete|finished|ended/i.test(inningsState(a));
- // Phase 4: preserve the existing chase calculation and formatting.
- if(activeB&&secondSegmentB)return null;
+ // CricBay marks the first ten-over segment as "Split Innings Completed"
+ // even when its cumulative overs are represented as "9.6".
+ // Only apply this status-based transition inside splitInningsFooter.
+ const splitCompleted=inn=>inningsState(inn)==='split innings completed';
+ const secondSegmentA=activeA && ((bBalls??0)>=split*6 || splitCompleted(b) ||
+   (/started|complete|finished|ended/i.test(inningsState(b))&&(bBalls??0)>0));
+ // Team A's first ten-over segment may be marked 'complete' by CricBay.
+ // That is NOT evidence that Team B is in its second segment. Only switch
+ // once Team A has actually resumed beyond the split, or an explicit segment
+ // number confirms the fourth phase.
+ const explicitSegment=Number(c.segment_number??c.split_inning_number??m.current_segment_number??m.current_split_inning_number);
+ // Status of inning1 alone cannot distinguish Team B's first and final
+ // segments. Require evidence that Team A resumed after its first segment.
+ const secondSegmentB=activeB && ((aOver??0)>split*6 || explicitSegment===4);
+ // Phase 4: use cumulative scores/balls, never a stale generic second-innings
+ // target or the first ten-over segment's score.
+ if(activeB&&secondSegmentB){
+  const result=meaningfulResult(m.result??m.result_text??m.result_description);
+  if(result)return result;
+  if(!Number.isFinite(aRuns)||!Number.isFinite(bRuns))return '';
+  const needed=Math.max(0,aRuns+1-bRuns);
+  const fullOvers=Number(m.max_overs??m.maximum_overs)||split*2;
+  const ballsLeft=Math.max(0,fullOvers*6-(bOver??0));
+  const wickets=Number(c.wickets??b.wickets??b.scorecard?.total?.total_wickets);
+  const maxWickets=Math.max(1,Number(m.max_players_per_team??11)-1);
+  if(needed===0)return 'Target Reached';
+  if(ballsLeft===0||(Number.isFinite(wickets)&&wickets>=maxWickets))return 'Innings Completed';
+  return `Need ${needed} run${needed===1?'':'s'} · ${ballsLeft} balls left · RRR ${(needed*6/ballsLeft).toFixed(2)}`;
+ }
  // Phase 1: only the opening ten overs receive a projected score.
  if(activeA&&!secondSegmentA){
   const balls=aOver??0;
   if(balls<=0||!Number.isFinite(aRuns))return '';
-  return `Projected Score ${Math.round(aRuns*split*6/balls)}`;
+  // Projection is for the complete match innings, not just the first split segment.
+  const fullOvers=Number(m.max_overs??m.maximum_overs);
+  const projectionOvers=Number.isFinite(fullOvers)&&fullOvers>0?fullOvers:split*2;
+  return `Projected Score ${Math.round(aRuns*projectionOvers*6/balls)}`;
  }
  // Phases 2 and 3: compare cumulative totals, never segment-only runs.
  const battingRuns=activeA?aRuns:bRuns,opponentRuns=activeA?bRuns:aRuns;
@@ -2751,23 +2817,22 @@ function sumFow(inn){
 }
 function sumExtras(inn){const ex=inn?.scorecard?.extras??inn?.scorecard?.total?.extras; if(ex==null)return '—';if(typeof ex!=='object')return String(ex);return String(ex.total??ex.total_extras??Object.values(ex).filter(x=>Number.isFinite(Number(x))).reduce((a,b)=>a+Number(b),0));}
 function sumNextBat(inn,bat,data,n){
- const sc=inn?.scorecard||{};
- const total=inn?.scorecard?.total||{};
+ const sc=inn?.scorecard||{},total=sc.total||{};
  const wickets=Number(inn?.wickets??total.total_wickets??0);
- const overs=String(inn?.overs??total.total_overs??'0.0');
- const [whole,partial]=overs.split('.').map(Number);
+ const balls=inningsBalls(inn?.overs??total.total_overs??'0.0');
  const limit=Number(data?.match?.max_overs??data?.match?.maximum_overs??20);
- const ended=Boolean(inn?.is_completed||inn?.completed||inn?.innings_completed||inn?.status==='COMPLETED') || wickets>=10 || whole*6+(partial||0)>=limit*6 || (n===2&&Number(inn?.score??total.total_runs??0)>Number(sumInning(data,1)?.score??sumInning(data,1)?.scorecard?.total?.total_runs??0));
+ const firstScore=Number(sumInning(data,1)?.score??sumInning(data,1)?.scorecard?.total?.total_runs??0);
+ const score=Number(inn?.score??total.total_runs??0);
+ const ended=Boolean(inn?.is_completed||inn?.completed||inn?.innings_completed||/complete|finished|ended/i.test(String(inn?.status||'')))
+   ||wickets>=10||(balls!==null&&balls>=limit*6)||(n===2&&score>firstScore);
  if(ended)return '';
- const identity=p=>String(p?.player_id??p?.batter_id??p?.id??'').trim();
  const name=p=>typeof p==='string'?p:String(p?.batter_name??p?.player_name??p?.name??fullName(p)??'').trim();
- const seenIds=new Set(bat.map(identity).filter(Boolean));
- const seenNames=new Set(bat.map(p=>name(p).toLowerCase()).filter(Boolean));
- const eligible=p=>name(p)&&!seenNames.has(name(p).toLowerCase())&&(!identity(p)||!seenIds.has(identity(p)));
- // An explicit next batter from the API takes priority, but must not have batted already.
- let next=sc.next_batter??sc.next_batsman??inn.next_batter??inn.next_batsman??data?.match?.next_batter;
- if(next){const candidates=(Array.isArray(next)?next:[next]).filter(eligible);if(candidates.length===1)return sumShortName(name(candidates[0]),32);}
- // The playing XI is not necessarily in batting order. Do not guess a player from it.
+ const id=p=>String(p?.player_id??p?.batter_id??p?.id??'').trim();
+ const seenIds=new Set(bat.map(id).filter(Boolean)),seenNames=new Set(bat.map(p=>name(p).toLowerCase()).filter(Boolean));
+ const eligible=p=>name(p)&&!seenNames.has(name(p).toLowerCase())&&(!id(p)||!seenIds.has(id(p)));
+ const explicit=sc.next_batter??sc.next_batsman??inn.next_batter??inn.next_batsman??data?.current?.next_batter;
+ if(explicit){const options=(Array.isArray(explicit)?explicit:[explicit]).filter(eligible);if(options.length===1)return sumShortName(name(options[0]),32);}
+ // Yet-to-bat lists and playing XI are not guaranteed to be ordered batting lineups.
  return 'TBD';
 }
 function sumTeamBadge(name,variant,team){
@@ -2850,7 +2915,6 @@ function updateSummary(data){
  }
  if(summaryPreview==='first'||summaryPreview==='second'){renderModernOver(data,summaryPreview==='first'?1:2);modernShow(true);return;}
  if(!showOverSummary||!summaryEnabled){modernShow(false);return;}
- if(phase==='innings'){modernShow(false);return;}
  const n=secondInningsStarted(data)?2:1;
  if(overSummaryInnings!=='both'&&overSummaryInnings!==(n===1?'first':'second')){modernShow(false);return;}
  const inn=sumInning(data,n),over=String(inn.overs??'');const key=String(data.match?.match_id??matchId)+':'+n+':'+over;
