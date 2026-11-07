@@ -2759,12 +2759,42 @@ function sumNextBat(inn,bat,data,n){
  return 'TBD';
 }
 function sumTeamBadge(name,variant,team){
+ // Final summary intentionally uses team names only; no initials or empty image slots.
  const clean=String(name||'TEAM').trim();
- const letters=clean.split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
- const raw=team?.team_logo_url??team?.logo_url??team?.team_logo??team?.logo??team?.image_url??'';
- const logo=typeof raw==='string' && /^https:\/\/[^\s<>"']+$/i.test(raw)?raw:'';
- const emblem=logo?`<img class="ms-team-logo" src="${sumEsc(logo)}" alt="" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="ms-team-emblem ms-logo-fallback" style="display:none">${sumEsc(letters)}</span>`:`<span class="ms-team-emblem">${sumEsc(letters)}</span>`;
- return `<div class="ms-team-identity ms-${variant}" aria-label="${sumEsc(clean)}">${emblem}<span class="ms-team-label">${sumEsc(clean)}</span></div>`;
+ return `<div class="ms-team-identity ms-${variant}" aria-label="${sumEsc(clean)}"><span class="ms-team-label">${sumEsc(clean)}</span></div>`;
+}
+function sumPowerplayOvers(inn){
+ // Use only explicitly tagged CricBay BAPP/BOPP overs. Do not infer powerplays.
+ const sc=inn?.scorecard||{};
+ const candidates=[sc.powerplay_overs,sc.power_play_overs,sc.powerplayOvers,sc.powerplay_overs_list,inn?.powerplay_overs,inn?.power_play_overs,inn?.powerplayOvers,sc.overs,inn?.overs_list,inn?.over_summaries,inn?.recent_overs];
+ const raw=candidates.flatMap(v=>Array.isArray(v)?v:(v&&typeof v==='object'&&Array.isArray(v.overs)?v.overs:[]));
+ const seen=new Set();
+ return raw.filter(o=>{
+  const type=String(o?.power_play_type??o?.powerplay_type??o?.powerplayType??o?.type??'').toUpperCase();
+  if(type!=='BAPP'&&type!=='BOPP')return false;
+  const num=o?.over_number??o?.over_no??o?.over_num??o?.over;
+  if(num==null||!Number.isFinite(Number(num))||seen.has(String(num)))return false;
+  seen.add(String(num));return true;
+ }).sort((a,b)=>Number(a.over_number??a.over_no??a.over_num??a.over)-Number(b.over_number??b.over_no??b.over_num??b.over));
+}
+function sumPowerplayTable(inn){
+ const overs=sumPowerplayOvers(inn);
+ if(!overs.length)return '';
+ const cell=(v)=>v==null?'—':sumEsc(String(v));
+ const rows=overs.map(o=>{
+  const num=o.over_number??o.over_no??o.over_num??o.over;
+  const runs=o.runs??o.total_runs??o.runs_scored;
+  const wickets=o.wickets??o.total_wickets??o.wickets_fallen;
+  const bowler=o.bowler_name??o.bowled_by??o.bowler?.name??o.bowler?.player_name;
+  const type=o.power_play_type??o.powerplay_type??o.powerplayType??o.type;
+  return `<div class="ms-pp-row"><span>${cell(num)}</span><span>${cell(runs)}</span><span>${cell(wickets)}</span><span class="ms-pp-bowler" title="${cell(bowler)}">${cell(bowler)}</span><span>${cell(String(type).toUpperCase())}</span></div>`;
+ }).join('');
+ return `<section class="ms-pp-section"><h3>POWERPLAY OVERS</h3><div class="ms-pp-row ms-pp-th"><span>O#</span><span>R</span><span>W</span><span>BOWLED BY</span><span>TYPE</span></div>${rows}</section>`;
+}
+function sumFowTable(inn){
+ const list=sumFow(inn);
+ if(!list.length)return '';
+ return `<section class="ms-pp-section ms-fow-section"><h3>FALL OF WICKETS</h3><div class="ms-fow-items">${list.map((x,i)=>`<span>${sumEsc(String(x))}</span>`).join('')}</div></section>`;
 }
 function sumTotalStrip(inn){
  const t=inn?.scorecard?.total||{};
@@ -2792,7 +2822,7 @@ function renderModernOver(data,n){
  const focusRole=focusBatting?'BATTING':'BOWLING';
  const opponentRole=focusBatting?'BOWLING':'BATTING';
  const focusColor=sumTeamColor(focus),opponentColor=sumTeamColor(opponent);
- modernRoot.innerHTML=`<div class="ms-shell ms-over ms-innings-${n}"><header class="ms-reference-header ms-focus-only"><div class="ms-reference-title ms-${focusColor}">${sumEsc(focus)} ${focusRole}</div></header><div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2>${chase}<div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${wickets>0&&fow.length?`<div class="ms-fow">FALL OF WICKETS: ${sumEsc(fow.join(' · '))}</div>`:''}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div></section></div></div>`;
+ modernRoot.innerHTML=`<div class="ms-shell ms-over ms-innings-${n}"><header class="ms-reference-header ms-focus-only"><div class="ms-reference-title ms-${focusColor}">${sumEsc(focus)} ${focusRole}</div></header><div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2>${chase}<div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div>${sumPowerplayTable(inn)}${wickets>0?sumFowTable(inn):''}</section></div></div>`;
 }
 function sumTopRows(people,kind){const sorted=people.slice().sort((a,b)=>kind==='bat'?statNum(b.runs)-statNum(a.runs):statNum(b.wickets)-statNum(a.wickets)||statNum(a.runs)-statNum(b.runs)).slice(0,3);
  return sorted.map(p=>{const nm=sumShortName(p.batter_name||p.bowler_name||p.player_name||fullName(p),80);const v=kind==='bat'?`${statNum(p.runs)} (${statNum(p.balls_faced??p.balls)})${sumNotOut(p)?'<b class="ms-star">*</b>':''}`:`${statNum(p.wickets)}/${statNum(p.runs)} (${sumEsc(p.overs??p.overs_bowled??'0.0')})`;return `<div class="ms-top-row"><span class="ms-final-player" title="${sumEsc(nm)}">${sumEsc(nm)}</span><strong>${v}</strong></div>`;}).join('')||'<div class="ms-empty">Statistics pending</div>';
@@ -3234,6 +3264,13 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
 }
 #cricbayModernSummary .ms-over .ms-fow,
 #cricbayModernSummary .ms-over .ms-next{padding:4px 8px!important;font-size:clamp(10px,.95vw,14px)!important}
+#cricbayModernSummary .ms-over .ms-pp-section{border-top:1px solid var(--ms-line);padding:5px 7px;color:#f4f4f7;min-width:0}
+#cricbayModernSummary .ms-over .ms-pp-section h3{font-size:clamp(10px,1vw,14px);letter-spacing:.08em;color:#ffdd8b;margin:0 0 4px}
+#cricbayModernSummary .ms-over .ms-pp-row{display:grid;grid-template-columns:.35fr .35fr .35fr minmax(0,2.7fr) .65fr;gap:5px;align-items:center;padding:3px 2px;font-size:clamp(9px,.85vw,12px);border-bottom:1px solid #ffffff19}
+#cricbayModernSummary .ms-over .ms-pp-th{color:#c5c5d0;font-weight:800;background:#ffffff12}
+#cricbayModernSummary .ms-over .ms-pp-bowler{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cricbayModernSummary .ms-over .ms-fow-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px;font-size:clamp(9px,.82vw,12px)}
+#cricbayModernSummary .ms-over .ms-fow-items span{min-width:0;overflow-wrap:anywhere}
 #cricbayModernSummary .ms-over .ms-card>h2{
  min-height:30px!important;padding:5px 9px!important;
  font-size:clamp(12px,1.5vw,22px)!important;
