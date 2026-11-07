@@ -1097,7 +1097,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 }
 </style>
 <div class="overlay theme-marvel" id="overlay"><div class="top"><div class="identity"><div class="name" id="batTeam"></div></div><div class="details" id="batters"></div><div class="scorebox"><svg class="hex-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="9,2 91,2 98,50 91,98 9,98 2,50" vector-effect="non-scaling-stroke"/></svg><div class="score" id="score"></div><div class="meta" id="meta"></div></div><div class="details"><div class="bowler-row"><span class="person" id="bowler"></span><span class="stats" id="figures"></span><span class="pp-marker" id="powerplay" aria-label="Powerplay"></span></div><div class="balls" id="balls"></div></div><div class="identity"><div class="name" id="bowlTeam"></div></div></div><div class="bottom"><span class="partnership" id="partnership"></span><span class="message" id="message"></span><span class="credit">Powered by CricBay</span></div></div>
-<section id="playerIntro" aria-live="polite"><div class="profile-shell"><div class="profile-kicker" id="profileKicker">INCOMING BATSMAN</div><div class="profile-name" id="profileName"></div><div class="profile-team" id="profileTeam"></div><div class="profile-stats" id="profileStats"></div></div></section>
+<section id="playerIntro" aria-live="polite"><div class="profile-shell"><div class="profile-kicker" id="profileKicker">INCOMING BATSMAN</div><div class="profile-name cb-profile-display-name" id="profileName"></div><div class="profile-team" id="profileTeam"></div><div class="profile-stats" id="profileStats"></div></div></section>
 <div class="event-animation" id="scoreEvent" aria-live="polite"><div class="event-rays"></div><div class="event-particles"></div><span class="event-emoji"></span><span class="event-text"></span><span class="event-subtitle"></span></div>
 <section class="summary-panel" id="summaryPanel" aria-live="polite"><div id="legacySummary"><div class="summary-head"><div><div class="summary-kicker">CRICBAY MATCH SUMMARY</div><div class="summary-title" id="summaryTitle"></div></div></div><div class="summary-result" id="summaryResult"></div><div class="summary-scoreline" id="summaryScores"></div><div class="summary-columns"><div class="summary-col"><h3>TOP 3 BATSMEN</h3><div id="summaryBatters"></div></div><div class="summary-col"><h3>TOP 3 BOWLERS</h3><div id="summaryBowlers"></div></div></div><div class="summary-pom" id="summaryPom"></div><div class="summary-credit">Powered by CricBay</div></div><div id="fullInningsSummary" class="full-innings-summary"><div class="full-innings-header"><div class="full-eyebrow" id="fullInningsLabel"></div><div class="full-score" id="fullScore"></div><div class="full-context" id="fullContext"></div></div><div class="full-innings-columns"><section class="full-bat"><h3 id="fullBatTeam"></h3><div class="full-colhead">BATTER <span>RUNS (BALLS) · BOUNDARIES</span></div><div id="fullBatRows"></div></section><section class="full-bowl"><h3 id="fullBowlTeam"></h3><div class="full-colhead">BOWLER <span>O · M · R · W</span></div><div id="fullBowlRows"></div></section></div><div class="full-bottom"><span id="fullExtras"></span><span id="fullFow"></span></div></div><div id="broadcastSummary" class="broadcast-summary" aria-label="Team-wise broadcast match summary"><div class="broadcast-banner"><span>MATCH SUMMARY</span><div class="broadcast-margin" id="broadcastMargin"></div></div><div class="broadcast-grid"><svg class="broadcast-unified-art" viewBox="0 0 1200 270" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
 <linearGradient id="v9gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b5"/><stop offset=".18" stop-color="#eec87c"/><stop offset=".48" stop-color="#a76529"/><stop offset=".75" stop-color="#f8d88a"/><stop offset="1" stop-color="#b46a31"/></linearGradient>
@@ -1156,6 +1156,37 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro .profile-achievement-entry{font-size:11px!important;font-weight:500!important;line-height:1.12!important;white-space:nowrap!important;text-overflow:ellipsis!important}
 @media(max-height:480px){#playerIntro .profile-awards-row{padding-left:2px}#playerIntro .profile-achievement-entry{font-size:11px!important}}
 </style>
+<style id="cb-profile-isolated-typography-v44">
+/* Dedicated player profile typography; isolated from older landscape overrides. */
+#playerIntro #profileName.cb-profile-display-name{
+ font-family:Arial,Helvetica,sans-serif!important;font-size:23px!important;
+ font-weight:800!important;font-stretch:normal!important;font-style:normal!important;
+ letter-spacing:0!important;line-height:1.15!important;text-transform:none!important;
+ transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ width:calc(100% - 18px);min-width:0;
+}
+#playerIntro .profile-awards-row.cb-profile-pom-left,
+#playerIntro .profile-awards-row.pom-only{grid-template-columns:21% minmax(0,79%)!important}
+#playerIntro .cb-profile-pom-block{grid-column:1;min-width:0;justify-self:stretch;
+ align-self:stretch;display:flex;flex-direction:column;justify-content:center;align-items:center;
+ padding:0 4px!important;text-align:center}
+#playerIntro .cb-profile-pom-block .cb-profile-pom-number{
+ font-family:Arial,Helvetica,sans-serif!important;font-size:23px!important;
+ font-weight:900!important;line-height:1.1!important;letter-spacing:0!important;
+ font-stretch:normal!important;white-space:nowrap}
+#playerIntro .cb-profile-pom-block .cb-profile-pom-caption{
+ font-family:Arial,Helvetica,sans-serif!important;font-size:12px!important;
+ font-weight:800!important;line-height:1.15!important;letter-spacing:0!important;
+ font-stretch:normal!important;white-space:nowrap}
+#playerIntro .profile-achievement-entry.cb-profile-award-text{
+ font-family:Arial,Helvetica,sans-serif!important;font-size:12px!important;
+ font-weight:500!important;line-height:1.12!important;letter-spacing:0!important;
+ font-stretch:normal!important;white-space:nowrap!important;overflow:hidden!important;
+ text-overflow:ellipsis!important;min-width:0!important}
+#playerIntro .profile-awards-list{grid-column:2;min-width:0}
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list{grid-column:1}
+</style>
+
 <script>
 (() => {
 'use strict';
@@ -1580,9 +1611,9 @@ function renderProfile(item,data){
   return 0;
  };
  const pomCount=pomNumber(pomRaw);
- const pom=document.createElement('div');pom.className='profile-pom';
- const count=document.createElement('strong');count.textContent=String(pomCount);
- const caption=document.createElement('span');caption.textContent='CAREER POMS';pom.append(count,caption);
+ const pom=document.createElement('div');pom.className='profile-pom cb-profile-pom-block';
+ const count=document.createElement('strong');count.className='cb-profile-pom-number';count.textContent=String(pomCount);
+ const caption=document.createElement('span');caption.className='cb-profile-pom-caption';caption.textContent='CAREER POMS';pom.append(count,caption);
  const achievementEntries=(value)=>{
   if(!Array.isArray(value))return [];
   return value.filter(entry=>entry&&typeof entry==='object')
@@ -1597,7 +1628,7 @@ function renderProfile(item,data){
  for(const [index,entry] of awards.slice(0,6).entries()){
   if(index===3){const second=document.createElement('div');second.className='profile-achievement-column profile-achievement-column-two';list.append(second);}
   if(index===0){const first=document.createElement('div');first.className='profile-achievement-column profile-achievement-column-one';list.append(first);}
-  const el=document.createElement('div');el.className='profile-achievement-entry';
+  const el=document.createElement('div');el.className='profile-achievement-entry cb-profile-award-text';
   el.textContent=[entry.tournament,entry.award].filter(Boolean).join(' — ').replace(/wicket[\s-]*keeper/gi,'WK');
   list.children[index<3?0:1].append(el);
   // Keep every achievement at the same font size; CSS handles overflow consistently.
@@ -1608,7 +1639,7 @@ function renderProfile(item,data){
  if(pomCount>0||awards.length){
   if(pomCount>0)row.append(pom);
   if(awards.length)row.append(list);
-  if(pomCount>0&&!awards.length)row.classList.add('pom-only');
+  if(pomCount>0&&!awards.length)row.classList.add('pom-only','cb-profile-pom-left');
   if(pomCount>0&&awards.length){row.classList.add('pom-and-achievements');if(awards.length>3)row.classList.add('many-achievements');if(awards.length>4)row.classList.add('two-column-achievements');}
   if(!pomCount&&awards.length)row.classList.add('achievements-only');
   award.append(row);root.append(award);
@@ -2410,6 +2441,12 @@ function adjustedTarget(data){
 }
 function isInningsComplete(data,index){return matchInningsInfo(data,index).finished;}
 function matchOutcome(data){
+ // POM is an authoritative terminal fallback even when the snapshot misses
+ // the final ball or the result/status transition.
+ if(currentPom(data)){
+  const confirmed=officialResult(data)||meaningfulResult(data?.match?.result??data?.match?.result_text??data?.match?.result_description);
+  return {complete:true,result:confirmed||'MATCH COMPLETED',source:'pom-selected'};
+ }
  const mSplit=data.match||{};
  const isSplit=mSplit.is_split_inning===true||String(mSplit.is_split_inning).toLowerCase()==='true';
  if(isSplit){
@@ -2437,6 +2474,18 @@ function matchOutcome(data){
   // it does not need to return for a fourth batting phase.
   const firstTeamCannotCatchUp=aFinalDone&&b.started&&
     Number.isFinite(a.runs)&&Number.isFinite(b.runs)&&a.runs<b.runs;
+  // Once either side is all out while behind on cumulative runs, the
+  // opponent has already won; no unplayed split segment can reverse it.
+  if(aAllOut&&b.started&&Number.isFinite(a.runs)&&Number.isFinite(b.runs)&&a.runs<b.runs){
+   const winner=b.inn.team?.team_name||b.inn.team?.short_name||b.inn.scorecard?.team_name||'Second team';
+   const margin=b.runs-a.runs;
+   return {complete:true,result:`${winner} won by ${margin} run${margin===1?'':'s'}`,source:'split-a-all-out-trailing'};
+  }
+  if(bCannotResume&&a.started&&Number.isFinite(a.runs)&&Number.isFinite(b.runs)&&b.runs<a.runs){
+   const winner=a.inn.team?.team_name||a.inn.team?.short_name||a.inn.scorecard?.team_name||'First team';
+   const margin=a.runs-b.runs;
+   return {complete:true,result:`${winner} won by ${margin} run${margin===1?'':'s'}`,source:'split-b-all-out-trailing'};
+  }
   if(firstTeamCannotCatchUp&&!bCannotResume){
    const secondName=b.inn.team?.team_name||b.inn.team?.short_name||b.inn.scorecard?.team_name||'Second team';
    const margin=b.runs-a.runs;
@@ -3046,8 +3095,14 @@ function updateSummary(data){
  // Only fire for the most recently completed over, never on initial load.
  const crossedCompletedOver=previous&&previous.balls>=0&&observedBalls>previous.balls&&
    completed>Math.floor(previous.balls/6);
- if(crossedCompletedOver&&phase!=='match'){
-  const eventKey=inningsKey+':'+completed;
+ const activeWickets=Number(inn.wickets??inn.scorecard?.total?.total_wickets);
+ const maxPlayers=Number(data.match?.max_players_per_team);
+ const wicketLimit=Number.isFinite(maxPlayers)&&maxPlayers>=2?maxPlayers-1:10;
+ const endedAllOut=previous&&previous.balls>=0&&observedBalls>=previous.balls&&
+   Number.isFinite(activeWickets)&&activeWickets>=wicketLimit&&
+   (observedBalls%6!==0)&&phase!=='match';
+ if((crossedCompletedOver||endedAllOut)&&phase!=='match'){
+  const eventKey=inningsKey+':'+(endedAllOut?'allout:'+observedBalls:completed);
   if(lastFullSummaryOver!==eventKey){lastFullSummaryOver=eventKey;fullSummaryUntil=Date.now()+overSummaryDuration;}
  }
  // Never replay a historical over on initial load, and never reset on 4.6 -> 5.0.
