@@ -1149,7 +1149,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-shell.no-awards{height:min(250px,62vh)}
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:clamp(22px,2.5vw,31px)}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:11px;line-height:1.12;white-space:nowrap}#playerIntro .profile-pom strong{font-size:18px}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
+@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:23px;line-height:1.12;font-family:Arial,Helvetica,sans-serif;font-stretch:normal;letter-spacing:0}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:11px;line-height:1.12;white-space:nowrap}#playerIntro .profile-pom strong{font-size:18px;line-height:1.1}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
 /* v34: consistent award typography, POM left inset and readable full bowler names. */
 #playerIntro .profile-awards-row{grid-template-columns:21% minmax(0,79%);padding-left:3px}
 #playerIntro .profile-pom{padding-left:0;padding-right:5px}
@@ -1208,7 +1208,10 @@ const layout=['2','3'].includes(q.get('layout'))?q.get('layout'):'3';
 $('summaryPanel').className='summary-panel theme-'+theme;
 const opacity=q.has('transparency')?1-Number(q.get('transparency'))/100:Number(q.get('opacity')??'.85');
 overlay.style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
-document.documentElement.style.setProperty('--profile-alpha',String(Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85))));
+const profileOpacity=String(Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
+document.documentElement.style.setProperty('--profile-alpha',profileOpacity);
+document.documentElement.style.setProperty('--profile-shell-alpha',profileOpacity);
+document.documentElement.style.setProperty('--profile-section-alpha',profileOpacity);
 $('summaryPanel').style.setProperty('--alpha',Math.max(0,Math.min(1,Number.isFinite(opacity)?opacity:.85)));
 document.documentElement.style.setProperty('--offset',Math.max(0,Number(q.get('bottomOffset')||0))+'px');
 const summaryEnabled=q.get('summary')!=='0';
@@ -1216,7 +1219,7 @@ const previewOption=(q.get('preview')||'').toLowerCase();
 const summaryPreview=({innings1:'first',innings2:'second',final:'match',off:'',first:'first',second:'second',match:'match'})[previewOption]??(['match','innings','first','second'].includes(q.get('summaryPreview'))?q.get('summaryPreview'):'');
 const showOverSummary=q.get('showOverSummary')!=='false'&&q.get('showOverSummary')!=='0';
 const overSummaryInnings=['first','second','both'].includes(q.get('overSummaryInnings'))?q.get('overSummaryInnings'):'both';
-const overSummaryDuration=Math.max(1,Math.min(120,Number(q.get('overSummaryDuration')||5)))*1000;
+const overSummaryDuration=Math.max(1,Math.min(120,Number(q.get('overSummaryDuration')||8)))*1000;
 const finalSummary=['modern','legacy','off'].includes(q.get('finalSummary'))?q.get('finalSummary'):'modern';
 const summaryOpacity=Math.max(0,Math.min(1,Number.isFinite(Number(q.get('summaryOpacity')))?Number(q.get('summaryOpacity')??.90):.90));
 const soundEnabled=q.get('sound')!=='0'; // enabled by default; sound=0 disables
@@ -1486,8 +1489,8 @@ function enqueuePlayerPreload(item){
 function profileNameFromApi(profile,fallback){
  const p=Array.isArray(profile)?profile[0]:profile;
  // Prefer the scorecard's full on-field name when the profile API only supplies initials.
- const candidates=[fallback,p?.full_name,[p?.first_name,p?.last_name].filter(Boolean).join(' '),p?.player_name,p?.name]
-  .filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim());
+ const candidates=[p?.player_name,p?.full_name,[p?.player_first_name,p?.player_last_name].filter(Boolean).join(' '),[p?.first_name,p?.last_name].filter(Boolean).join(' '),fallback,p?.name]
+  .filter(v=>typeof v==='string'&&v.trim()&&!/^player\s*#?\d+$/i.test(v.trim())).map(v=>v.trim());
  const complete=candidates.find(v=>v.includes(' ')&&!/(?:^|\s)[A-Za-z]\.?($|\s)/.test(v));
  return complete||candidates.sort((a,b)=>b.length-a.length)[0]||'—';
 }
@@ -1526,6 +1529,7 @@ function renderProfile(item,data){
  $('profileKicker').textContent=randomProfileHeading(item.role);
  requestAnimationFrame(fitProfileHeading);
  $('profileName').textContent=profileNameFromApi(data?.profile,item.name);
+ $('profileName').title=$('profileName').textContent;
  const p=Array.isArray(data?.profile)?data.profile[0]:(data?.profile||{});
  const detail=item.role==='bowling'?[p?.bowling_style,p?.player_role,p?.role,p?.batting_style,item.team]:[p?.batting_style,p?.batting_hand,p?.player_role,p?.role,p?.bowling_style,item.team].filter(v=>typeof v==='string'&&v.trim());
  $('profileTeam').textContent=detail[0]||'';
@@ -2693,7 +2697,7 @@ function lifecycleState(data){
  };
 }
 // Android bridge event for each team's 10th completed over. This is independent
-// of the five-second on-screen over summary and never replays on initial load.
+// of the configurable on-screen over summary and never replays on initial load.
 let tenthOverPrevious=null;
 function tenthOverState(data){
  const isSplit=data?.match?.is_split_inning===true||String(data?.match?.is_split_inning).toLowerCase()==='true';
@@ -2886,8 +2890,12 @@ function sumNextBat(inn,bat,data,n){
  const limit=Number(data?.match?.max_overs??data?.match?.maximum_overs??20);
  const firstScore=Number(sumInning(data,1)?.score??sumInning(data,1)?.scorecard?.total?.total_runs??0);
  const score=Number(inn?.score??total.total_runs??0);
- const ended=Boolean(inn?.is_completed||inn?.completed||inn?.innings_completed||/complete|finished|ended/i.test(String(inn?.status||'')))
-   ||wickets>=10||(balls!==null&&balls>=limit*6)||(n===2&&score>firstScore);
+ // In split innings, completion of a 10-over batting phase is NOT the end
+ // of the team's cumulative 20-over innings. Retain Next to Bat at 10.0.
+ const split=data?.match?.is_split_inning===true||String(data?.match?.is_split_inning).toLowerCase()==='true';
+ const phaseEnded=Boolean(inn?.is_completed||inn?.completed||inn?.innings_completed||/complete|finished|ended/i.test(String(inn?.status||'')));
+ const ended=wickets>=10||(balls!==null&&balls>=limit*6)
+   ||(!split&&(phaseEnded||(n===2&&score>firstScore)));
  if(ended)return '';
  const name=p=>typeof p==='string'?p:String(p?.batter_name??p?.player_name??p?.name??fullName(p)??'').trim();
  const id=p=>String(p?.player_id??p?.batter_id??p?.id??'').trim();
@@ -2895,8 +2903,27 @@ function sumNextBat(inn,bat,data,n){
  const eligible=p=>name(p)&&!seenNames.has(name(p).toLowerCase())&&(!id(p)||!seenIds.has(id(p)));
  const explicit=sc.next_batter??sc.next_batsman??inn.next_batter??inn.next_batsman??data?.current?.next_batter;
  if(explicit){const options=(Array.isArray(explicit)?explicit:[explicit]).filter(eligible);if(options.length===1)return sumShortName(name(options[0]),32);}
- // Yet-to-bat lists and playing XI are not guaranteed to be ordered batting lineups.
- return 'TBD';
+ // Display remaining batters using first names, preserving API list order.
+ // This is a list of eligible batters, not a guaranteed batting order.
+ const yetToBat=Array.isArray(sc.yet_to_bat_list)?sc.yet_to_bat_list:[];
+ // Limit each displayed first name to 12 characters and the entire list to 100.
+ // Keep full player names and IDs intact elsewhere for profile lookups.
+ const MAX_FIRST_NAME=12,MAX_NEXT_BAT_TEXT=100;
+ const firstNames=yetToBat.map(p=>String(p?.player_first_name??'').trim()).filter(Boolean)
+   .map(name=>Array.from(name).length>MAX_FIRST_NAME
+     ?Array.from(name).slice(0,MAX_FIRST_NAME-1).join('')+'…':name);
+ if(!firstNames.length)return 'TBD';
+ let displayed='';
+ for(let i=0;i<firstNames.length;i++){
+   const candidate=displayed?displayed+', '+firstNames[i]:firstNames[i];
+   const more=i<firstNames.length-1;
+   if(Array.from(candidate+(more?', …':'')).length>MAX_NEXT_BAT_TEXT){
+     if(!displayed)return Array.from(firstNames[i]).slice(0,MAX_NEXT_BAT_TEXT-1).join('')+'…';
+     return displayed+(Array.from(displayed).length+3<=MAX_NEXT_BAT_TEXT?', …':'…');
+   }
+   displayed=candidate;
+ }
+ return displayed;
 }
 function sumTeamBadge(name,variant,team){
  // Final summary intentionally uses team names only; no initials or empty image slots.
@@ -3269,7 +3296,7 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
 #cricbayModernSummary .ms-card{display:flex!important;flex-direction:column!important;min-height:0!important;}
 #cricbayModernSummary .ms-bat-body{flex:1 1 auto!important;min-height:0!important;overflow:auto!important;}
 #cricbayModernSummary .ms-next{display:block!important;visibility:visible!important;opacity:1!important;flex:0 0 auto!important;margin-top:0!important;min-height:24px!important;padding:5px 9px!important;line-height:1.2!important;border-top:1px solid var(--ms-line)!important;background:rgba(0,0,0,.42)!important;}
-#cricbayModernSummary .ms-next strong{color:#fff;}
+#cricbayModernSummary .ms-next strong{color:#fff;display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;}
 @media(max-height:500px){#cricbayModernSummary .ms-broadcast-header{min-height:50px!important;padding:3px 9px!important;gap:6px!important;}#cricbayModernSummary .ms-final-header{min-height:46px!important;}#cricbayModernSummary .ms-title-block>span{font-size:clamp(11px,1.4vw,17px)!important;}#cricbayModernSummary .ms-title-block>strong{font-size:clamp(17px,2.3vw,27px)!important;}#cricbayModernSummary .ms-team-logo,#cricbayModernSummary .ms-team-emblem{width:34px!important;height:34px!important;}#cricbayModernSummary .ms-next{padding:3px 7px!important;min-height:20px!important;}}
 </style>
 
