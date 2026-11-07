@@ -2432,6 +2432,16 @@ function matchOutcome(data){
   const officialSplit=officialResult(data);
   const bCannotResume=b.allOut;
   const earlyAllOutFinish=bCannotResume&&aFinalDone;
+  // In phase three, Team A may be dismissed or complete 20 overs while
+  // already trailing Team B's cumulative score. Team B has already won:
+  // it does not need to return for a fourth batting phase.
+  const firstTeamCannotCatchUp=aFinalDone&&b.started&&
+    Number.isFinite(a.runs)&&Number.isFinite(b.runs)&&a.runs<b.runs;
+  if(firstTeamCannotCatchUp&&!bCannotResume){
+   const secondName=b.inn.team?.team_name||b.inn.team?.short_name||b.inn.scorecard?.team_name||'Second team';
+   const margin=b.runs-a.runs;
+   return {complete:true,result:`${secondName} won by ${margin} run${margin===1?'':'s'}`,source:'split-first-team-eliminated'};
+  }
   if(!fourthPhase&&!earlyAllOutFinish){
    // An explicit final CricBay result is authoritative, but ignore any
    // calculated result in summaryScorecard before the last batting phase.
@@ -2813,6 +2823,9 @@ function checkSplitTeamOneFinishLifecycle(data){
  const prev=splitTeamOneFinishPrevious;
  splitTeamOneFinishPrevious={finished,balls};
  if(!prev||prev.finished||!finished)return; // No historical replay on initial load.
+ // The Android app pauses recording on INNINGS_BREAK. Never send that
+ // event if this snapshot already has a final match outcome.
+ if(isMatchComplete(data))return;
  const reason=allOut?'ALL_OUT':'OVERS_COMPLETED';
  emitLifecycle('INNINGS_BREAK',data,{
   innings:1,splitInnings:true,completedSegment:3,
@@ -2825,6 +2838,14 @@ function checkLifecycle(data){
  const prev=lifecyclePrevious;
  // Baseline only: initial load can be in any phase, including an already-ended match.
  if(!prev){lifecyclePrevious=next;return;}
+ // Terminal transition is exclusive: never emit INNINGS_BREAK or another
+ // phase callback on the same snapshot as MATCH_ENDED.
+ if(next.ended){
+  if(!prev.ended)emitLifecycle('MATCH_ENDED',data,{result:getMatchResult(data)||''});
+  if(!prev.pom&&next.pom)emitLifecycle('POM_SUBMITTED',data,{playerName:next.pom});
+  lifecyclePrevious=next;
+  return;
+ }
  if(!prev.first&&!prev.break&&!prev.second&&!prev.super&&!prev.ended&&next.first)
   emitLifecycle('FIRST_INNINGS_STARTED',data,{innings:1});
  if(!prev.break&&next.break)
@@ -2833,8 +2854,6 @@ function checkLifecycle(data){
   emitLifecycle('SECOND_INNINGS_STARTED',data,{innings:2});
  if(!prev.super&&next.super)
   emitLifecycle('SUPER_OVER_STARTED',data,{superOverNumber:next.superNumber});
- if(!prev.ended&&next.ended)
-  emitLifecycle('MATCH_ENDED',data,{result:getMatchResult(data)||''});
  if(!prev.pom&&next.pom)
   emitLifecycle('POM_SUBMITTED',data,{playerName:next.pom});
  lifecyclePrevious=next;
