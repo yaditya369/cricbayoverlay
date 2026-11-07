@@ -2726,12 +2726,12 @@ function sumStats(inn){return getInningsStats(inn);}
 function sumOut(p){return String(p.dismissal??p.dismissal_type??p.how_out??'').trim();}
 function sumNotOut(p){return p.is_not_out===true||p.isNotOut===true||/^not[ -]?out$/i.test(sumOut(p))||String(p.batting_status||'').toLowerCase()==='not out';}
 function sumBatRow(p){
- const nm=sumShortName(p.batter_name||p.player_name||fullName(p));const d=sumOut(p);
+ const nm=sumShortName(p.batter_name||p.player_name||fullName(p),46);const d=sumOut(p);
  const label=d&&!/^not[ -]?out$/i.test(d)?d:'Not out';
  return `<div class="ms-bat-row"><span class="ms-name" title="${sumEsc(nm)}">${sumEsc(nm)}${sumNotOut(p)?'<b class="ms-star">*</b>':''}<small title="${sumEsc(label)}">${sumEsc(label)}</small></span><span>${statNum(p.runs)}</span><span>${statNum(p.balls_faced??p.balls)}</span><span>${statNum(p.fours??p.four??p.fours_hit)}</span><span>${statNum(p.sixes??p.six??p.sixes_hit)}</span><span>${Number(p.strike_rate??p.sr??(statNum(p.balls_faced??p.balls)?100*statNum(p.runs)/statNum(p.balls_faced??p.balls):0)).toFixed(2)}</span></div>`;
 }
 function sumBowlRow(p){
- const name=sumShortName(p.bowler_name||p.player_name||fullName(p));const o=String(p.overs??p.overs_bowled??'0.0');
+ const name=sumShortName(p.bowler_name||p.player_name||fullName(p),44);const o=String(p.overs??p.overs_bowled??'0.0');
  const balls=o.split('.');const numOvers=Number(balls[0]||0)+Number(balls[1]||0)/6;
  const eco=Number(p.economy??p.economy_rate??p.eco??(numOvers?statNum(p.runs)/numOvers:0));
  return `<div class="ms-bowl-row"><span class="ms-name" title="${sumEsc(name)}">${sumEsc(name)}</span><span>${sumEsc(o)}</span><span>${statNum(p.maidens??p.maiden)}</span><span>${statNum(p.runs)}</span><span>${statNum(p.wickets)}</span><span>${eco.toFixed(2)}</span></div>`;
@@ -2770,6 +2770,11 @@ function sumTotalStrip(inn){
  const t=inn?.scorecard?.total||{};
  return `<div class="ms-total-strip"><span>EXTRAS <b>${sumEsc(sumExtras(inn))}</b></span><span>TOTAL <b>${sumEsc(sumScore(inn))}</b></span></div>`;
 }
+function sumFocusTeam(data){
+ // Match-stable viewpoint: Marvel when present; otherwise the first-innings team.
+ const first=sumName(sumInning(data,1)),second=sumName(sumInning(data,2));
+ return [first,second].find(x=>/\bmarvel\b/i.test(x))||first;
+}
 function renderModernOver(data,n){
  const inn=sumInning(data,n),batName=sumName(inn),other=sumInning(data,3-n),bowlName=sumName(other);
  const stats=sumStats(inn),bat=stats.batters,bowl=stats.bowlers;
@@ -2782,7 +2787,12 @@ function renderModernOver(data,n){
  const nextBatter=sumNextBat(inn,bat,data,n);
  const chase=n===2?`<div class="ms-chase"><span>TARGET <b>${target}</b></span><span>NEED <b>${need}</b></span><span>BALLS <b>${ballsLeft}</b></span><span>RRR <b>${ballsLeft?(need*6/ballsLeft).toFixed(2):'—'}</b></span></div>`:'';
  let batColor=sumTeamColor(batName),bowlColor=sumTeamColor(bowlName);if(batColor===bowlColor)batColor="marvel";
- modernRoot.innerHTML=`<div class="ms-shell ms-over"><header class="ms-reference-header"><div class="ms-reference-title">${n===1?'1st':'2nd'} INNINGS SUMMARY</div><div class="ms-reference-team ms-${batColor}">${sumEsc(batName)} BATTING</div></header>${chase}<div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2><div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${wickets>0&&fow.length?`<div class="ms-fow">FALL OF WICKETS: ${sumEsc(fow.join(' · '))}</div>`:''}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div></section></div></div>`;
+ const focus=sumFocusTeam(data),focusBatting=focus.toLowerCase()===batName.toLowerCase();
+ const opponent=focusBatting?bowlName:batName;
+ const focusRole=focusBatting?'BATTING':'BOWLING';
+ const opponentRole=focusBatting?'BOWLING':'BATTING';
+ const focusColor=sumTeamColor(focus),opponentColor=sumTeamColor(opponent);
+ modernRoot.innerHTML=`<div class="ms-shell ms-over ms-innings-${n}"><header class="ms-reference-header"><div class="ms-reference-title ms-${focusColor}">${sumEsc(focus)} ${focusRole}</div><div class="ms-reference-team ms-${opponentColor}">${sumEsc(opponent)} ${opponentRole}</div></header>${chase}<div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2><div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${wickets>0&&fow.length?`<div class="ms-fow">FALL OF WICKETS: ${sumEsc(fow.join(' · '))}</div>`:''}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div></section></div></div>`;
 }
 function sumTopRows(people,kind){const sorted=people.slice().sort((a,b)=>kind==='bat'?statNum(b.runs)-statNum(a.runs):statNum(b.wickets)-statNum(a.wickets)||statNum(a.runs)-statNum(b.runs)).slice(0,3);
  return sorted.map(p=>{const nm=sumShortName(p.batter_name||p.bowler_name||p.player_name||fullName(p),80);const v=kind==='bat'?`${statNum(p.runs)} (${statNum(p.balls_faced??p.balls)})${sumNotOut(p)?'<b class="ms-star">*</b>':''}`:`${statNum(p.wickets)}/${statNum(p.runs)} (${sumEsc(p.overs??p.overs_bowled??'0.0')})`;return `<div class="ms-top-row"><span class="ms-final-player" title="${sumEsc(nm)}">${sumEsc(nm)}</span><strong>${v}</strong></div>`;}).join('')||'<div class="ms-empty">Statistics pending</div>';
@@ -3147,6 +3157,111 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
  #cricbayModernSummary .ms-reference-header>div{font-size:clamp(13px,2.2vw,24px)!important;padding:2px 8px!important}
  #cricbayModernSummary .ms-reference-final>.ms-result-ribbon{font-size:clamp(11px,1.55vw,19px)!important}
  #cricbayModernSummary .ms-over .ms-card>h2{min-height:27px!important;font-size:clamp(12px,1.7vw,21px)!important}
+}
+</style>
+
+<style id="cricbay-innings2-header-spacing-v5">
+/* Scoped spacing correction: second-innings summary only. Chase strip is an
+   additional row absent in innings 1; tighten its surrounding gaps instead
+   of allowing it to push the scorecards away from the header. */
+#cricbayModernSummary .ms-shell.ms-innings-2 { gap: 3px !important; }
+#cricbayModernSummary .ms-innings-2 > .ms-reference-header {
+  margin: 0 !important;
+  padding: 0 5px !important;
+  gap: 9px !important;
+}
+#cricbayModernSummary .ms-innings-2 > .ms-chase {
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 2px 8px !important;
+  line-height: 1.15 !important;
+  align-items: center !important;
+}
+#cricbayModernSummary .ms-innings-2 > .ms-columns { margin-top: 0 !important; }
+@media (orientation: landscape) and (max-height: 500px) {
+  #cricbayModernSummary .ms-shell.ms-innings-2 { gap: 2px !important; }
+  #cricbayModernSummary .ms-innings-2 > .ms-chase {
+    padding: 1px 6px !important;
+    font-size: clamp(9px, 1vw, 12px) !important;
+  }
+}
+</style>
+
+<style id="cricbay-compact-scorecard-v6">
+/* Reference-inspired information density; preserve approved angled neon ribbons. */
+#cricbayModernSummary .ms-shell.ms-over{
+ height:auto!important;max-height:min(76vh,710px)!important;
+ gap:5px!important;overflow:visible!important;
+}
+#cricbayModernSummary .ms-over .ms-columns{
+ flex:0 1 auto!important;min-height:0!important;overflow:visible!important;
+ display:grid!important;grid-template-columns:minmax(0,1.28fr) minmax(0,.92fr)!important;
+ gap:8px!important;margin:0!important;
+}
+#cricbayModernSummary .ms-over .ms-card{
+ min-width:0!important;min-height:0!important;overflow:hidden!important;
+ background:rgba(10,13,22,var(--sa))!important;
+}
+#cricbayModernSummary .ms-over .ms-bat-body,
+#cricbayModernSummary .ms-over .ms-bowl-body{
+ flex:0 1 auto!important;min-height:0!important;overflow:auto!important;
+ justify-content:flex-start!important;
+}
+#cricbayModernSummary .ms-over .ms-bat-row,
+#cricbayModernSummary .ms-over .ms-bowl-row{
+ min-height:0!important;padding:3px 7px!important;
+ font-size:clamp(10px,1.02vw,15px)!important;
+ line-height:1.15!important;gap:5px!important;
+}
+#cricbayModernSummary .ms-over .ms-bat-row{
+ grid-template-columns:minmax(0,4.8fr) repeat(4,minmax(0,.44fr)) minmax(0,.85fr)!important;
+}
+#cricbayModernSummary .ms-over .ms-bowl-row{
+ grid-template-columns:minmax(0,3.6fr) repeat(4,minmax(0,.5fr)) minmax(0,.85fr)!important;
+}
+#cricbayModernSummary .ms-over .ms-name{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#cricbayModernSummary .ms-over .ms-name small{display:block!important;font-size:.76em!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#cricbayModernSummary .ms-over .ms-th{
+ background:rgba(255,255,255,.10)!important;
+ color:#e9e9ed!important;letter-spacing:.035em!important;
+ font-size:clamp(9px,.83vw,12px)!important;
+}
+#cricbayModernSummary .ms-over .ms-total-strip{
+ margin-top:0!important;padding:5px 8px!important;
+ font-size:clamp(10px,1vw,14px)!important;
+}
+#cricbayModernSummary .ms-over .ms-fow,
+#cricbayModernSummary .ms-over .ms-next{padding:4px 8px!important;font-size:clamp(10px,.95vw,14px)!important}
+#cricbayModernSummary .ms-over .ms-card>h2{
+ min-height:30px!important;padding:5px 9px!important;
+ font-size:clamp(12px,1.5vw,22px)!important;
+}
+#cricbayModernSummary .ms-over .ms-reference-header{
+ height:clamp(38px,6vh,56px)!important;flex-basis:clamp(38px,6vh,56px)!important;
+ gap:9px!important;padding:0 5px!important;
+}
+#cricbayModernSummary .ms-over .ms-reference-header>div{
+ font-size:clamp(13px,1.8vw,26px)!important;
+}
+#cricbayModernSummary .ms-over .ms-reference-header>.ms-reference-title.ms-other{
+ border-color:#38aaff!important;
+ background:linear-gradient(105deg,rgba(2,16,42,var(--sa)),rgba(6,55,126,var(--sa)),rgba(2,16,42,var(--sa)))!important;
+ box-shadow:0 0 8px #168bff,inset 0 0 9px #168bff!important;
+}
+#cricbayModernSummary .ms-over .ms-reference-header>.ms-reference-team.ms-marvel{
+ border-color:#ff4a4d!important;
+ background:linear-gradient(105deg,rgba(25,0,5,var(--sa)),rgba(132,5,14,var(--sa)),rgba(25,0,5,var(--sa)))!important;
+ box-shadow:0 0 8px #ff2738,inset 0 0 9px #ff273880!important;
+}
+@media(max-height:500px){
+ #cricbayModernSummary .ms-shell.ms-over{max-height:85vh!important;gap:3px!important}
+ #cricbayModernSummary .ms-over .ms-bat-row,#cricbayModernSummary .ms-over .ms-bowl-row{padding:1px 5px!important;font-size:clamp(9px,.9vw,12px)!important}
+ #cricbayModernSummary .ms-over .ms-name small{font-size:.72em!important}
+ #cricbayModernSummary .ms-over .ms-card>h2{min-height:23px!important;padding:3px 6px!important}
+ #cricbayModernSummary .ms-over .ms-reference-header{height:34px!important;flex-basis:34px!important}
+ #cricbayModernSummary .ms-over .ms-reference-header>div{font-size:clamp(11px,1.45vw,18px)!important}
 }
 </style>
 </body></html>
