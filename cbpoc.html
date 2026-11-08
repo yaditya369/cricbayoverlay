@@ -3724,5 +3724,13 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
  #cricbayModernSummary .ms-shell.ms-final .ms-final-team-head .ms-team-label{font-size:clamp(17px,2vw,25px)!important;}
  #cricbayModernSummary .ms-shell.ms-final .ms-final-team-head .ms-final-score-value{font-size:clamp(18px,2.2vw,27px)!important;}
 }
+
+/* Restore readable achievement text from the supplied reference build. */
+#playerIntro .profile-awards-row .profile-awards-list .profile-achievement-column .profile-achievement-entry.cb-profile-award-text {
+ font:400 12px/1.12 Arial,Helvetica,sans-serif!important;
+ white-space:normal!important;overflow-wrap:break-word!important;
+ overflow:hidden!important;text-overflow:clip!important;letter-spacing:0!important;
+}
+@media (max-width:700px){#playerIntro .profile-awards-row .profile-awards-list .profile-achievement-column .profile-achievement-entry.cb-profile-award-text{font-size:10px!important}}
 </style>
 </body></html>
