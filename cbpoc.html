@@ -408,6 +408,49 @@ body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #fffff
  #scoreEvent.event-animation.four .event-text,#scoreEvent.event-animation.six .event-text,#scoreEvent.event-animation.wicket .event-text{font-size:clamp(56px,8vw,100px);}
  #scoreEvent.event-animation.four .event-emoji,#scoreEvent.event-animation.six .event-emoji,#scoreEvent.event-animation.wicket .event-emoji{font-size:clamp(54px,7vw,80px);}
 }
+
+/* v87: presentation-only fixes. Do not modify WICKET or match logic. */
+/* Keep the approved wide, single-line partnership heading. */
+#scoreEvent.event-animation.partnership-celebration{width:min(1400px,98vw);max-width:98vw;}
+#scoreEvent.event-animation.partnership-celebration .event-text{
+ font-size:clamp(44px,5.5vw,84px);line-height:1.08;letter-spacing:0;
+ white-space:nowrap;font-stretch:normal;transform:none;
+}
+/* Restore the reference 50 TEAM RUNS! heading, and enlarge the team name. */
+#scoreEvent.event-animation.team-celebration{width:min(1100px,96vw);gap:9px;}
+#scoreEvent.event-animation.team-celebration .event-text{
+ font-size:clamp(44px,4.2vw,64px);line-height:1.12;
+ white-space:nowrap;letter-spacing:2px;transform:none;
+}
+#scoreEvent.event-animation.team-celebration .event-subtitle{
+ font-size:clamp(24px,2.1vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.2;
+}
+/* Boundary celebrations: no flex compression, closer icon, larger title and player. */
+#scoreEvent.event-animation.four,#scoreEvent.event-animation.six{
+ width:min(1050px,96vw);height:min(440px,88vh);gap:3px;
+ padding:6px 16px;justify-content:center;overflow:visible;
+}
+#scoreEvent.event-animation.four .event-emoji,#scoreEvent.event-animation.six .event-emoji{
+ font-size:clamp(74px,8vw,112px);line-height:1;flex:0 0 auto;
+ margin:0 0 -6px 0;
+}
+#scoreEvent.event-animation.four .event-text,#scoreEvent.event-animation.six .event-text{
+ font-size:clamp(90px,11vw,150px);line-height:1.05;
+ white-space:nowrap;flex:0 0 auto;letter-spacing:2px;
+ font-stretch:normal;transform:none;
+}
+#scoreEvent.event-animation.four .event-subtitle,#scoreEvent.event-animation.six .event-subtitle{
+ font-size:clamp(24px,2.5vw,38px);line-height:1.15;letter-spacing:.3px;
+ font-weight:900;max-width:96%;flex:0 0 auto;
+}
+@media (orientation:landscape) and (max-height:470px){
+ #scoreEvent.event-animation.four,#scoreEvent.event-animation.six{height:min(330px,90vh);gap:2px;padding:2px 12px;}
+ #scoreEvent.event-animation.four .event-emoji,#scoreEvent.event-animation.six .event-emoji{font-size:clamp(54px,7vw,76px);margin-bottom:-4px;}
+ #scoreEvent.event-animation.four .event-text,#scoreEvent.event-animation.six .event-text{font-size:clamp(72px,10vw,110px);}
+ #scoreEvent.event-animation.four .event-subtitle,#scoreEvent.event-animation.six .event-subtitle{font-size:clamp(20px,2.4vw,28px);}
+ #scoreEvent.event-animation.partnership-celebration .event-text{font-size:clamp(34px,5.5vw,68px);}
+ #scoreEvent.event-animation.team-celebration .event-text{font-size:clamp(36px,4.2vw,54px);}
+}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1387,6 +1430,8 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 (() => {
 'use strict';
 const q=new URLSearchParams(location.search);
+// Preview the actual Playing XI panel even after the match has started.
+const forcePlayingXI=['1','true','yes'].includes((q.get('showXI')||'').trim().toLowerCase());
 // Controls only bulk player-stat preloading; scorecard loading is always independent.
 const preloadPlayerStatsEnabled=!['false','0','no','off'].includes((q.get('preloadPlayerStats')||'true').trim().toLowerCase());
 const $=id=>document.getElementById(id);
@@ -3375,6 +3420,15 @@ function cricbayXIRender(data){
  cricbayXI.innerHTML=`<div class="cbxi-shell"><header class="cbxi-header"><div class="cbxi-ribbon cbxi-ribbon-title">PLAYING XI</div><div class="cbxi-ribbon cbxi-ribbon-toss">${sumEsc(tossText)}</div></header><div class="cbxi-columns">${panels}</div></div>`;
 }
 function updateSummary(data){
+ // Explicit Playing XI preview: bypass the toss/start gate without changing live match state.
+ if(forcePlayingXI){
+  modernShow(false);
+  $('summaryPanel').classList.remove('visible','broadcast-active','innings-full-active');
+  document.body.classList.remove('broadcast-match-visible');
+  cricbayXIRender(data);
+  cricbayXIShow(true);
+  return;
+ }
  // Never intercept explicit summary previews or a completed match.
  if(!summaryPreview&&cricbayXIReady(data)){
   modernShow(false);
