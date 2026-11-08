@@ -1964,12 +1964,32 @@ function allDeliveries(data){
     noBall:Boolean(noBalls)};
   })).sort((a,b)=>a.over-b.over||a.ball-b.ball||Number(a.id.split(':').pop())-Number(b.id.split(':').pop()));
 }
-function showEvent(kind){
+function showEvent(kind,playerName=''){
  const vals={four:['🏏','FOUR!','BOUNDARY'],six:['🚀','SIX!','MAXIMUM'],wicket:['💥','WICKET!','']};
  if(!vals[kind])return;
  const v=vals[kind];
- enqueueCelebration({title:v[1],subtitle:v[2],emoji:v[0],kind,duration:2500});
+ enqueueCelebration({title:v[1],subtitle:playerName||v[2],emoji:v[0],kind,duration:2500});
 }
+// Demo-only labels; never used by live score tracking.
+const DEMO_PLAYER='Aaaaaaaaaaaaaaaa BBBBBBBB ccccc';
+const DEMO_TEAM='Marvel CC';
+function previewCelebration(code){
+ const c=String(code||'').trim().toLowerCase();
+ const boundary={4:'four',6:'six',w:'wicket',four:'four',six:'six',wicket:'wicket'}[c];
+ if(boundary){showEvent(boundary,DEMO_PLAYER);return true;}
+ let m=c.match(/^([btp])(25|50|75|100|150|200|250|300)$/);
+ if(m){
+  const [,type,amount]=m;
+  const allowed=type==='b'?[25,50,75,100,150,200,250,300]:type==='t'?[50,100,150,200,250,300]:[25,50,100,150,200];
+  if(!allowed.includes(Number(amount)))return false;
+  const title=type==='b'?amount+' RUNS!':type==='t'?amount+' TEAM RUNS!':amount+' RUN PARTNERSHIP!';
+  enqueueCelebration({title,subtitle:type==='t'?DEMO_TEAM:DEMO_PLAYER,emoji:type==='t'?'🏆':type==='p'?'🤝':'🏏',kind:'milestone'});return true;
+ }
+ if(c==='w5'||c==='w10'){enqueueCelebration({title:c.slice(1)+' WICKETS!',subtitle:DEMO_PLAYER,emoji:'🎯',kind:'milestone'});return true;}
+ if(c==='ht'||c==='m'){enqueueCelebration({title:c==='ht'?'HAT-TRICK!':'MAIDEN OVER!',subtitle:DEMO_PLAYER,emoji:c==='ht'?'🔥':'🎯',kind:'milestone'});return true;}
+ return false;
+}
+
 // Reuse the original boundary audio for both FOUR and SIX.
 // Keep boundary-horn.mp3 alongside index.html on GitHub Pages.
 const boundaryAudio = new Audio(new URL('boundary-horn.mp3', document.baseURI).href);
@@ -2009,7 +2029,16 @@ function track(data){
   trackMilestones(data);
   const event=newBalls.filter(b=>['four','six','wicket'].includes(b.kind)).at(-1);
   if(event){
-   showEvent(event.kind);
+   // Prefer the scorer's delivery-level batter/dismissal identity, then the live striker.
+   const raw=(data.recent_overs||[]).flatMap(o=>o.balls||[]).find(b=>String(b.live_score_id??'')===event.deliveryId);
+   const current=data.current||{};
+   const batterId=raw?.batter_id??raw?.batsman_id??raw?.striker_id;
+   const currentBats=[current.batter1,current.batter2].filter(Boolean);
+   const batter=batterId==null?currentBats.find(b=>String(b.player_id)===String(current.striker_id)):
+    currentBats.find(b=>String(b.player_id)===String(batterId));
+   const name=[raw?.batter_first_name??raw?.batsman_first_name,raw?.batter_last_name??raw?.batsman_last_name].filter(Boolean).join(' ')||
+    raw?.batter_name||raw?.batsman_name||(batter?fullName(batter):'');
+   showEvent(event.kind,name);
    if(event.kind==='four'||event.kind==='six')notifyAndroidBoundary(event);
   }
  return balls;
@@ -3215,7 +3244,11 @@ if(soundEnabled){
  document.addEventListener('pointerdown',unlockAudio,{once:true});
  document.addEventListener('touchend',unlockAudio,{once:true});
 }
-const highlight=(q.get('highlight')||'').toLowerCase();if(['four','six','wicket'].includes(highlight))setTimeout(()=>showEvent(highlight),500);
+// Preview requests are deliberately isolated from live score/milestone state.
+const highlight=(q.get('highlight')||'').toLowerCase();
+const previewCodes=(q.get('test')||'').split(',').map(v=>v.trim()).filter(Boolean);
+if(previewCodes.length){setTimeout(()=>previewCodes.forEach(previewCelebration),500);}
+else if(['4','6','w','four','six','wicket'].includes(highlight))setTimeout(()=>previewCelebration(highlight),500);
 // Scorecard refresh is independent of optional player-statistics preloading.
 if(summaryPreview && !q.has('matchId')){
  const mk=(name,score,wickets,overs,batters,bowlers)=>({team:{team_name:name},score,wickets,overs,scorecard:{batter_details:batters,bowling_figures:bowlers,total:{total_runs:score,total_wickets:wickets,total_overs:overs,extras:4},fall_of_wickets:wickets?['35/1 (5.2)','71/2 (10.4)']:[]}});
