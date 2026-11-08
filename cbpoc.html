@@ -1192,6 +1192,30 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 }
 </style>
 
+<style id="cricbay-playing-xi-isolated-v83">
+/* Exclusively #cricbayPlayingXI: existing match summary and celebration CSS untouched. */
+#cricbayPlayingXI{display:none;position:fixed;inset:0;z-index:2550;pointer-events:none;font-family:Arial,Helvetica,sans-serif;color:white;align-items:center;justify-content:center;box-sizing:border-box}
+#cricbayPlayingXI.cbxi-visible{display:flex}
+#cricbayPlayingXI *{box-sizing:border-box}
+#cricbayPlayingXI .cbxi-shell{width:min(1190px,96vw);max-height:94vh;display:flex;flex-direction:column;overflow:hidden;border:2px solid #d7a65b;background:linear-gradient(145deg,rgba(42,4,12,.96),rgba(7,11,24,.97));box-shadow:0 0 22px #000b,inset 0 0 35px #ba162344}
+#cricbayPlayingXI .cbxi-header{text-align:center;display:flex;flex-direction:column;gap:3px;padding:9px 14px 7px;border-bottom:2px solid #d7a65b;background:rgba(50,8,21,.85)}
+#cricbayPlayingXI .cbxi-header strong{font-size:clamp(19px,2.5vw,31px);font-weight:900;letter-spacing:1px}
+#cricbayPlayingXI .cbxi-header span{font-size:clamp(11px,1.2vw,15px);color:#ffe2ac;font-weight:700}
+#cricbayPlayingXI .cbxi-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;padding:9px;min-height:0;overflow:hidden}
+#cricbayPlayingXI .cbxi-team{--cbxi-accent:#559eff;min-width:0;min-height:0;border:2px solid var(--cbxi-accent);background:rgba(9,34,80,.83);display:flex;flex-direction:column;overflow:hidden}
+#cricbayPlayingXI .cbxi-marvel{--cbxi-accent:#ff4d58;background:rgba(96,10,23,.83)}
+#cricbayPlayingXI .cbxi-teamhead{padding:6px 9px;border-bottom:1px solid var(--cbxi-accent);text-align:center;font-weight:900;font-size:clamp(17px,1.85vw,26px)}
+#cricbayPlayingXI .cbxi-teamhead .ms-team-identity{display:block}
+#cricbayPlayingXI .cbxi-teamhead .ms-team-label{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cricbayPlayingXI .cbxi-roster{padding:5px 10px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#cricbayPlayingXI .cbxi-player{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;flex:1 1 auto;min-height:0;border-bottom:1px solid #ffffff25;padding:2px 6px;font-size:clamp(12px,1.25vw,17px);font-weight:700}
+#cricbayPlayingXI .cbxi-player:last-child{border-bottom:0}
+#cricbayPlayingXI .cbxi-number{color:#ffda86;font-weight:900;text-align:right}
+#cricbayPlayingXI .cbxi-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cricbayPlayingXI .cbxi-role{font-size:.85em;font-weight:800;color:#ffdc8a;white-space:nowrap}\n#cricbayPlayingXI .cbxi-pending{text-align:center;padding:26px 8px;color:#d8e1ee;font-size:16px}
+#cricbayPlayingXI .cbxi-count{text-align:center;padding:3px 8px;color:#ffda86;font-size:11px}
+@media(max-height:500px){#cricbayPlayingXI .cbxi-header{padding:4px 10px}#cricbayPlayingXI .cbxi-columns{padding:5px;gap:5px}#cricbayPlayingXI .cbxi-teamhead{padding:3px 6px}#cricbayPlayingXI .cbxi-roster{padding:2px 6px}#cricbayPlayingXI .cbxi-player{padding:0 4px;font-size:clamp(11px,1.1vw,15px)}}
+</style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -3265,7 +3289,81 @@ function renderModernFinal(data){
  modernRoot.innerHTML=`<div class="ms-shell ms-final"><header class="ms-reference-header ms-reference-final"><div class="ms-reference-title">MATCH SUMMARY</div><div class="ms-reference-team ms-result-ribbon">${sumEsc(getMatchResult(data)||'MATCH COMPLETED')}</div></header><div class="ms-final-columns">${panels}</div>${pom?`<div class="ms-pom"><span>🏆 PLAYER OF THE MATCH</span><strong>${sumEsc(sumShortName(pom,42))}</strong></div>`:''}</div>`;
 }
 function modernShow(on){if(modernVisible===on)return;modernVisible=on;modernRoot.classList.toggle('ms-visible',on);document.body.classList.toggle('modern-summary-visible',on);if(on){$('summaryPanel').classList.remove('visible','broadcast-active','innings-full-active');document.body.classList.remove('broadcast-match-visible');}}
+// Playing XI: independent pre-match view; no changes to the existing summary renderers.
+const cricbayXI=document.createElement('section');
+cricbayXI.id='cricbayPlayingXI';
+cricbayXI.setAttribute('aria-label','Both teams playing eleven');
+document.body.append(cricbayXI);
+let cricbayXIVisible=false;
+function cricbayXIShow(visible){
+ if(cricbayXIVisible===visible)return;
+ cricbayXIVisible=visible;
+ cricbayXI.classList.toggle('cbxi-visible',visible);
+ document.body.classList.toggle('cbxi-summary-visible',visible);
+}
+function cricbayXIReady(data){
+ const m=data?.match||{},c=data?.current||{};
+ const toss=Boolean(m.toss_won_by_team_name||m.toss_won_by||m.toss_decision||m.toss_elected_to);
+ const selected=[c.batter1,c.batter2,c.current_bowler,c.striker,c.non_striker,c.current_batsman]
+  .some(p=>p&&typeof p==='object'&&Boolean(p.player_id??p.batter_id??p.bowler_id??p.player_name??p.first_name));
+ return toss&&!selected&&!hasSelectedBowler(data)&&!hasStartedInnings(data)&&!superOverPhase(data);
+}
+function cricbayXIPlayers(data,team,index){
+ const m=data.match||{},teamId=team?.team_id;
+ const side=data.teams?.[index]??(teamId!=null?data.teams?.[String(teamId)]:null);
+ const inning=[data.innings?.inning1,data.innings?.inning2,m.innings?.inning1,m.innings?.inning2]
+  .find(x=>x?.team?.team_id!=null&&teamId!=null&&String(x.team.team_id)===String(teamId));
+ const keys=['playing_xi','playingXI','playing11','playing_eleven','playingEleven','playing_11','playing_players','playingPlayers','lineup','team_players','teamPlayers'];
+ // Generic "players" is only accepted if every included row explicitly declares selection.
+ const sources=[team,side,inning,inning?.scorecard];
+ const candidates=[];
+ for(const obj of sources){
+  if(!obj||typeof obj!=='object')continue;
+  for(const key of keys){
+   const raw=obj[key],arr=Array.isArray(raw)?raw:Array.isArray(raw?.players)?raw.players:null;
+   if(arr?.length)candidates.push(arr);
+  }
+  if(Array.isArray(obj.players)&&obj.players.some(p=>p?.is_playing===true||p?.isPlaying===true||p?.in_playing_xi===true))
+   candidates.push(obj.players.filter(p=>p?.is_playing===true||p?.isPlaying===true||p?.in_playing_xi===true));
+ }
+ const best=candidates.sort((a,b)=>Math.abs(a.length-11)-Math.abs(b.length-11))[0]||[];
+ const seen=new Set();
+ return best.filter(p=>p&&typeof p==='object'&&p.is_playing!==false&&p.isPlaying!==false&&p.in_playing_xi!==false)
+  .map(p=>{
+   const person=p.player&&typeof p.player==='object'?p.player:{};
+   const roleText=String(p.role??p.player_role??person.role??person.player_role??'').toLowerCase();
+   const captain=[p.is_captain,p.isCaptain,p.captain,person.is_captain,person.isCaptain].some(v=>v===true||v===1||v==='1');
+   const keeper=[p.is_wicket_keeper,p.isWicketKeeper,p.is_keeper,p.isKeeper,p.wicket_keeper,p.wicketKeeper,person.is_wicket_keeper,person.isWicketKeeper].some(v=>v===true||v===1||v==='1');
+   return {name:String(fullName(p)||p.player_name||p.name||fullName(person)||person.name||'').trim(),
+    id:String(p.player_id??p.playerId??person.player_id??p.id??''),
+    captain:captain||/\\bcaptain\\b/.test(roleText),
+    keeper:keeper||/\\bwicket[ -]?keeper\\b|\\bkeeper\\b/.test(roleText)};
+  })
+  .filter(p=>{if(!p.name)return false;const k=p.id||p.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;}).slice(0,11);
+}
+function cricbayXIRender(data){
+ const m=data.match||{},teams=[m.team1||{},m.team2||{}];
+ const tossName=String(m.toss_won_by_team_name||m.toss_won_by||'').trim();
+ const tossChoice=String(m.toss_decision||m.toss_elected_to||m.toss_choice||'').trim();
+ const tossText=tossName?`${tossName} won the toss${tossChoice?' · elected to '+tossChoice:''}`:'Toss completed';
+ const panels=teams.map((team,index)=>{
+  const name=String(team.team_name||team.short_name||`TEAM ${index+1}`);
+  const players=cricbayXIPlayers(data,team,index);
+  const tone=sumTeamColor(name)==='marvel'?'marvel':'other';
+  const rows=players.map((p,i)=>`<div class="cbxi-player"><span class="cbxi-number">${i+1}.</span><span class="cbxi-name" title="${sumEsc(p.name)}">${sumEsc(p.name)}${p.captain?' <span class="cbxi-role">(c)</span>':''}${p.keeper?' <span class="cbxi-role">(wk)</span>':''}</span></div>`).join('');
+  return `<section class="cbxi-team cbxi-${tone}"><header class="cbxi-teamhead">${sumTeamBadge(name,tone,team)}</header><div class="cbxi-roster">${rows||'<div class="cbxi-pending">Confirmed Playing XI pending</div>'}</div>${players.length&&players.length<11?`<div class="cbxi-count">${players.length} players confirmed</div>`:''}</section>`;
+ }).join('');
+ cricbayXI.innerHTML=`<div class="cbxi-shell"><header class="cbxi-header"><strong>PLAYING XI</strong><span>${sumEsc(tossText)}</span></header><div class="cbxi-columns">${panels}</div></div>`;
+}
 function updateSummary(data){
+ // Never intercept explicit summary previews or a completed match.
+ if(!summaryPreview&&cricbayXIReady(data)){
+  modernShow(false);
+  $('summaryPanel').classList.remove('visible','broadcast-active','innings-full-active');
+  document.body.classList.remove('broadcast-match-visible');
+  cricbayXIRender(data);cricbayXIShow(true);return;
+ }
+ cricbayXIShow(false);
  const phase=getMatchPhase(data);const selected=summaryPreview||phase;
  if(phase==='match'&&!currentPom(data)&&Date.now()-scorecardLastAttempt>=60000&&!pollingStoppedForPom){void fetchScorecardOnce().then(()=>{if(latestSnapshot)updateSummary(latestSnapshot);});}
  if(selected==='match'){
