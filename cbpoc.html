@@ -1246,46 +1246,50 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
  #playerIntro .profile-awards-list .profile-achievement-entry.cb-profile-award-text{font-size:16px!important}
 }
 </style>
-<style id="cb-profile-awards-layout-v69">
-/* Scoped award-card geometry: prevent intrinsic/grid collapse in sparse profiles. */
-#playerIntro .profile-awards-row.pom-only{
- display:flex!important;flex-direction:row!important;align-items:stretch!important;
- justify-content:flex-start!important;grid-template-columns:none!important;
- width:100%!important;min-width:0!important;
+<style id="cb-profile-awards-layout-v70">
+/* Stable awards geometry: do not animate nested awards rows. */
+#playerIntro.visible .profile-awards-row, #playerIntro.visible .profile-awards-row * { animation:none!important; }
+#playerIntro .profile-stat-group.awards {overflow:hidden!important;}
+#playerIntro .profile-awards-row {display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex:1 1 auto!important;width:100%!important;min-width:0!important;min-height:0!important;box-sizing:border-box!important;padding:1px 14px 5px!important;grid-template-columns:none!important;transform:none!important;}
+#playerIntro .profile-awards-row .cb-profile-pom-block {display:flex!important;flex:0 0 21%!important;width:21%!important;min-width:150px!important;max-width:220px!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;transform:none!important;grid-column:auto!important;white-space:nowrap!important;}
+#playerIntro .profile-awards-row .cb-profile-pom-number {display:block!important;width:auto!important;min-width:0!important;font:900 30px/1.1 Arial,Helvetica,sans-serif!important;transform:none!important;letter-spacing:0!important;}
+#playerIntro .profile-awards-row .cb-profile-pom-caption {display:block!important;width:auto!important;font:800 12px/1.15 Arial,Helvetica,sans-serif!important;transform:none!important;}
+#playerIntro .profile-awards-row.pom-only .cb-profile-pom-block {flex:0 0 21%!important;}
+#playerIntro .profile-awards-row .profile-awards-list {display:grid!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;height:100%!important;padding:0 4px!important;grid-column:auto!important;align-content:center!important;transform:none!important;}
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list {flex:1 1 100%!important;width:100%!important;}
+#playerIntro .profile-awards-list.cb-profile-few-achievements {grid-template-columns:minmax(0,1fr)!important;}
+#playerIntro .profile-awards-list .profile-achievement-column {grid-template-rows:none!important;grid-auto-rows:minmax(19px,auto)!important;align-content:center!important;height:auto!important;row-gap:2px!important;}
+#playerIntro .profile-awards-list .profile-achievement-entry.cb-profile-award-text {font:700 16px/1.2 Arial,Helvetica,sans-serif!important;transform:none!important;letter-spacing:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+@media(max-width:650px){#playerIntro .profile-awards-row .cb-profile-pom-block{min-width:105px!important}}
+/* v71: Consistent achievement typography across all award combinations. */
+#playerIntro .profile-awards-row .profile-awards-list .profile-achievement-column .profile-achievement-entry.cb-profile-award-text {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  font-stretch: normal !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transform: none !important;
+  zoom: 1 !important;
+  -webkit-text-size-adjust: 100%;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+  width: 100% !important;
 }
-#playerIntro .profile-awards-row.pom-only .cb-profile-pom-block{
- display:flex!important;flex:0 0 21%!important;width:21%!important;
- min-width:150px!important;max-width:240px!important;
- grid-column:auto!important;align-self:stretch!important;
- justify-self:auto!important;transform:none!important;
+#playerIntro .profile-awards-row .profile-awards-list.cb-profile-few-achievements {
+  grid-template-columns: minmax(0, 1fr) !important;
 }
-#playerIntro .profile-awards-row.pom-only .cb-profile-pom-number{
- font:900 30px/1.1 Arial,Helvetica,sans-serif!important;
- width:auto!important;min-width:max-content!important;transform:none!important;
+#playerIntro .profile-awards-row .profile-awards-list:not(.cb-profile-few-achievements) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
-#playerIntro .profile-awards-row.pom-only .cb-profile-pom-caption{
- font:800 12px/1.15 Arial,Helvetica,sans-serif!important;
- width:auto!important;min-width:max-content!important;transform:none!important;
-}
-#playerIntro .profile-awards-row.achievements-only{
- display:flex!important;align-items:stretch!important;grid-template-columns:none!important;
-}
-#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
- flex:1 1 auto!important;width:100%!important;grid-column:auto!important;
-}
-#playerIntro .profile-awards-list.cb-profile-few-achievements{
- grid-template-columns:minmax(0,1fr)!important;
-}
-#playerIntro .profile-awards-list.cb-profile-few-achievements .profile-achievement-column{
- grid-template-rows:none!important;grid-auto-rows:minmax(19px,auto)!important;
- align-content:center!important;height:auto!important;
-}
-#playerIntro .profile-awards-list .profile-achievement-entry.cb-profile-award-text{
- font:700 16px/1.2 Arial,Helvetica,sans-serif!important;
- letter-spacing:0!important;font-stretch:normal!important;transform:none!important;
-}
-@media(max-width:650px){
- #playerIntro .profile-awards-row.pom-only .cb-profile-pom-block{min-width:105px!important}
+#playerIntro .profile-awards-row .profile-achievement-column {
+  min-width: 0 !important;
+  width: 100% !important;
+  transform: none !important;
 }
 </style>
 
