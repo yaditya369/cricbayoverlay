@@ -3733,4 +3733,27 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
 }
 @media (max-width:700px){#playerIntro .profile-awards-row .profile-awards-list .profile-achievement-column .profile-achievement-entry.cb-profile-award-text{font-size:10px!important}}
 </style>
+
+<style id="cb-v73-targeted-profile-and-footer-fix">
+/* Keep the 75px award panel: fit three single-line rows per column without clipping. */
+#playerIntro .profile-stat-group.awards .profile-awards-row {align-items:stretch!important;padding-top:0!important;padding-bottom:2px!important;}
+#playerIntro .profile-stat-group.awards .profile-awards-list {height:100%!important;align-items:center!important;align-content:center!important;overflow:hidden!important;}
+#playerIntro .profile-stat-group.awards .profile-achievement-column {display:grid!important;grid-template-rows:repeat(3,17px)!important;grid-auto-rows:17px!important;align-content:center!important;row-gap:0!important;height:51px!important;min-height:0!important;}
+#playerIntro .profile-stat-group.awards .profile-achievement-entry.cb-profile-award-text {display:block!important;height:17px!important;min-height:0!important;font:400 12px/17px Arial,Helvetica,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;overflow-wrap:normal!important;transform:none!important;}
+#playerIntro .profile-stat-group.awards .cb-profile-pom-number {font-size:30px!important;}
+/* Slide the complete score strip off-screen when a player intro takes over. */
+#overlay {transition:transform 300ms cubic-bezier(.2,.7,.2,1),opacity 300ms ease;will-change:transform;}
+#overlay.cb-profile-footer-away {transform:translateY(calc(100% + var(--offset,0px) + 8px))!important;opacity:0!important;pointer-events:none!important;}
+@media(prefers-reduced-motion:reduce){#overlay{transition:none!important;}}
+</style>
+<script id="cb-v73-profile-footer-transition">
+/* Observe the existing profile visibility class: do not modify profile scheduling. */
+(function(){
+ const panel=document.getElementById('playerIntro'),footer=document.getElementById('overlay');
+ if(!panel||!footer)return;
+ const sync=()=>footer.classList.toggle('cb-profile-footer-away',panel.classList.contains('visible'));
+ new MutationObserver(sync).observe(panel,{attributes:true,attributeFilter:['class']});
+ sync();
+})();
+</script>
 </body></html>
