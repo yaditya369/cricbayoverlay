@@ -1063,36 +1063,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
  #cricbayModernSummary .ms-over .ms-bowl-body>.ms-bowl-row{min-height:17px!important;padding:1px 5px!important;font-size:clamp(9px,.9vw,12px)!important}
 }
 </style>
-<style id="cb-profile-achievements-readable-v67">
-/* Player intro only: natural rows and full width for 1–3 achievements. */
-#playerIntro .profile-awards-list.cb-profile-few-achievements{
-  grid-template-columns:minmax(0,1fr)!important;
-  align-content:start!important;
-  align-items:start!important;
-}
-#playerIntro .profile-awards-list.cb-profile-few-achievements .profile-achievement-column{
-  grid-template-rows:none!important;
-  grid-auto-rows:minmax(18px,auto)!important;
-  align-content:start!important;
-  align-items:center!important;
-  height:auto!important;
-  row-gap:2px!important;
-}
-#playerIntro .profile-achievement-entry.cb-profile-award-text{
-  font-family:Arial,Helvetica,sans-serif!important;
-  font-size:14px!important;
-  font-weight:700!important;
-  font-stretch:normal!important;
-  line-height:1.2!important;
-  letter-spacing:0!important;
-  transform:none!important;
-  white-space:nowrap!important;
-  text-overflow:ellipsis!important;
-}
-@media(max-height:480px){
-  #playerIntro .profile-achievement-entry.cb-profile-award-text{font-size:14px!important}
-}
-</style>
+
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
 .broadcast-statrow > span,.broadcast-statrow > strong{font-weight:800!important}
@@ -1239,6 +1210,82 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+</style>
+<style id="cb-profile-achievements-readable-v68">
+/* Profile-only achievement typography. Avoid overriding the POM grid placement. */
+#playerIntro .profile-awards-row .profile-awards-list.cb-profile-few-achievements{
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;
+  align-content:center!important;
+  align-items:center!important;
+}
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list.cb-profile-few-achievements{grid-column:1!important}
+#playerIntro .profile-awards-row.pom-and-achievements .profile-awards-list.cb-profile-few-achievements{grid-column:2!important}
+#playerIntro .profile-awards-list.cb-profile-few-achievements .profile-achievement-column{
+  grid-template-rows:none!important;
+  grid-auto-rows:minmax(19px,auto)!important;
+  align-content:center!important;
+  align-items:center!important;
+  height:auto!important;
+  row-gap:2px!important;
+}
+#playerIntro .profile-awards-list .profile-achievement-entry.cb-profile-award-text{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:16px!important;
+  font-weight:700!important;
+  font-stretch:normal!important;
+  line-height:1.2!important;
+  letter-spacing:0!important;
+  transform:none!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+@media(max-height:480px){
+ #playerIntro .profile-awards-list .profile-achievement-entry.cb-profile-award-text{font-size:16px!important}
+}
+</style>
+<style id="cb-profile-awards-layout-v69">
+/* Scoped award-card geometry: prevent intrinsic/grid collapse in sparse profiles. */
+#playerIntro .profile-awards-row.pom-only{
+ display:flex!important;flex-direction:row!important;align-items:stretch!important;
+ justify-content:flex-start!important;grid-template-columns:none!important;
+ width:100%!important;min-width:0!important;
+}
+#playerIntro .profile-awards-row.pom-only .cb-profile-pom-block{
+ display:flex!important;flex:0 0 21%!important;width:21%!important;
+ min-width:150px!important;max-width:240px!important;
+ grid-column:auto!important;align-self:stretch!important;
+ justify-self:auto!important;transform:none!important;
+}
+#playerIntro .profile-awards-row.pom-only .cb-profile-pom-number{
+ font:900 30px/1.1 Arial,Helvetica,sans-serif!important;
+ width:auto!important;min-width:max-content!important;transform:none!important;
+}
+#playerIntro .profile-awards-row.pom-only .cb-profile-pom-caption{
+ font:800 12px/1.15 Arial,Helvetica,sans-serif!important;
+ width:auto!important;min-width:max-content!important;transform:none!important;
+}
+#playerIntro .profile-awards-row.achievements-only{
+ display:flex!important;align-items:stretch!important;grid-template-columns:none!important;
+}
+#playerIntro .profile-awards-row.achievements-only .profile-awards-list{
+ flex:1 1 auto!important;width:100%!important;grid-column:auto!important;
+}
+#playerIntro .profile-awards-list.cb-profile-few-achievements{
+ grid-template-columns:minmax(0,1fr)!important;
+}
+#playerIntro .profile-awards-list.cb-profile-few-achievements .profile-achievement-column{
+ grid-template-rows:none!important;grid-auto-rows:minmax(19px,auto)!important;
+ align-content:center!important;height:auto!important;
+}
+#playerIntro .profile-awards-list .profile-achievement-entry.cb-profile-award-text{
+ font:700 16px/1.2 Arial,Helvetica,sans-serif!important;
+ letter-spacing:0!important;font-stretch:normal!important;transform:none!important;
+}
+@media(max-width:650px){
+ #playerIntro .profile-awards-row.pom-only .cb-profile-pom-block{min-width:105px!important}
 }
 </style>
 
