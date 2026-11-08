@@ -269,6 +269,43 @@ body.cricbay-score-offline #summaryPanel,
 body.cricbay-score-offline #scoreEvent {display:none!important;visibility:hidden!important;}
 .event-animation.milestone .event-text{color:#ffd456;text-shadow:0 0 24px #fba923,0 4px 0 #8e520a;}
 .event-animation.milestone .event-subtitle{color:#fff;}
+/* v75: milestone-only presentation; do not change scoring or other celebrations. */
+#scoreEvent.event-animation.milestone{
+  width:min(860px,94vw);
+  height:min(350px,75vh);
+  gap:15px;
+  padding:12px 24px;
+}
+#scoreEvent.event-animation.milestone .event-emoji{
+  font-size:clamp(52px,6.5vw,82px);
+  line-height:1;
+  flex-shrink:0;
+}
+#scoreEvent.event-animation.milestone .event-text{
+  font-size:clamp(36px,5.1vw,72px);
+  line-height:1.12;
+  letter-spacing:1px;
+  text-align:center;
+  max-width:100%;
+  overflow-wrap:normal;
+}
+#scoreEvent.event-animation.milestone .event-subtitle{
+  font-size:clamp(22px,2.6vw,36px);
+  line-height:1.2;
+  letter-spacing:.5px;
+  font-weight:800;
+  text-align:center;
+  max-width:100%;
+  white-space:normal;
+  overflow-wrap:break-word;
+}
+@media (orientation:landscape) and (max-height:470px){
+  #scoreEvent.event-animation.milestone{height:min(280px,76vh);gap:9px;padding:8px 18px;}
+  #scoreEvent.event-animation.milestone .event-emoji{font-size:clamp(40px,5vw,60px);}
+  #scoreEvent.event-animation.milestone .event-text{font-size:clamp(32px,4.4vw,56px);}
+  #scoreEvent.event-animation.milestone .event-subtitle{font-size:clamp(20px,2.5vw,30px);}
+}
+
 /* V46: black upper bar and deeper-black lower footer; preserve other theme details. */
 .overlay.theme-red .top,.overlay.theme-marvel .top{background:rgba(18,18,18,var(--alpha))!important}
 .overlay.theme-red .bottom,.overlay.theme-marvel .bottom,.overlay.layout-3.theme-red .bottom,.overlay.layout-3.theme-marvel .bottom{background:rgba(3,3,3,var(--alpha))!important}
@@ -280,6 +317,54 @@ body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #fffff
 .overlay .bottom .partnership{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;pointer-events:none}
 .overlay .bottom .message{max-width:calc(100% - 310px)}
 @media(max-width:650px){.overlay .bottom .partnership{left:5px;font-size:8px}.overlay .bottom .message{max-width:calc(100% - 170px)}}
+
+/* Do not scale the entire celebration on entrance: this was the apparent compression. */
+@keyframes score-event {
+  0%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+  15%,72%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}
+}
+/* v79: celebration geometry only. No scoreboard or match logic changes. */
+#scoreEvent.event-animation{
+  width:min(980px,96vw);height:min(370px,82vh);
+  gap:12px;padding:12px 18px;justify-content:center;
+}
+#scoreEvent.event-animation .event-emoji,
+#scoreEvent.event-animation .event-text,
+#scoreEvent.event-animation .event-subtitle{flex:0 0 auto;min-height:0;}
+#scoreEvent.event-animation .event-text{
+  line-height:1.14;white-space:nowrap;text-align:center;
+  font-size:clamp(46px,7vw,90px);
+}
+#scoreEvent.event-animation .event-subtitle{
+  line-height:1.2;text-align:center;font-size:clamp(22px,2.5vw,36px);
+  letter-spacing:.5px;max-width:96%;white-space:normal;overflow-wrap:anywhere;
+}
+/* A single-line partnership title, for every partnership threshold. */
+#scoreEvent.event-animation.partnership-celebration .event-text{
+  white-space:nowrap;font-size:clamp(28px,4.5vw,64px);letter-spacing:1px;
+}
+#scoreEvent.event-animation.team-celebration .event-text{
+  white-space:nowrap;font-size:clamp(32px,5.3vw,74px);
+}
+#scoreEvent.event-animation.team-celebration .event-subtitle{
+  font-size:clamp(24px,3vw,38px);font-weight:900;letter-spacing:.5px;
+}
+/* Wicket: remove the initial undersized jump; retain the later scale-up exit. */
+#scoreEvent.event-animation.wicket.active{animation-name:score-event-wicket;}
+@keyframes score-event-wicket{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+  15%,72%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}
+}
+@media (orientation:landscape) and (max-height:470px){
+ #scoreEvent.event-animation{height:min(315px,84vh);gap:8px;padding:6px 16px;}
+ #scoreEvent.event-animation .event-emoji{font-size:clamp(38px,5vw,58px);}
+ #scoreEvent.event-animation .event-text{font-size:clamp(42px,6vw,72px);}
+ #scoreEvent.event-animation.partnership-celebration .event-text{font-size:clamp(26px,4vw,50px);}
+ #scoreEvent.event-animation.team-celebration .event-text{font-size:clamp(30px,5vw,62px);}
+ #scoreEvent.event-animation.team-celebration .event-subtitle{font-size:clamp(22px,2.7vw,30px);}
+}
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
 .overlay.layout-3.theme-stadium{--panel-accent:#eacb72;--panel-dark:#071e19;--left-team:#12614c;--right-team:#315d35}
@@ -1777,7 +1862,7 @@ function drainCelebrations(){
  const e=milestoneQueue.shift();
  const el=$('scoreEvent');
  clearTimeout(eventTimer);
- el.className='event-animation '+(e.kind||'milestone');
+ el.className='event-animation '+(e.kind||'milestone')+(e.kind==='milestone'&&/\bRUN PARTNERSHIP!?$/i.test(e.title||'')?' partnership-celebration':'')+(e.kind==='milestone'&&/\bTEAM RUNS!?$/i.test(e.title||'')?' team-celebration':'');
  el.querySelector('.event-emoji').textContent=e.emoji||'🏏';
  el.querySelector('.event-text').textContent=e.title;
  el.querySelector('.event-subtitle').textContent=(e.subtitle||'').toUpperCase();
