@@ -1212,9 +1212,28 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #cricbayPlayingXI .cbxi-player:last-child{border-bottom:0}
 #cricbayPlayingXI .cbxi-number{color:#ffda86;font-weight:900;text-align:right}
 #cricbayPlayingXI .cbxi-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#cricbayPlayingXI .cbxi-role{font-size:.85em;font-weight:800;color:#ffdc8a;white-space:nowrap}\n#cricbayPlayingXI .cbxi-pending{text-align:center;padding:26px 8px;color:#d8e1ee;font-size:16px}
+#cricbayPlayingXI .cbxi-role{font-size:.85em;font-weight:800;color:#ffdc8a;white-space:nowrap}
+#cricbayPlayingXI .cbxi-pending{text-align:center;padding:26px 8px;color:#d8e1ee;font-size:16px}
 #cricbayPlayingXI .cbxi-count{text-align:center;padding:3px 8px;color:#ffda86;font-size:11px}
 @media(max-height:500px){#cricbayPlayingXI .cbxi-header{padding:4px 10px}#cricbayPlayingXI .cbxi-columns{padding:5px;gap:5px}#cricbayPlayingXI .cbxi-teamhead{padding:3px 6px}#cricbayPlayingXI .cbxi-roster{padding:2px 6px}#cricbayPlayingXI .cbxi-player{padding:0 4px;font-size:clamp(11px,1.1vw,15px)}}
+</style>
+<style id="cricbay-playing-xi-reference-v85">
+/* Scoped to Playing XI; end-of-match summary remains unchanged. */
+#cricbayPlayingXI .cbxi-shell{width:min(85vw,1480px);max-height:94vh;border:0;background:transparent;box-shadow:none;gap:0;overflow:visible}
+#cricbayPlayingXI .cbxi-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:0 4px 4px;border:0;background:transparent;flex:none}
+#cricbayPlayingXI .cbxi-ribbon{min-height:clamp(40px,8vh,70px);display:flex;align-items:center;justify-content:center;min-width:0;padding:5px 12px;border:2px solid #ff335a;border-radius:19px 19px 11px 11px;background:linear-gradient(180deg,rgba(85,2,21,.95),rgba(30,0,11,.96));box-shadow:0 0 9px #ff2758, inset 0 0 12px #b00a3240;color:#fff;text-align:center;font-size:clamp(17px,2.3vw,33px);font-weight:900;font-style:italic;text-shadow:2px 3px 3px #000}
+#cricbayPlayingXI .cbxi-ribbon-toss{font-size:clamp(11px,1.5vw,22px);color:#ffdc80}
+#cricbayPlayingXI .cbxi-columns{padding:0 4px;gap:10px;min-height:0;align-items:stretch;overflow:hidden}
+#cricbayPlayingXI .cbxi-team{border:2px solid #3ab9ff;border-radius:10px;background:linear-gradient(180deg,rgba(6,27,61,.96),rgba(3,12,29,.96));box-shadow:0 0 9px #2aafff;overflow:hidden}
+#cricbayPlayingXI .cbxi-team.cbxi-marvel{border-color:#ff3159;background:linear-gradient(180deg,rgba(68,0,18,.97),rgba(27,0,10,.97));box-shadow:0 0 9px #ff3159}
+#cricbayPlayingXI .cbxi-teamhead{min-height:clamp(46px,9vh,75px);display:flex;align-items:center;justify-content:flex-start;text-align:left;padding:7px 13px;border-bottom:2px solid var(--cbxi-accent);background:rgba(0,0,0,.1);font-size:clamp(19px,2.1vw,29px)}
+#cricbayPlayingXI .cbxi-teamhead .ms-team-identity{display:flex;align-items:center;gap:9px;min-width:0;width:100%}
+#cricbayPlayingXI .cbxi-teamhead .ms-team-label{font-size:clamp(18px,2.05vw,29px);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cricbayPlayingXI .cbxi-roster{padding:5px 12px;min-height:0;flex:1 1 auto}
+#cricbayPlayingXI .cbxi-player{grid-template-columns:25px minmax(0,1fr);gap:9px;min-height:clamp(19px,3.7vh,38px);padding:2px 5px;font-size:clamp(12px,1.18vw,19px);font-weight:500;border-bottom:1px solid #ffffff28}
+#cricbayPlayingXI .cbxi-number{font-weight:700;color:#ffdd90}
+#cricbayPlayingXI .cbxi-role{font-size:.85em;color:#ffe096;font-weight:800}
+@media(max-height:500px){#cricbayPlayingXI .cbxi-shell{max-height:95vh}#cricbayPlayingXI .cbxi-header{padding-bottom:3px}#cricbayPlayingXI .cbxi-ribbon{min-height:35px;border-radius:12px}#cricbayPlayingXI .cbxi-teamhead{min-height:35px;padding:3px 9px}#cricbayPlayingXI .cbxi-roster{padding:2px 8px}#cricbayPlayingXI .cbxi-player{min-height:17px;padding:0 3px;font-size:clamp(10px,1.1vw,15px)}}
 </style>
 </head><style id="v42-bold-players-and-deliveries">
 .overlay .player .person,.overlay .player .stats,.overlay .bowler-row .person,.overlay .bowler-row .stats,.overlay .balls .ball{font-weight:800!important}
@@ -3353,7 +3372,7 @@ function cricbayXIRender(data){
   const rows=players.map((p,i)=>`<div class="cbxi-player"><span class="cbxi-number">${i+1}.</span><span class="cbxi-name" title="${sumEsc(p.name)}">${sumEsc(p.name)}${p.captain?' <span class="cbxi-role">(c)</span>':''}${p.keeper?' <span class="cbxi-role">(wk)</span>':''}</span></div>`).join('');
   return `<section class="cbxi-team cbxi-${tone}"><header class="cbxi-teamhead">${sumTeamBadge(name,tone,team)}</header><div class="cbxi-roster">${rows||'<div class="cbxi-pending">Confirmed Playing XI pending</div>'}</div>${players.length&&players.length<11?`<div class="cbxi-count">${players.length} players confirmed</div>`:''}</section>`;
  }).join('');
- cricbayXI.innerHTML=`<div class="cbxi-shell"><header class="cbxi-header"><strong>PLAYING XI</strong><span>${sumEsc(tossText)}</span></header><div class="cbxi-columns">${panels}</div></div>`;
+ cricbayXI.innerHTML=`<div class="cbxi-shell"><header class="cbxi-header"><div class="cbxi-ribbon cbxi-ribbon-title">PLAYING XI</div><div class="cbxi-ribbon cbxi-ribbon-toss">${sumEsc(tossText)}</div></header><div class="cbxi-columns">${panels}</div></div>`;
 }
 function updateSummary(data){
  // Never intercept explicit summary previews or a completed match.
