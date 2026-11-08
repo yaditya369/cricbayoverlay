@@ -1525,6 +1525,7 @@ const tournamentListPath=q.get('tournamentListPath')||'/tournament/list';
 let tournamentListPromise=null;
 let tournamentMatchContext=null;
 const profileSeen=new Set(),profileCache=new Map();
+const bowlerOverSeen=new Set(); // One bowling introduction per innings + over, not per bowler.
 const profileRetryPending=new Set();
 const profileApiInFlight=new Map();
 const preloadPlayers=new Map();
@@ -1959,14 +1960,25 @@ function trackProfiles(data){
  if(!inning)return;
  trackYetToBat(data);
  const candidates=[['batting',c.batter1],['batting',c.batter2],['bowling',c.current_bowler]];
+ // Do not treat CricBay's transitional N.6 notation as the next over until
+ // the scorer has actually moved to N+1.0 (or a ball in that over).
+ const overText=String(c.over??'');
+ const overMatch=/^(\d+)(?:\.(\d+))?$/.exec(overText);
+ const bowlingOver=overMatch&&Number(overMatch[2]||0)<=5?Number(overMatch[1]):null;
  const items=candidates.filter(([,p])=>p&&p.player_id!=null).map(([role,p])=>({role,id:String(p.player_id),name:fullName(p),snapshot:p,inning,team:role==='batting'?$('batTeam').textContent:$('bowlTeam').textContent,tournament:data.match?.tournament_id??data.match?.tournament?.id??q.get('tournamentId')??'',tournamentName:data.match?.tournament_name??data.match?.tournament??''}));
  // Warm the player cache even for initial players, without showing a card on initial load.
  if(!profileBaseline){
   // An empty initial snapshot is not a baseline: wait for actual on-field players.
   if(!items.length)return;
-  items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;
+  items.forEach(item=>{profileSeen.add(item.inning+':'+item.role+':'+item.id);if(item.role==='bowling'&&bowlingOver!==null)bowlerOverSeen.add(item.inning+':'+bowlingOver);enqueuePlayerPreload(item);void fetchMissingPlayerApis(item).catch(console.warn);});profileBaseline=true;return;
  }
- for(const item of items){const key=item.inning+':'+item.role+':'+item.id;if(profileSeen.has(key))continue;
+ for(const item of items){
+  const key=item.inning+':'+item.role+':'+item.id;
+  const overKey=item.inning+':'+bowlingOver;
+  if(item.role==='bowling'){
+   if(bowlingOver===null||bowlerOverSeen.has(overKey))continue;
+   bowlerOverSeen.add(overKey);
+  }else if(profileSeen.has(key))continue;
   // A new batter is confirmed by the current on-field scorecard. If the
   // yet-to-bat list is available, require that the player has left that list
   // (or was already absent on the previous poll, e.g. scorer updated late).
