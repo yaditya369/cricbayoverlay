@@ -1013,14 +1013,12 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
    from the left. Text follows with a very short stagger. */
 #playerIntro.visible{display:block;animation:profile-slide-from-left 520ms cubic-bezier(.18,.8,.22,1) both}
 #playerIntro.visible .profile-kicker,
-#playerIntro.visible .profile-name,
 #playerIntro.visible .profile-team,
 #playerIntro.visible .profile-stat-group,
 #playerIntro.visible .profile-awards-row{
  animation:profile-text-follow 370ms cubic-bezier(.2,.8,.2,1) both;
 }
 #playerIntro.visible .profile-kicker{animation-delay:65ms}
-#playerIntro.visible .profile-name{animation-delay:85ms}
 #playerIntro.visible .profile-team{animation-delay:100ms}
 #playerIntro.visible .profile-stat-group:nth-child(1){animation-delay:110ms}
 #playerIntro.visible .profile-stat-group:nth-child(2){animation-delay:135ms}
@@ -1123,7 +1121,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-shell{position:relative;width:100%;height:342px;display:flex;flex-direction:column;box-sizing:border-box;padding:29px 23px 12px;overflow:hidden;clip-path:polygon(1.8% 0,98.2% 0,100% 3%,100% 97%,98.2% 100%,1.8% 100%,0 97%,0 4%);border:2px solid #f99;background:linear-gradient(135deg,rgba(255,158,171,var(--profile-shell-alpha,.85)),rgba(90,0,12,var(--profile-shell-alpha,.85)) 4%,rgba(46,0,5,var(--profile-shell-alpha,.85)) 95%,rgba(255,138,155,var(--profile-shell-alpha,.85)));box-shadow:0 12px 35px #000a}
 #playerIntro .profile-shell:before{content:'';position:absolute;inset:6px;border:1px solid #e5485a;pointer-events:none;clip-path:polygon(1.6% 0,98.4% 0,100% 3%,100% 97%,98.4% 100%,1.6% 100%,0 97%,0 3%)}
 #playerIntro .profile-kicker{position:absolute;left:2.3%;top:0;width:34%;height:29px;display:flex;align-items:center;padding:0 19px;box-sizing:border-box;background:linear-gradient(#ff5b6a,#a40819 65%,#510007);border:1px solid #ffb1b8;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);font:900 18px/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;white-space:nowrap;text-shadow:1px 1px #220006}
-#playerIntro .profile-name{display:block;flex:0 0 auto;margin:7px 0 0 9px;padding:0;min-height:0;font:900 23px/1.12 Arial,Helvetica,sans-serif;letter-spacing:0;font-stretch:normal;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 2px #270005}
+#playerIntro .profile-name{display:block;flex:0 0 auto;margin:7px 0 0 9px;padding:0;min-height:0;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 2px #270005}
 #playerIntro .profile-team{display:none}
 #playerIntro .profile-stats{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:18px;margin-top:7px;justify-content:stretch}
 #playerIntro .profile-stat-group{position:relative;display:flex;flex-direction:column;flex:0 0 72px;min-height:0;width:100%;overflow:hidden;box-sizing:border-box;border:1px solid #77b9f5;clip-path:polygon(1.4% 0,98.7% 0,100% 13%,100% 87%,98.7% 100%,1.4% 100%,0 87%,0 13%);background:linear-gradient(180deg,rgba(0,96,180,var(--profile-section-alpha,.85)),rgba(0,30,51,var(--profile-section-alpha,.85)))}
@@ -1149,7 +1147,7 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #playerIntro .profile-shell.no-awards{height:min(250px,62vh)}
 body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntro{display:none!important}
 @keyframes profile-in{from{opacity:0;transform:translate(-50%,-43%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-name{font-size:23px;line-height:1.12;font-family:Arial,Helvetica,sans-serif;font-stretch:normal;letter-spacing:0}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:11px;line-height:1.12;white-space:nowrap}#playerIntro .profile-pom strong{font-size:18px;line-height:1.1}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
+@media(max-height:480px){#playerIntro{top:50%;width:min(85vw,960px)}#playerIntro .profile-shell{height:335px;padding:26px 20px 12px}#playerIntro .profile-kicker{height:25px;font-size:13px}#playerIntro .profile-stats{gap:18px;margin-top:5px}#playerIntro .profile-stat-heading{flex-basis:22px;min-height:22px;font-size:clamp(12px,1.35vw,16px)}#playerIntro .profile-stat strong{font-size:clamp(15px,1.8vw,23px)}#playerIntro .profile-stat small{font-size:clamp(10px,1vw,13px)}#playerIntro .profile-achievement-entry{font-size:clamp(12px,1.25vw,14px)}#playerIntro .profile-stat-group{flex:0 0 72px}#playerIntro .profile-stat-group.awards{flex:0 0 75px}#playerIntro .profile-stat-heading{flex-basis:18px;min-height:18px;font-size:11px}#playerIntro .profile-stat-row{padding:0 5px 2px}#playerIntro .profile-stat{gap:1px}#playerIntro .profile-stat strong{font-size:18px}#playerIntro .profile-stat small{font-size:10px}#playerIntro .profile-awards-row{padding:0 7px 3px}#playerIntro .profile-awards-list{padding-left:8px;column-gap:9px}#playerIntro .profile-achievement-entry{font-size:11px;line-height:1.12;white-space:nowrap}#playerIntro .profile-pom strong{font-size:18px;line-height:1.1}#playerIntro .profile-pom span{font-size:10px}#playerIntro .profile-shell.no-awards{height:min(225px,66vh)}}
 /* v34: consistent award typography, POM left inset and readable full bowler names. */
 #playerIntro .profile-awards-row{grid-template-columns:21% minmax(0,79%);padding-left:3px}
 #playerIntro .profile-pom{padding-left:0;padding-right:5px}
@@ -1158,13 +1156,6 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 </style>
 <style id="cb-profile-isolated-typography-v44">
 /* Dedicated player profile typography; isolated from older landscape overrides. */
-#playerIntro #profileName.cb-profile-display-name{
- font-family:Arial,Helvetica,sans-serif!important;font-size:23px!important;
- font-weight:800!important;font-stretch:normal!important;font-style:normal!important;
- letter-spacing:0!important;line-height:1.15!important;text-transform:none!important;
- transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- width:calc(100% - 18px);min-width:0;
-}
 #playerIntro .profile-awards-row.cb-profile-pom-left,
 #playerIntro .profile-awards-row.pom-only{grid-template-columns:21% minmax(0,79%)!important}
 #playerIntro .cb-profile-pom-block{grid-column:1;min-width:0;justify-self:stretch;
@@ -1188,16 +1179,6 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 </style>
 <style id="cb-player-profile-typography-v66">
 /* Scoped exclusively to the player introduction; no scoreboard or summary changes. */
-#playerIntro #profileName.cb-profile-display-name {
-  font-family:Arial,Helvetica,sans-serif!important;
-  font-size:30px!important;
-  font-weight:900!important;
-  font-stretch:normal!important;
-  line-height:1.1!important;
-  letter-spacing:0!important;
-  text-transform:none!important;
-  text-shadow:1px 2px 2px #270005!important;
-}
 /* Career POM count matches the large career-stat numerals. */
 #playerIntro .cb-profile-pom-block .cb-profile-pom-number {
   font-size:30px!important;
@@ -1207,6 +1188,27 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro .profile-achievement-note {
   font-weight:900!important;
   color:#ffe2a4!important;
+}
+/* Player name readability correction: isolated to the player intro only. */
+/* Single authoritative player-name rule. Other profile and match styles are untouched. */
+#playerIntro #profileName.cb-profile-display-name {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  font-stretch: normal !important;
+  font-style: normal !important;
+  font-variation-settings: normal !important;
+  font-feature-settings: normal !important;
+  letter-spacing: 0 !important;
+  line-height: 1.12 !important;
+  text-transform: none !important;
+  transform: none !important;
+  animation: none !important;
+  width: calc(100% - 18px) !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 </style>
 
