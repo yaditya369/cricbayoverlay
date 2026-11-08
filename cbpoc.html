@@ -2945,7 +2945,10 @@ function sumFow(inn){
   if(!x||typeof x!=='object')return '';
   const wicket=x.wicket_number??x.wicket_no??x.wicket??(i+1);
   const score=x.score??x.runs??x.team_score??x.total_runs;
-  const name=x.batter_name??x.batsman_name??x.player_name??x.name??'';
+  // FOW-only first-name formatting; do not alter shared player/team names.
+  const full=String(x.batter_name??x.batsman_name??x.player_name??x.name??'').trim();
+  const first=String(x.batter_first_name??x.batsman_first_name??x.player_first_name??x.first_name??'').trim();
+  const name=first||full.split(/\s+/)[0]||'';
   const over=x.overs_played??x.over??x.overs??x.over_number;
   return score==null?'':`${wicket}-${score}${name?' ('+name+(over!=null?', '+over+' ov':'')+')':(over!=null?' ('+over+' ov)':'')}`;
  }).filter(Boolean);
