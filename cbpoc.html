@@ -1186,6 +1186,29 @@ body.cricbay-score-offline #playerIntro,body.broadcast-match-visible #playerIntr
 #playerIntro .profile-awards-list{grid-column:2;min-width:0}
 #playerIntro .profile-awards-row.achievements-only .profile-awards-list{grid-column:1}
 </style>
+<style id="cb-player-profile-typography-v66">
+/* Scoped exclusively to the player introduction; no scoreboard or summary changes. */
+#playerIntro #profileName.cb-profile-display-name {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:30px!important;
+  font-weight:900!important;
+  font-stretch:normal!important;
+  line-height:1.1!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  text-shadow:1px 2px 2px #270005!important;
+}
+/* Career POM count matches the large career-stat numerals. */
+#playerIntro .cb-profile-pom-block .cb-profile-pom-number {
+  font-size:30px!important;
+  font-weight:900!important;
+  line-height:1.1!important;
+}
+#playerIntro .profile-achievement-note {
+  font-weight:900!important;
+  color:#ffe2a4!important;
+}
+</style>
 
 <script>
 (() => {
