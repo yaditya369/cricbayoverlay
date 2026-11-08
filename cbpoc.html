@@ -2940,17 +2940,31 @@ function sumBowlRow(p){
 function sumFow(inn){
  const sc=inn?.scorecard||{};
  const list=[sc.fall_of_wickets_list,sc.fall_of_wickets,inn?.fall_of_wickets_list,inn?.fall_of_wickets].find(Array.isArray)||[];
+ // FOW-only first-name lookup. No shared batter/bowler styling or names changed.
+ const batters=[sc.batter_details,sc.batting_details,sc.batsmen,sc.batters,inn?.batter_details].find(Array.isArray)||[];
+ const firstByName=new Map();
+ for(const p of batters){
+  if(!p||typeof p!=='object')continue;
+  const full=String(p.batter_name??p.batsman_name??p.player_name??fullName(p)??'').trim();
+  const first=String(p.player_first_name??p.batter_first_name??p.first_name??full.split(/\s+/)[0]??'').trim();
+  if(full&&first)firstByName.set(full.toLowerCase(),first);
+ }
+ const firstName=(name,explicit)=>{
+  const full=String(name??'').trim();
+  return String(explicit??firstByName.get(full.toLowerCase())??full.split(/\s+/)[0]??'').trim();
+ };
  return list.map((x,i)=>{
-  if(typeof x==='string')return x;
+  if(typeof x==='string'){
+   return x.replace(/(\b\d+\s*[-/]\s*\d+\s*\()([^,()]+)(?=\s*,)/,
+    (match,prefix,name)=>prefix+firstName(name));
+  }
   if(!x||typeof x!=='object')return '';
   const wicket=x.wicket_number??x.wicket_no??x.wicket??(i+1);
   const score=x.score??x.runs??x.team_score??x.total_runs;
-  // FOW-only first-name formatting; do not alter shared player/team names.
-  const full=String(x.batter_name??x.batsman_name??x.player_name??x.name??'').trim();
-  const first=String(x.batter_first_name??x.batsman_first_name??x.player_first_name??x.first_name??'').trim();
-  const name=first||full.split(/\s+/)[0]||'';
+  const name=x.batter_name??x.batsman_name??x.player_name??x.name??'';
+  const short=firstName(name,x.player_first_name??x.batter_first_name??x.first_name);
   const over=x.overs_played??x.over??x.overs??x.over_number;
-  return score==null?'':`${wicket}-${score}${name?' ('+name+(over!=null?', '+over+' ov':'')+')':(over!=null?' ('+over+' ov)':'')}`;
+  return score==null?'':`${wicket}-${score}${short?' ('+short+(over!=null?', '+over+' ov':'')+')':(over!=null?' ('+over+' ov)':'')}`;
  }).filter(Boolean);
 }
 function sumExtras(inn){const ex=inn?.scorecard?.extras??inn?.scorecard?.total?.extras; if(ex==null)return '—';if(typeof ex!=='object')return String(ex);return String(ex.total??ex.total_extras??Object.values(ex).filter(x=>Number.isFinite(Number(x))).reduce((a,b)=>a+Number(b),0));}
@@ -2965,9 +2979,11 @@ function sumNextBat(inn,bat,data,n){
  // of the team's cumulative 20-over innings. Retain Next to Bat at 10.0.
  const split=data?.match?.is_split_inning===true||String(data?.match?.is_split_inning).toLowerCase()==='true';
  const phaseEnded=Boolean(inn?.is_completed||inn?.completed||inn?.innings_completed||/complete|finished|ended/i.test(String(inn?.status||'')));
- const ended=wickets>=10||(balls!==null&&balls>=limit*6)
-   ||(!split&&(phaseEnded||(n===2&&score>firstScore)));
- if(ended)return '';
+ // The full innings scorecard can still list unplayed batters after 20.0 overs.
+ // Only suppress Next Batter when the side is all out or the chase was won.
+ // Do not use overs-limit or completed flags here: they hid the row at 20.0.
+ const chaseWon=!split&&n===2&&score>firstScore;
+ if(wickets>=10||chaseWon)return '';
  const name=p=>typeof p==='string'?p:String(p?.batter_name??p?.player_name??p?.name??fullName(p)??'').trim();
  const id=p=>String(p?.player_id??p?.batter_id??p?.id??'').trim();
  const seenIds=new Set(bat.map(id).filter(Boolean)),seenNames=new Set(bat.map(p=>name(p).toLowerCase()).filter(Boolean));
