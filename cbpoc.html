@@ -341,8 +341,12 @@ body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #fffff
   letter-spacing:.5px;max-width:96%;white-space:normal;overflow-wrap:anywhere;
 }
 /* A single-line partnership title, for every partnership threshold. */
+#scoreEvent.event-animation.partnership-celebration{
+  width:min(1320px,98vw);
+}
 #scoreEvent.event-animation.partnership-celebration .event-text{
-  white-space:nowrap;font-size:clamp(28px,4.5vw,64px);letter-spacing:1px;
+  white-space:nowrap;font-size:clamp(42px,5.5vw,84px);letter-spacing:0;
+  font-stretch:normal;transform:none;
 }
 #scoreEvent.event-animation.team-celebration .event-text{
   white-space:nowrap;font-size:clamp(32px,5.3vw,74px);
@@ -361,9 +365,48 @@ body.player-profile-preview #playerIntro .profile-shell{outline:1px solid #fffff
  #scoreEvent.event-animation{height:min(315px,84vh);gap:8px;padding:6px 16px;}
  #scoreEvent.event-animation .event-emoji{font-size:clamp(38px,5vw,58px);}
  #scoreEvent.event-animation .event-text{font-size:clamp(42px,6vw,72px);}
- #scoreEvent.event-animation.partnership-celebration .event-text{font-size:clamp(26px,4vw,50px);}
+ #scoreEvent.event-animation.partnership-celebration .event-text{font-size:clamp(32px,5.3vw,68px);}
  #scoreEvent.event-animation.team-celebration .event-text{font-size:clamp(30px,5vw,62px);}
  #scoreEvent.event-animation.team-celebration .event-subtitle{font-size:clamp(22px,2.7vw,30px);}
+}
+/* v81: boundary and wicket motion fixes; no changes to scoring or milestone logic. */
+#scoreEvent.event-animation.four,
+#scoreEvent.event-animation.six,
+#scoreEvent.event-animation.wicket{
+  height:min(460px,88vh);
+  min-height:0;
+  gap:16px;
+  padding:12px 24px;
+  overflow:visible;
+}
+#scoreEvent.event-animation.four .event-text,
+#scoreEvent.event-animation.six .event-text,
+#scoreEvent.event-animation.wicket .event-text{
+  font-size:clamp(68px,10vw,140px);
+  line-height:1.15;
+  flex-shrink:0;
+  transform:none;
+}
+#scoreEvent.event-animation.four .event-emoji,
+#scoreEvent.event-animation.six .event-emoji,
+#scoreEvent.event-animation.wicket .event-emoji{
+  font-size:clamp(70px,9vw,120px);
+  flex-shrink:0;
+}
+/* WICKET: eliminate the two-cycle emoji shake; retain the existing single title entrance. */
+#scoreEvent.event-animation.wicket .event-emoji{animation:none!important;}
+/* FOUR/SIX: never scale the emoji vertically during their entrance. */
+#scoreEvent.event-animation.four .event-emoji{animation:four-slide 1.2s ease-out both;}
+#scoreEvent.event-animation.six .event-emoji{animation:six-rise 1.6s ease-out both;}
+@keyframes six-rise{
+  0%{transform:translateY(120px);opacity:0}
+  55%{transform:translateY(-35px);opacity:1}
+  100%{transform:translateY(0);opacity:1}
+}
+@media (orientation:landscape) and (max-height:470px){
+ #scoreEvent.event-animation.four,#scoreEvent.event-animation.six,#scoreEvent.event-animation.wicket{height:min(320px,88vh);gap:8px;}
+ #scoreEvent.event-animation.four .event-text,#scoreEvent.event-animation.six .event-text,#scoreEvent.event-animation.wicket .event-text{font-size:clamp(56px,8vw,100px);}
+ #scoreEvent.event-animation.four .event-emoji,#scoreEvent.event-animation.six .event-emoji,#scoreEvent.event-animation.wicket .event-emoji{font-size:clamp(54px,7vw,80px);}
 }
 </style><style>
 /* Stadium: a fifth CricBay theme, no logos. */
@@ -3811,6 +3854,42 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
  const sync=()=>overlay.classList.toggle('cb-profile-footer-away',profile.classList.contains('visible'));
  new MutationObserver(sync).observe(profile,{attributes:true,attributeFilter:['class']});
  sync();
+})();
+</script>
+<style id="cb-v82-summary-footer-motion">
+/* Summary-only footer movement. Preserve the existing player-profile transition. */
+#overlay.cb-summary-footer-away {
+  transform:translateY(calc(100% + var(--offset, 0px) + 8px))!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+/* Older summary themes force opacity:1 or visibility:hidden immediately.
+   Keep the strip renderable while its transform/opacity transition runs. */
+body.modern-summary-visible #overlay.cb-summary-footer-away,
+body.broadcast-match-visible #overlay.cb-summary-footer-away {
+  display:block!important;
+  visibility:visible!important;
+  opacity:0!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #overlay.cb-summary-footer-away{transition:none!important;}
+}
+</style>
+<script id="cb-v82-summary-footer-motion">
+(function(){
+  const footer=document.getElementById('overlay');
+  const legacy=document.getElementById('summaryPanel');
+  if(!footer||!legacy)return;
+  function sync(){
+    const modern=document.body.classList.contains('modern-summary-visible');
+    const legacyMatch=document.body.classList.contains('broadcast-match-visible')
+      &&legacy.classList.contains('broadcast-active')
+      &&legacy.classList.contains('visible');
+    footer.classList.toggle('cb-summary-footer-away',modern||legacyMatch);
+  }
+  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(sync).observe(legacy,{attributes:true,attributeFilter:['class']});
+  sync();
 })();
 </script>
 </body></html>
