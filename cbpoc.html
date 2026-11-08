@@ -1260,6 +1260,17 @@ body.broadcast-match-visible #overlay.theme-marvel .top > .details{
 #cricbayPlayingXI .cbxi-count{text-align:center;padding:3px 8px;color:#ffda86;font-size:11px}
 @media(max-height:500px){#cricbayPlayingXI .cbxi-header{padding:4px 10px}#cricbayPlayingXI .cbxi-columns{padding:5px;gap:5px}#cricbayPlayingXI .cbxi-teamhead{padding:3px 6px}#cricbayPlayingXI .cbxi-roster{padding:2px 6px}#cricbayPlayingXI .cbxi-player{padding:0 4px;font-size:clamp(11px,1.1vw,15px)}}
 </style>
+
+<style id="cricbay-xi-side-entrance-v89">
+/* Playing XI only: opposing panels enter from opposite sides, once per display. */
+#cricbayPlayingXI.cbxi-visible .cbxi-team:first-child{animation:cbxi-enter-left .65s cubic-bezier(.2,.8,.2,1) both}
+#cricbayPlayingXI.cbxi-visible .cbxi-team:last-child{animation:cbxi-enter-right .65s cubic-bezier(.2,.8,.2,1) both}
+#cricbayPlayingXI.cbxi-visible .cbxi-ribbon{animation:cbxi-enter-fade .45s ease-out both}
+@keyframes cbxi-enter-left{from{opacity:0;transform:translateX(-90px)}to{opacity:1;transform:translateX(0)}}
+@keyframes cbxi-enter-right{from{opacity:0;transform:translateX(90px)}to{opacity:1;transform:translateX(0)}}
+@keyframes cbxi-enter-fade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#cricbayPlayingXI.cbxi-visible .cbxi-team,#cricbayPlayingXI.cbxi-visible .cbxi-ribbon{animation:none}}
+</style>
 <style id="cricbay-playing-xi-reference-v85">
 /* Scoped to Playing XI; end-of-match summary remains unchanged. */
 #cricbayPlayingXI .cbxi-shell{width:min(85vw,1480px);max-height:94vh;border:0;background:transparent;box-shadow:none;gap:0;overflow:visible}
@@ -3392,6 +3403,8 @@ function cricbayXIPlayers(data,team,index){
  }
  const best=candidates.sort((a,b)=>Math.abs(a.length-11)-Math.abs(b.length-11))[0]||[];
  const seen=new Set();
+ const captainId=String(inning?.scorecard?.captain_id??'');
+ const keeperId=String(inning?.scorecard?.wicket_keeper_id??'');
  return best.filter(p=>p&&typeof p==='object'&&p.is_playing!==false&&p.isPlaying!==false&&p.in_playing_xi!==false)
   .map(p=>{
    const person=p.player&&typeof p.player==='object'?p.player:{};
@@ -3400,8 +3413,8 @@ function cricbayXIPlayers(data,team,index){
    const keeper=[p.is_wicket_keeper,p.isWicketKeeper,p.is_keeper,p.isKeeper,p.wicket_keeper,p.wicketKeeper,person.is_wicket_keeper,person.isWicketKeeper].some(v=>v===true||v===1||v==='1');
    return {name:String(fullName(p)||p.player_name||p.name||fullName(person)||person.name||'').trim(),
     id:String(p.player_id??p.playerId??person.player_id??p.id??''),
-    captain:captain||/\\bcaptain\\b/.test(roleText),
-    keeper:keeper||/\\bwicket[ -]?keeper\\b|\\bkeeper\\b/.test(roleText)};
+    captain:(captainId?String(p.player_id??p.playerId??person.player_id??p.id??'')===captainId:captain||/\\bcaptain\\b/.test(roleText)),
+    keeper:(keeperId?String(p.player_id??p.playerId??person.player_id??p.id??'')===keeperId:keeper||/\\bwicket[ -]?keeper\\b|\\bkeeper\\b/.test(roleText))};
   })
   .filter(p=>{if(!p.name)return false;const k=p.id||p.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;}).slice(0,11);
 }
@@ -3413,11 +3426,14 @@ function cricbayXIRender(data){
  const panels=teams.map((team,index)=>{
   const name=String(team.team_name||team.short_name||`TEAM ${index+1}`);
   const players=cricbayXIPlayers(data,team,index);
-  const tone=sumTeamColor(name)==='marvel'?'marvel':'other';
+  const marvelIndex=teams.findIndex(t=>/\bmarvel\b/i.test(String(t.team_name||t.short_name||'')));
+  const tone=(marvelIndex>=0?index===marvelIndex:index===0)?'marvel':'other';
   const rows=players.map((p,i)=>`<div class="cbxi-player"><span class="cbxi-number">${i+1}.</span><span class="cbxi-name" title="${sumEsc(p.name)}">${sumEsc(p.name)}${p.captain?' <span class="cbxi-role">(c)</span>':''}${p.keeper?' <span class="cbxi-role">(wk)</span>':''}</span></div>`).join('');
   return `<section class="cbxi-team cbxi-${tone}"><header class="cbxi-teamhead">${sumTeamBadge(name,tone,team)}</header><div class="cbxi-roster">${rows||'<div class="cbxi-pending">Confirmed Playing XI pending</div>'}</div>${players.length&&players.length<11?`<div class="cbxi-count">${players.length} players confirmed</div>`:''}</section>`;
  }).join('');
- cricbayXI.innerHTML=`<div class="cbxi-shell"><header class="cbxi-header"><div class="cbxi-ribbon cbxi-ribbon-title">PLAYING XI</div><div class="cbxi-ribbon cbxi-ribbon-toss">${sumEsc(tossText)}</div></header><div class="cbxi-columns">${panels}</div></div>`;
+ const xiMarkup=`<div class="cbxi-shell"><header class="cbxi-header"><div class="cbxi-ribbon cbxi-ribbon-title">PLAYING XI</div><div class="cbxi-ribbon cbxi-ribbon-toss">${sumEsc(tossText)}</div></header><div class="cbxi-columns">${panels}</div></div>`;
+ // Do not recreate animated panels on every score refresh.
+ if(cricbayXI.innerHTML!==xiMarkup)cricbayXI.innerHTML=xiMarkup;
 }
 function updateSummary(data){
  // Explicit Playing XI preview: bypass the toss/start gate without changing live match state.
