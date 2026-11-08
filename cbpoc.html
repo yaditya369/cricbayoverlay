@@ -3057,7 +3057,7 @@ function renderModernFinal(data){
  const panels=innings.map((inn,i)=>{
   const other=innings[1-i],name=sumName(inn),bat=sumStats(inn).batters,bowl=sumStats(other).bowlers;
   const tone=sumTeamColor(name)==="marvel"?"marvel":(innings.some(x=>sumTeamColor(sumName(x))==="marvel")?"other":(i===0?"marvel":"other"));
-  return `<section class="ms-final-team ms-${tone}"><div class="ms-final-team-head">${sumTeamBadge(name,tone,inn.team)}<strong>${sumEsc(sumScore(inn))}</strong></div><h3>TOP BATTERS</h3>${sumTopRows(bat,'bat')}<h3>TOP BOWLERS</h3>${sumTopRows(bowl,'bowl')}</section>`;
+  return `<section class="ms-final-team ms-${tone}"><div class="ms-final-team-head">${sumTeamBadge(name,tone,inn.team)}<strong class="ms-final-score-value">${sumEsc(sumScore(inn))}</strong></div><h3>TOP BATTERS</h3>${sumTopRows(bat,'bat')}<h3>TOP BOWLERS</h3>${sumTopRows(bowl,'bowl')}</section>`;
  }).join('');
  const pom=currentPom(data);
  modernRoot.innerHTML=`<div class="ms-shell ms-final"><header class="ms-reference-header ms-reference-final"><div class="ms-reference-title">MATCH SUMMARY</div><div class="ms-reference-team ms-result-ribbon">${sumEsc(getMatchResult(data)||'MATCH COMPLETED')}</div></header><div class="ms-final-columns">${panels}</div>${pom?`<div class="ms-pom"><span>🏆 PLAYER OF THE MATCH</span><strong>${sumEsc(sumShortName(pom,42))}</strong></div>`:''}</div>`;
@@ -3556,5 +3556,47 @@ body.modern-summary-visible #overlay,body.modern-summary-visible #summaryPanel,b
 #cricbayModernSummary .ms-over .ms-card>.ms-chase{display:flex!important;flex:0 0 auto!important;gap:clamp(7px,1.6vw,22px)!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;min-height:0!important;margin:0!important;padding:3px 6px!important;border-left:0!important;border-right:0!important;}
 #cricbayModernSummary .ms-over .ms-columns{margin-top:0!important;}
 @media(max-height:500px){#cricbayModernSummary .ms-over .ms-reference-header.ms-focus-only{height:34px!important;flex-basis:34px!important;margin-bottom:2px!important;}}
+</style>
+
+<style id="cricbay-v46-final-match-summary-only">
+/* Only the completed-match view. Never modify shared .ms-team-label or other summary modes. */
+#cricbayModernSummary .ms-shell.ms-final{
+  height:auto!important;
+  min-height:0!important;
+  max-height:min(76vh,550px)!important;
+  gap:0!important;
+  overflow:visible!important;
+}
+#cricbayModernSummary .ms-shell.ms-final .ms-final-columns{
+  flex:0 0 auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+  align-items:stretch!important;
+}
+#cricbayModernSummary .ms-shell.ms-final .ms-final-team{
+  min-height:0!important;
+  height:auto!important;
+  padding-bottom:4px!important;
+}
+#cricbayModernSummary .ms-shell.ms-final .ms-final-team-head .ms-team-label{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(17px,2.15vw,29px)!important;
+  font-weight:900!important;
+  line-height:1.12!important;
+  letter-spacing:0!important;
+}
+#cricbayModernSummary .ms-shell.ms-final .ms-final-team-head .ms-final-score-value{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(18px,2.3vw,31px)!important;
+  font-weight:900!important;
+  line-height:1.1!important;
+  font-variant-numeric:tabular-nums!important;
+}
+@media (orientation:landscape) and (max-height:500px){
+ #cricbayModernSummary .ms-shell.ms-final{max-height:82vh!important;}
+ #cricbayModernSummary .ms-shell.ms-final .ms-final-team-head{min-height:37px!important;padding:3px 8px!important;gap:6px!important;}
+ #cricbayModernSummary .ms-shell.ms-final .ms-final-team-head .ms-team-label{font-size:clamp(17px,2vw,25px)!important;}
+ #cricbayModernSummary .ms-shell.ms-final .ms-final-team-head .ms-final-score-value{font-size:clamp(18px,2.2vw,27px)!important;}
+}
 </style>
 </body></html>
