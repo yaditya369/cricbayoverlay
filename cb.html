@@ -3374,7 +3374,16 @@ function renderModernOver(data,n){
  const maxOvers=Number(data.match?.max_overs??data.match?.maximum_overs??20);
  const ballsLeft=Math.max(0,maxOvers*6-ballsBowled);const need=Math.max(0,target-runs);
  const nextBatter=sumNextBat(inn,bat,data,n);
- const chase=n===2?`<div class="ms-chase"><span>TARGET <b>${target}</b></span><span>NEED <b>${need}</b></span><span>BALLS <b>${ballsLeft}</b></span><span>RRR <b>${ballsLeft?(need*6/ballsLeft).toFixed(2):'—'}</b></span></div>`:'';
+ // Only the full-scorecard chase strip is phase-gated for split innings.
+ // Normal matches retain the existing second-innings behavior unchanged.
+ const splitChase=data.match?.is_split_inning===true||String(data.match?.is_split_inning).toLowerCase()==='true';
+ const splitLimit=Number(data.match?.split_inning_over)||10;
+ const firstInning=sumInning(data,1),secondInning=sumInning(data,2);
+ const firstBalls=inningsBalls(firstInning?.overs??firstInning?.scorecard?.total?.total_overs);
+ const activeSecond=secondInning?.inning_id!=null&&String(data.match?.current_inning_id)===String(secondInning.inning_id);
+ const segment=Number(data.current?.segment_number??data.current?.split_inning_number??data.match?.current_segment_number??data.match?.current_split_inning_number);
+ const showChase=n===2&&(!splitChase||(activeSecond&&(segment===4||(firstBalls!==null&&firstBalls>splitLimit*6))));
+ const chase=showChase?`<div class="ms-chase"><span>TARGET <b>${target}</b></span><span>NEED <b>${need}</b></span><span>BALLS <b>${ballsLeft}</b></span><span>RRR <b>${ballsLeft?(need*6/ballsLeft).toFixed(2):'—'}</b></span></div>`:'';
  let batColor=sumTeamColor(batName),bowlColor=sumTeamColor(bowlName);if(batColor===bowlColor)batColor="marvel";
  modernRoot.innerHTML=`<div class="ms-shell ms-over ms-innings-${n}"><header class="ms-reference-header ms-focus-only"><div class="ms-reference-title ms-${batColor}">${sumEsc(batName)} INNINGS</div></header><div class="ms-columns"><section class="ms-card ms-${batColor}"><h2>${sumEsc(batName)} INNINGS – ${sumEsc(sumScore(inn))}</h2>${chase}<div class="ms-bat-row ms-th"><span>BATTER / DISMISSAL</span><span>R</span><span>B</span><span>4</span><span>6</span><span>SR</span></div><div class="ms-bat-body">${bat.length?bat.map(sumBatRow).join(''):'<div class="ms-empty">Batting data pending</div>'}</div>${sumTotalStrip(inn)}${nextBatter?`<div class="ms-next">NEXT BATTER: <strong>${sumEsc(nextBatter)}</strong></div>`:''}</section><section class="ms-card ms-${bowlColor}"><h2>${sumEsc(bowlName)} · BOWLING</h2><div class="ms-bowl-row ms-th"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div><div class="ms-bowl-body">${bowl.length?bowl.map(sumBowlRow).join(''):'<div class="ms-empty">Bowling data pending</div>'}</div>${sumPowerplayTable(inn)}${fow.length?sumFowTable(inn):''}</section></div></div>`;
 }
